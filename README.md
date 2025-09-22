@@ -1,4 +1,4 @@
-# HSC Maths Extension 1 & 2 Equation Tool
+# HSC Maths Extension 1 & 2 Word and Notion Latex Equation Tool
 
 A simple web app to type, preview, and copy maths equations for **HSC Extension 1 and Extension 2**.  
 Designed to help **students and teachers** easily work with equations in **Microsoft Word** and **Notion (LaTeX)**.
