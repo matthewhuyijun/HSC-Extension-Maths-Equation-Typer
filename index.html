@@ -27,6 +27,11 @@
     #tests{padding:10px;border-top:1px solid #ccc;background:#fff;font:12px/1.4 ui-monospace,Consolas,monospace}
     #tests button{padding:6px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer}
     #log{white-space:pre-wrap}
+
+    /* Added: Hide MathLive toolbar icons and features */
+    math-field::part(virtual-keyboard-toggle) { display: none !important; }
+    math-field::part(menu-toggle) { display: none !important; }
+    math-field::part(toolbar) { display: none !important; }
   </style>
   <script>
     window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
@@ -45,7 +50,7 @@
   <div id="editorWrap">
     <div class="editor">
       <label><strong>Rendered Input (Editable – MathLive)</strong></label>
-      <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-policy="manual" remove-extraneous-parentheses="on"></math-field>
+      <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="off" remove-extraneous-parentheses="on"></math-field>
     </div>
     <div class="editor">
       <label><strong>Raw LaTeX Input</strong><button id="copyBtn" class="copyBtn">Copy LaTeX</button></label>
@@ -102,8 +107,8 @@
         w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
         w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
         w = w.replace(/\\operatorname\{proj\}_([A-Za-z])\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-        w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
-        w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
+        w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
+        w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
         w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, function(match, inside) {
             let content = inside.trim().replace(/\\*$/, '') + '\\\\';
             return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
@@ -178,7 +183,11 @@
         if (!window.MathfieldElement || !mf2) return;
         mf2.setOptions({
             mathModeSpace: '\\:',
-            removeExtraneousParentheses: true
+            removeExtraneousParentheses: true,
+            virtualKeyboardMode: 'off',
+            virtualKeyboards: '', // Added: Disable all virtual keyboards
+            virtualKeyboardToggleEnabled: false, // Added: Hide keyboard toggle icon
+            inlineShortcutToolbar: false // Added: Disable inline toolbar/menu
         });
 
         let isArmedForDeletion = false; // Tracks "armed" state for double-tap deletion
