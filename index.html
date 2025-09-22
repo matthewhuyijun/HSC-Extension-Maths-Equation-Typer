@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HSC Ext 2 – Visual Math Printer (Dual Inputs with Vectors)</title>
+  <style>
+    body{font-family:sans-serif;margin:0;padding:0;background:#f8fafc;color:#111}
+    header{padding:10px;background:#2563eb;color:#fff;display:flex;justify-content:space-between;align-items:center}
+    #status{font-size:12px;margin-left:10px}
+    #preview{padding:10px;min-height:60px;border-bottom:1px solid #ccc;background:#fff}
+    #editorWrap{padding:10px}
+    .editor{margin-bottom:10px;position:relative}
+    .editor label{display:flex;justify-content:flex-start;align-items:center;margin-bottom:4px;gap:8px}
+    .editor button.copyBtn{margin-left:0;font-size:11px;padding:2px 8px;}
+    math-field, textarea{width:100%;min-height:100px;font-size:20px;padding:8px;border:1px solid #ccc;border-radius:6px;display:block;background:#fff}
+    math-field .ML__paren.ML__delim { min-height: 100% !important; }
+    math-field .ML__matrix { position: relative; }
+    math-field .ML__matrix .ML__delim { height: 100% !important; }
+    #keyboard{padding:10px;background:#e2e8f0}
+    .tabs{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
+    .tab{padding:6px 10px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#fff}
+    .tab.active{background:#2563eb;color:#fff}
+    .keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+    .key{padding:8px;border:1px solid #ccc;border-radius:10px;cursor:pointer;background:#fff;outline:none;min-height:88px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
+    .key mjx-container{font-size:24px; max-width: 100%;}
+    .selector{font-size:12px;position:absolute;top:4px;right:4px;z-index:10;}
+    #tests{padding:10px;border-top:1px solid #ccc;background:#fff;font:12px/1.4 ui-monospace,Consolas,monospace}
+    #tests button{padding:6px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer}
+    #log{white-space:pre-wrap}
+  </style>
+  <script>
+    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+    window.whenMathJaxReady = window.whenMathJaxReady || function(){};
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
+</head>
+<body>
+  <header>
+    <h1>HSC Ext 2 – Visual Math Printer</h1>
+    <div id="status">Loading editor…</div>
+  </header>
+
+  <div id="preview"></div>
+
+  <div id="editorWrap">
+    <div class="editor">
+      <label><strong>Rendered Input (Editable – MathLive)</strong></label>
+      <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-policy="edit" remove-extraneous-parentheses="on"></math-field>
+    </div>
+    <div class="editor">
+      <label><strong>Raw LaTeX Input</strong><button id="copyBtn" class="copyBtn">Copy LaTeX</button></label>
+      <textarea id="ta" placeholder="Fallback LaTeX input…"></textarea>
+    </div>
+    <div class="editor">
+      <label><strong>Word Equation</strong><button id="copyWordBtn" class="copyBtn">Copy Word Equation</button></label>
+      <textarea id="wordOut" placeholder="Word equation output…"></textarea>
+    </div>
+  </div>
+
+  <div id="keyboard">
+    <div class="tabs" id="tabs"></div>
+    <div class="keys" id="keys" tabindex="0"></div>
+  </div>
+
+  <div id="tests">
+    <button id="run">Run tests</button>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    /* ---------------- Utilities ---------------- */
+    function mjxTypeset(el, tries=0){
+      if(!window.MathJax){ if(tries<200) { setTimeout(()=>mjxTypeset(el,tries+1),25); return; } else { return; } }
+      const MJ=window.MathJax;
+      if(MJ && typeof MJ.typeset==='function') { MJ.typeset([el]); }
+      else if(MJ && typeof MJ.typesetPromise==='function') { MJ.typesetPromise([el]); }
+      else if(tries<200) { setTimeout(()=>mjxTypeset(el,tries+1),25); }
+    }
+
+    const ta=document.getElementById('ta');
+    const mf2=document.getElementById('mf2');
+    const preview=document.getElementById('preview');
+    const status=document.getElementById('status');
+    const keysEl=document.getElementById('keys');
+    const wordOut=document.getElementById('wordOut');
+
+    /* ---------- LaTeX <-> Word Equation Conversion ---------- */
+    function toWordEquation(latex) {
+        let w = String(latex ?? '');
+        w = w.replace(/\\operatorname\{cis\}\(([^)]+)\)/g, '(\\cos($1)+i\\sin($1))');
+        w = w.replace(/\\differentialD\s?/g, 'd');
+        w = w.replace(/\\implies/g, '\\Longrightarrow');
+        w = w.replace(/\\lvert(.*?)\\rvert/g, '\\left|$1\\right|');
+        w = w.replace(/\\operatorname\{proj\}_\{\\underset\{\\sim\}\{([^}]*)\}\}\s*\\underset\{\\sim\}\{([^}]*)\}/g, '{\\rm proj}_{$1\\below\\sim} $2\\below\\sim');
+        w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
+        w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
+        w = w.replace(/\\operatorname\{proj\}_([A-Za-z])\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
+        w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
+        w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
+        w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, function(match, inside) {
+            let content = inside.trim().replace(/\\*$/, '') + '\\\\';
+            return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
+        });
+        w = w.replace(/\\underset\{\\sim\}\{([^}]+)\}/g, '$1\\below\\sim');
+        w = w.replace(/\\underset\{([^}]+)\}\{([^}]+)\}/g, '$2\\below$1');
+        w = w.replace(/\\operatorname\{([^}]+)\}/g, '{\\rm $1}');
+        return w;
+    }
+
+    function fromWordEquation(word) {
+        let latex = String(word ?? '');
+        latex = latex.replace(/{\\rm proj}_{([^{}]*?)\\below\\sim}\s*([^{}]*?)\\below\\sim/g, '\\operatorname{proj}_{\\underset{\\sim}{$1}} \\underset{\\sim}{$2}');
+        latex = latex.replace(/(\w+)\\below\\sim/g, '\\underset{\\sim}{$1}');
+        latex = latex.replace(/([^{}\s]+)\\below([^{}\s]+)/g, '\\underset{$2}{$1}');
+        latex = latex.replace(/{\\rm ([^}]+)}/g, '\\operatorname{$1}');
+        latex = latex.replace(/\\Longrightarrow/g, '\\implies');
+        latex = latex.replace(/\\left\(\\begin{matrix}([\s\S]*?)\\end{matrix}\\right)/g, function(match, inside) {
+            let content = inside.trim().replace(/\\\\s*$/, '').trim(); 
+            return '\\begin{pmatrix}' + content + '\\end{pmatrix}';
+        });
+        return latex;
+    }
+
+    function sync(options) {
+        const source = options?.source;
+        let latex;
+
+        if (source === 'mathlive') {
+            const rawLatex = mf2.getValue('latex');
+            latex = rawLatex.replace(/\\differentialD\s?/g, 'd');
+        } else if (source === 'textarea') {
+            latex = ta.value;
+        } else if (source === 'word') {
+            latex = fromWordEquation(wordOut.value);
+        } else {
+            latex = mf2.getValue('latex') || ta.value || '';
+        }
+
+        if (source !== 'mathlive' && mf2.getValue() !== latex) {
+            mf2.setValue(latex, {suppressChangeNotifications: true});
+        }
+        if (source !== 'textarea' && ta.value !== latex) {
+            ta.value = latex;
+        }
+        const wordVersion = toWordEquation(latex);
+        if (source !== 'word' && wordOut.value !== wordVersion) {
+            wordOut.value = wordVersion;
+        }
+
+        preview.innerHTML = '$$' + latex + '$$';
+        mjxTypeset(preview);
+    }
+    
+    function insertLatex(x){
+      try{
+          if(mf2.executeCommand){ 
+            mf2.executeCommand('insert', x); 
+          } else if(mf2.insert){ 
+            mf2.insert(x); 
+          } else { 
+            mf2.value = (mf2.value||'') + x; 
+            sync({source: 'mathlive'}); // Fallback needs manual sync
+          }
+      } catch(e) {
+        console.error("MathLive insertion failed:", e);
+      }
+      // If executeCommand succeeds, it fires an 'input' event, which triggers sync.
+    }
+    
+    mf2.addEventListener('input', () => sync({source: 'mathlive'}));
+    ta.addEventListener('input', () => sync({source: 'textarea'}));
+    wordOut.addEventListener('input', () => sync({source: 'word'}));
+
+
+    /* ---------- Cleanup: delete object when all boxes emptied ---------- */
+    function normalizeLatexStr(L) {
+        try {
+            const EMPTY_SLOT = String.raw`\s*(?:\\placeholder\{\})?\s*`;
+            const EMPTY_BRACE = String.raw`\{${EMPTY_SLOT}\}`;
+            L = L.replace(new RegExp(String.raw`\\frac${EMPTY_BRACE}${EMPTY_BRACE}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\sqrt${EMPTY_BRACE}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\sqrt\[${EMPTY_SLOT}\]${EMPTY_BRACE}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\(dot|ddot)${EMPTY_BRACE}`, "g"), "");
+            const rm = (open, close) => new RegExp(String.raw`\\left\s*${open}${EMPTY_SLOT}\\right\s*${close}`, 'g');
+            L = L.replace(rm('\\(', '\\)')).replace(rm('\\[', '\\]')).replace(rm('\\{', '\\\\}')).replace(rm('\\|', '\\|'));
+            L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}(?:d[a-zA-Z]+)?`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\(sum|prod)_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\(sum|prod)_\{n=${EMPTY_SLOT}\}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+            L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
+        } catch (e) {
+            console.warn('normalizeLatexStr normalization failed', e);
+        }
+        return L;
+    }
+
+    function cleanupEmptyStructures(){ 
+      try{ 
+        const b = mf2.getValue('latex')||'';
+        const a = normalizeLatexStr(b); 
+        if(a !== b){ 
+            mf2.setValue(a); // This will trigger an input event and sync
+        } 
+      }catch(e){console.warn('cleanup failed',e)} 
+    }
+    
+    function configureMathLive() {
+        if (!window.MathfieldElement || !mf2) return;
+        mf2.setOptions({
+            mathModeSpace: '\\:'
+        });
+
+        let isReadyToDeleteParent = false;
+
+        mf2.addEventListener('keydown', (ev) => {
+            if (ev.key !== 'Backspace') {
+                isReadyToDeleteParent = false;
+            }
+        });
+        mf2.addEventListener('beforeinput', (ev) => {
+            if (ev.inputType !== 'deleteContentBackward') {
+                isReadyToDeleteParent = false;
+            }
+            if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
+                if (tryDeleteAtomicObject(ev.inputType === 'deleteContentBackward' ? 'back' : 'fwd')) {
+                    ev.preventDefault();
+                }
+            }
+        });
+        mf2.addEventListener('focus', () => { isReadyToDeleteParent = false; });
+        mf2.addEventListener('blur', () => {
+            cleanupEmptyStructures();
+            isReadyToDeleteParent = false;
+        });
+        mf2.addEventListener('move-out', () => {
+            cleanupEmptyStructures();
+            isReadyToDeleteParent = false;
+        });
+
+        mf2.addEventListener('keydown', (ev) => {
+            if (ev.key !== 'Backspace') return;
+
+            const sel = mf2.selection;
+            if (!sel.isCollapsed) return;
+            const atomBefore = mf2.model.at(sel.start - 1);
+            if (!atomBefore || atomBefore.type !== 'placeholder' || sel.start !== atomBefore.range.end) {
+                return;
+            }
+            ev.preventDefault();
+            const originalPos = sel.start;
+            mf2.executeCommand('moveToPreviousPlaceholder');
+            const newPos = mf2.selection.start;
+            if (newPos < originalPos) {
+                isReadyToDeleteParent = false;
+            } else {
+                mf2.selection = sel;
+                if (isReadyToDeleteParent) {
+                    mf2.executeCommand('selectGroup');
+                    mf2.executeCommand('delete');
+                    isReadyToDeleteParent = false;
+                } else {
+                    isReadyToDeleteParent = true;
+                }
+            }
+        });
+        
+        mf2.addEventListener('selection-did-change', () => {
+            try {
+                const sel = mf2.selection;
+                if (!sel.isCollapsed || sel.start === 0) return;
+                const path = mf2.model.getPath(sel.start);
+                if (path.length < 2) return;
+                const parent = path[path.length - 2];
+                if (parent.type === 'underset' && parent.subscript?.length > 0) {
+                     const subAtom = parent.subscript[0];
+                     const isProtectedTilde = subAtom.command === 'sim' || subAtom.value === '~';
+                     if (isProtectedTilde) {
+                        const atom = path[path.length - 1];
+                        if (atom.branch === 'subscript') {
+                            mf2.model.position = parent.range.start;
+                        }
+                     }
+                }
+            } catch (e) {
+                // Ignore minor errors
+            }
+        });
+
+        function tryDeleteAtomicObject(direction) {
+            try {
+                const S = '\uE000';
+                mf2.executeCommand('insert', S, {suppressChangeNotifications: true});
+                const withSentinel = mf2.getValue('latex') || '';
+                mf2.executeCommand('undo', {suppressChangeNotifications: true});
+
+                const idx = withSentinel.indexOf(S);
+                if (idx === -1) return false;
+
+                const left = withSentinel.slice(0, idx);
+                const right = withSentinel.slice(idx + S.length);
+
+                const atomicPatternEnd = /\\underset\{\\sim\}\{[a-zA-Z]\}$/;
+                const atomicPatternStart = /^\\underset\{\\sim\}\{[a-zA-Z]\}/;
+
+                if (direction === 'back') {
+                    const match = left.match(atomicPatternEnd);
+                    if (match) {
+                        mf2.setValue(left.slice(0, left.length - match[0].length) + right);
+                        return true;
+                    }
+                }
+
+                if (direction === 'fwd') {
+                    const match = right.match(atomicPatternStart);
+                    if (match) {
+                        mf2.setValue(left + right.slice(match[0].length));
+                        return true;
+                    }
+                }
+                return false;
+            } catch (e) { return false; }
+        }
+    }
+    
+    /* ---------------- Keyboard (tabs + keys) ---------------- */
+    const tabs=[{id:'calc',label:'Calculus'},{id:'func',label:'Functions'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
+    const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
+    function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
+    
+    const layouts={
+        calc:[
+            {display:'\\int_{\\square}^{\\square} \\square\\,dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{} dx'},
+            {display:'\\int \\square\\,dx', insert:'\\int \\placeholder{} dx'},
+            {display:'\\sum_{n=\\square}^{\\square} \\square',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
+            {display:'\\prod_{n=\\square}^{\\square} \\square',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
+            {display:'\\lim_{x\\to\\square} \\square',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
+            {display:'\\frac{d}{dx}(\\square)',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'},
+            {display:'\\left.\\square\\right|_{\\square}^{\\square}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
+            {display:'\\sqrt{\\square}',insert:'\\sqrt{\\placeholder{}}'},
+            {display:'\\sqrt[\\square]{\\square}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}'}
+        ],
+        func:[{display:'\\sin(\\square)',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\square)',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\square)',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\square)',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\square)',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\square)',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\square)',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\square}(\\square)',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\square}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\square \\rvert',insert:'\\lvert \\placeholder{} \\rvert'}],
+        sym:[
+            {display:'>',insert:'>'},
+            {display:'<',insert:'<'},
+            {display:'\\geq',insert:'\\geq'},
+            {display:'\\leq',insert:'\\leq'},
+            {display:'\\pm', insert:'\\pm'},
+            {display:'\\angle', insert: '\\angle'},
+            {display:'^{\\circ}', insert:'^{\\circ}'},
+            {display:'\\infty',insert:'\\infty'},
+            {display:'\\neq',insert:'\\neq'},
+            {display:'\\approx',insert:'\\approx'},
+            {display:'\\equiv',insert:'\\equiv'},
+            {display:'\\to',insert:'\\to'},
+            {display:'\\implies',insert:'\\implies'},
+            {display:'\\iff',insert:'\\iff'}
+        ],
+        vec:[
+            vectorKey('\\vec','v',['v','u','w','r','a']),
+            vectorKey('\\dot','x',['x','y','z','r','v']),
+            vectorKey('\\ddot','x',['x','y','z','r','a']),
+            {display:'\\operatorname{proj}_{\\underset{\\sim}{\\square}}\\underset{\\sim}{\\square}',insert:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}'},
+            {
+                isSelectable: true,
+                base: '\\underset{\\sim}',
+                currentVar: '\\placeholder{}',
+                insert: '\\underset{\\sim}{\\placeholder{}}',
+                display: '\\underset{\\sim}{\\square}',
+                options: [
+                    { value: '\\placeholder{}', text: '□' },
+                    'a','b','c','u','v','w','r',
+                    ...allLetters.filter(l => !['a','b','c','u','v','w','r'].includes(l))
+                ]
+            },
+            {display:'\\underset{\\sim}{i}',insert:'\\underset{\\sim}{i}'},
+            {display:'\\underset{\\sim}{j}',insert:'\\underset{\\sim}{j}'},
+            {display:'\\underset{\\sim}{k}',insert:'\\underset{\\sim}{k}'},
+            {display:'\\begin{pmatrix} \\square \\\\ \\square \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
+            {display:'\\begin{pmatrix} \\square \\\\ \\square \\\\ \\square \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'}
+        ],
+        greek:[{display:'\\alpha',insert:'\\alpha'},{display:'\\beta',insert:'\\beta'},{display:'\\gamma',insert:'\\gamma'},{display:'\\delta',insert:'\\delta'},{display:'\\theta',insert:'\\theta'},{display:'\\lambda',insert:'\\lambda'},{display:'\\mu',insert:'\\mu'},{display:'\\sigma',insert:'\\sigma'},{display:'\\omega',insert:'\\omega'},{display:'\\Delta',insert:'\\Delta'}],
+        complex:[
+            {
+                isSelectable: true,
+                keyType: 'cis',
+                currentVar: '\\theta',
+                display: '\\operatorname{cis}(\\theta)',
+                insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+            },
+            {
+                isSelectable: true,
+                keyType: 'cos-isin',
+                currentVar: '\\theta',
+                display: '\\cos(\\theta)+i\\sin(\\theta)',
+                insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+            },
+            {display:'|z|',insert:'|z|'},
+            {display:'arg(z)',insert:'arg(z)'},
+            {display:'\\overline{z}',insert:'\\overline{z}'},
+            {display:'Re(z)',insert:'Re(z)'},
+            {display:'Im(z)',insert:'Im(z)'},
+            
+        ],
+        sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}]
+    };
+
+    function buildTabs(){const a=document.getElementById('tabs');a.innerHTML='';tabs.forEach(c=>{const b=document.createElement('div');b.textContent=c.label;b.className='tab';b.onclick=()=>activateTab(c.id);a.appendChild(b)});activateTab('calc')}
+    function buildKeys(c) {
+        const a = document.getElementById('keys');
+        a.innerHTML = '';
+        (layouts[c] || []).forEach((d, e) => {
+            if (d.isSelectable) {
+                const f = document.createElement('div');
+                f.className = 'key';
+                f.setAttribute('data-idx', e);
+                f.tabIndex = 0 === e ? 0 : -1;
+                
+                const mathContent = document.createElement('div');
+                const selector = document.createElement('select');
+                selector.className = 'selector';
+
+                d.options.forEach(opt => {
+                    const h = document.createElement('option');
+                    let val, txt;
+                    if (typeof opt === 'object' && opt.value !== undefined) {
+                        val = opt.value;
+                        txt = opt.text;
+                    } else {
+                        val = opt;
+                        txt = opt;
+                    }
+                    h.value = val;
+                    h.innerHTML = val;
+                    if (val === d.currentVar) h.selected = true;
+                    selector.appendChild(h);
+                });
+
+                ['click', 'mousedown', 'touchstart'].forEach(i => {
+                    selector.addEventListener(i, h => h.stopPropagation(), {
+                        capture: true
+                    })
+                });
+                
+                selector.addEventListener('change', i => {
+                    d.currentVar = i.target.value;
+                    const currentVal = d.currentVar;
+
+                    if (d.keyType === 'cis') {
+                        d.insert = `\\cos(${currentVal})+i\\sin(${currentVal})`;
+                        d.display = `\\operatorname{cis}(${currentVal})`;
+                    } else if (d.keyType === 'cos-isin') {
+                        d.insert = `\\cos(${currentVal})+i\\sin(${currentVal})`;
+                        d.display = d.insert;
+                    } else { 
+                        d.insert = `${d.base}{${currentVal}}`;
+                        d.display = (currentVal === '\\placeholder{}') ? `${d.base}{\\square}` : `${d.base}{${currentVal}}`;
+                    }
+                    
+                    mathContent.innerHTML = '$$' + d.display + '$$';
+                    mjxTypeset(mathContent);
+                });
+                
+                mathContent.innerHTML = '$$' + d.display + '$$';
+                f.addEventListener('click', i => { i.target !== selector && insertLatex(d.insert) });
+
+                f.appendChild(mathContent);
+                f.appendChild(selector);
+                a.appendChild(f)
+            } else {
+                const f = document.createElement('button');
+                f.type = 'button';
+                f.className = 'key';
+                f.setAttribute('data-idx', e);
+                f.tabIndex = 0 === e ? 0 : -1;
+                f.innerHTML = '$$' + d.display + '$$';
+                f.addEventListener('click', () => insertLatex(d.insert));
+                a.appendChild(f)
+            }
+        });
+        mjxTypeset(a)
+    }
+    function activateTab(a){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));const c=tabs.find(b=>b.id===a);document.querySelectorAll('.tab').forEach(b=>{c&&b.textContent===c.label&&b.classList.add('active')});buildKeys(a)}
+    let currentIndex=0;function focusCurrentKey(){const a=[...document.querySelectorAll('.key')];a.forEach((b,c)=>{b.tabIndex=c===currentIndex?0:-1});const b=a[currentIndex];b&&b.focus()}keysEl.addEventListener('keydown',a=>{const b=[...document.querySelectorAll('.key')];if(b.length){if('ArrowRight'===a.key){a.preventDefault();currentIndex=(currentIndex+1)%b.length;focusCurrentKey()}else if('ArrowLeft'===a.key){a.preventDefault();currentIndex=(currentIndex-1+b.length)%b.length;focusCurrentKey()}else if('Enter'===a.key||' '===a.key){a.preventDefault();b[currentIndex].click()}}});buildTabs();
+
+    /* ---------------- Load MathLive ---------------- */
+    async function loadMathLive(){const a=['https://unpkg.com/mathlive/dist/mathlive.core.css','https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.core.css'],b=['https://unpkg.com/mathlive/dist/mathlive.css','https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.css'],c=['https://unpkg.com/mathlive/dist/mathlive.min.js','https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js'];let d=!1;for(const e of a)try{await(new Promise((f,g)=>{const h=document.createElement('link');h.rel='stylesheet';h.href=e;h.onload=()=>f(!0);h.onerror=()=>g();document.head.appendChild(h)}));d=!0;break}catch(f){}for(const e of b)try{await(new Promise((f,g)=>{const h=document.createElement('link');h.rel='stylesheet';h.href=e;h.onload=()=>f(!0);h.onerror=()=>g();document.head.appendChild(h)}));break}catch(f){}for(const e of c)try{await(new Promise((f,g)=>{const h=document.createElement('script');h.src=e;h.defer=!0;h.onload=()=>f(!0);h.onerror=()=>g();document.head.appendChild(h)}));d=!0;status.textContent='MathLive from '+e;break}catch(f){}return d}
+    
+    // REVISED: Robust initialization using customElements.whenDefined to prevent race conditions.
+    (async () => {
+      const loaded = await loadMathLive();
+      if (loaded) {
+        // Wait until the 'math-field' element is fully defined and ready.
+        customElements.whenDefined('math-field').then(() => {
+          status.textContent = 'MathLive ready';
+          configureMathLive(); // Now it's safe to configure it.
+          sync();              // Now it's safe to do the initial sync.
+        }).catch(err => {
+          status.textContent = 'Error initializing MathLive component.';
+          console.error(err);
+        });
+      } else {
+        status.textContent = 'Fallback mode. MathLive failed to load.';
+        sync(); // Attempt a sync for the textareas.
+      }
+    })();
+
+    /* ---------------- Copy buttons ---------------- */
+    async function copyToClipboard(a,b){try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(a);status.textContent=`Copied ${b} ✓`;return}}catch(c){console.warn('clipboard API failed',c)}const d=document.createElement('textarea');d.value=a;d.setAttribute('readonly','');d.style.position='fixed';d.style.left='-9999px';document.body.appendChild(d);d.select();try{document.execCommand('copy');status.textContent=`Copied ${b} ✓`}catch(c){status.textContent=`Copy ${b} failed`}finally{document.body.removeChild(d)}}
+    document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(ta.value??'','LaTeX'));
+    document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+
+    /* ---------- Tests ---------- */
+    function log(a){const b=document.getElementById('log');b.textContent+=(b.textContent?'\n':'')+a}function clearLog(){document.getElementById('log').textContent=''}
+    function runTests(){clearLog();activateTab('vec');const a=document.querySelector('.key select');if(!a){log('FAIL: No selector key found on "Vectors" tab.');return}log('Running tests on a selectable key...');log(26<=a.options.length?'PASS: selector contains at least 26 letters':'FAIL: selector size = '+a.options.length);const b=ta.value,c=a.value;a.value='v'===a.value?'u':'v';a.dispatchEvent(new Event('change',{bubbles:!0}));log(b===ta.value?'PASS: change selection does not insert':'FAIL: selection triggered insertion');const d=ta.value;a.parentElement&&a.parentElement.click();log(ta.value.length>d.length?'PASS: clicking key inserts':'FAIL: clicking key did not insert');a.value=c;a.dispatchEvent(new Event('change',{bubbles:!0}));activateTab('calc')}
+    document.getElementById('run').addEventListener('click',runTests);
+  </script>
+
+</body>
+</html>
