@@ -45,7 +45,7 @@
   <div id="editorWrap">
     <div class="editor">
       <label><strong>Rendered Input (Editable – MathLive)</strong></label>
-      <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-policy="edit" remove-extraneous-parentheses="on"></math-field>
+      <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-policy="manual" remove-extraneous-parentheses="on"></math-field>
     </div>
     <div class="editor">
       <label><strong>Raw LaTeX Input</strong><button id="copyBtn" class="copyBtn">Copy LaTeX</button></label>
@@ -53,7 +53,7 @@
     </div>
     <div class="editor">
       <label><strong>Word Equation</strong><button id="copyWordBtn" class="copyBtn">Copy Word Equation</button></label>
-      <textarea id="wordOut" placeholder="Word equation output…"></textarea>
+      <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
     </div>
   </div>
 
@@ -84,7 +84,9 @@
     const keysEl=document.getElementById('keys');
     const wordOut=document.getElementById('wordOut');
 
-    /* ---------- LaTeX <-> Word Equation Conversion ---------- */
+    function getLatex(){ return ta.value; }
+
+    /* ---------- LaTeX -> Word Equation conversion ---------- */
     function toWordEquation(latex) {
         let w = String(latex ?? '');
         w = w.replace(/\\operatorname\{cis\}\(([^)]+)\)/g, '(\\cos($1)+i\\sin($1))');
@@ -106,71 +108,37 @@
         w = w.replace(/\\operatorname\{([^}]+)\}/g, '{\\rm $1}');
         return w;
     }
-
-    function fromWordEquation(word) {
-        let latex = String(word ?? '');
-        latex = latex.replace(/{\\rm proj}_{([^{}]*?)\\below\\sim}\s*([^{}]*?)\\below\\sim/g, '\\operatorname{proj}_{\\underset{\\sim}{$1}} \\underset{\\sim}{$2}');
-        latex = latex.replace(/(\w+)\\below\\sim/g, '\\underset{\\sim}{$1}');
-        latex = latex.replace(/([^{}\s]+)\\below([^{}\s]+)/g, '\\underset{$2}{$1}');
-        latex = latex.replace(/{\\rm ([^}]+)}/g, '\\operatorname{$1}');
-        latex = latex.replace(/\\Longrightarrow/g, '\\implies');
-        latex = latex.replace(/\\left\(\\begin{matrix}([\s\S]*?)\\end{matrix}\\right)/g, function(match, inside) {
-            let content = inside.trim().replace(/\\\\s*$/, '').trim(); 
-            return '\\begin{pmatrix}' + content + '\\end{pmatrix}';
-        });
-        return latex;
+    
+    function syncFromMathLive() {
+        const rawLatex = mf2.getValue('latex');
+        const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
+        if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
+        wordOut.value = toWordEquation(cleanLatex);
+        preview.innerHTML = '$$' + cleanLatex + '$$';
+        mjxTypeset(preview);
     }
 
-    function sync(options) {
-        const source = options?.source;
-        let latex;
-
-        if (source === 'mathlive') {
-            const rawLatex = mf2.getValue('latex');
-            latex = rawLatex.replace(/\\differentialD\s?/g, 'd');
-        } else if (source === 'textarea') {
-            latex = ta.value;
-        } else if (source === 'word') {
-            latex = fromWordEquation(wordOut.value);
-        } else {
-            latex = mf2.getValue('latex') || ta.value || '';
-        }
-
-        if (source !== 'mathlive' && mf2.getValue() !== latex) {
-            mf2.setValue(latex, {suppressChangeNotifications: true});
-        }
-        if (source !== 'textarea' && ta.value !== latex) {
-            ta.value = latex;
-        }
-        const wordVersion = toWordEquation(latex);
-        if (source !== 'word' && wordOut.value !== wordVersion) {
-            wordOut.value = wordVersion;
-        }
-
-        preview.innerHTML = '$$' + latex + '$$';
+    function syncFromTextArea() {
+        const cleanLatex = ta.value;
+        if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
+        wordOut.value = toWordEquation(cleanLatex);
+        preview.innerHTML = '$$' + cleanLatex + '$$';
         mjxTypeset(preview);
     }
     
+    function render(){ syncFromMathLive(); }
+
     function insertLatex(x){
       try{
-          if(mf2.executeCommand){ 
-            mf2.executeCommand('insert', x); 
-          } else if(mf2.insert){ 
-            mf2.insert(x); 
-          } else { 
-            mf2.value = (mf2.value||'') + x; 
-            sync({source: 'mathlive'}); // Fallback needs manual sync
-          }
-      } catch(e) {
-        console.error("MathLive insertion failed:", e);
-      }
-      // If executeCommand succeeds, it fires an 'input' event, which triggers sync.
+          if(mf2.executeCommand){ mf2.executeCommand('insert', x); }
+          else if(mf2.insert){ mf2.insert(x); }
+          else { mf2.value = (mf2.value||'') + x; }
+      }catch(e){}
+      syncFromMathLive();
     }
     
-    mf2.addEventListener('input', () => sync({source: 'mathlive'}));
-    ta.addEventListener('input', () => sync({source: 'textarea'}));
-    wordOut.addEventListener('input', () => sync({source: 'word'}));
-
+    mf2.addEventListener('input', syncFromMathLive);
+    ta.addEventListener('input', syncFromTextArea);
 
     /* ---------- Cleanup: delete object when all boxes emptied ---------- */
     function normalizeLatexStr(L) {
@@ -196,15 +164,7 @@
         return L;
     }
 
-    function cleanupEmptyStructures(){ 
-      try{ 
-        const b = mf2.getValue('latex')||'';
-        const a = normalizeLatexStr(b); 
-        if(a !== b){ 
-            mf2.setValue(a); // This will trigger an input event and sync
-        } 
-      }catch(e){console.warn('cleanup failed',e)} 
-    }
+    function cleanupEmptyStructures(){ try{ const b=mf2.getValue('latex')||'',a=normalizeLatexStr(b); if(a!==b){ mf2.setValue(a); syncFromMathLive(); } }catch(e){console.warn('cleanup failed',e)} }
     
     function configureMathLive() {
         if (!window.MathfieldElement || !mf2) return;
@@ -226,6 +186,7 @@
             if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
                 if (tryDeleteAtomicObject(ev.inputType === 'deleteContentBackward' ? 'back' : 'fwd')) {
                     ev.preventDefault();
+                    syncFromMathLive();
                 }
             }
         });
@@ -264,6 +225,7 @@
                     isReadyToDeleteParent = true;
                 }
             }
+            syncFromMathLive();
         });
         
         mf2.addEventListener('selection-did-change', () => {
@@ -291,9 +253,9 @@
         function tryDeleteAtomicObject(direction) {
             try {
                 const S = '\uE000';
-                mf2.executeCommand('insert', S, {suppressChangeNotifications: true});
+                mf2.executeCommand('insert', S);
                 const withSentinel = mf2.getValue('latex') || '';
-                mf2.executeCommand('undo', {suppressChangeNotifications: true});
+                mf2.executeCommand('undo');
 
                 const idx = withSentinel.indexOf(S);
                 if (idx === -1) return false;
@@ -391,6 +353,7 @@
                 insert: '\\cos(\\theta)+i\\sin(\\theta)',
                 options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
             },
+            // NEW: The second selectable 'cos+isin' button
             {
                 isSelectable: true,
                 keyType: 'cos-isin',
@@ -410,6 +373,7 @@
     };
 
     function buildTabs(){const a=document.getElementById('tabs');a.innerHTML='';tabs.forEach(c=>{const b=document.createElement('div');b.textContent=c.label;b.className='tab';b.onclick=()=>activateTab(c.id);a.appendChild(b)});activateTab('calc')}
+    // REVISED: buildKeys now also handles 'cos-isin' keyType
     function buildKeys(c) {
         const a = document.getElementById('keys');
         a.innerHTML = '';
@@ -435,7 +399,7 @@
                         txt = opt;
                     }
                     h.value = val;
-                    h.innerHTML = val;
+                    h.innerHTML = val; // Use innerHTML to render Greek letters in dropdown
                     if (val === d.currentVar) h.selected = true;
                     selector.appendChild(h);
                 });
@@ -455,7 +419,7 @@
                         d.display = `\\operatorname{cis}(${currentVal})`;
                     } else if (d.keyType === 'cos-isin') {
                         d.insert = `\\cos(${currentVal})+i\\sin(${currentVal})`;
-                        d.display = d.insert;
+                        d.display = d.insert; // Display is the same as the insert value
                     } else { 
                         d.insert = `${d.base}{${currentVal}}`;
                         d.display = (currentVal === '\\placeholder{}') ? `${d.base}{\\square}` : `${d.base}{${currentVal}}`;
@@ -489,36 +453,17 @@
 
     /* ---------------- Load MathLive ---------------- */
     async function loadMathLive(){const a=['https://unpkg.com/mathlive/dist/mathlive.core.css','https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.core.css'],b=['https://unpkg.com/mathlive/dist/mathlive.css','https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.css'],c=['https://unpkg.com/mathlive/dist/mathlive.min.js','https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js'];let d=!1;for(const e of a)try{await(new Promise((f,g)=>{const h=document.createElement('link');h.rel='stylesheet';h.href=e;h.onload=()=>f(!0);h.onerror=()=>g();document.head.appendChild(h)}));d=!0;break}catch(f){}for(const e of b)try{await(new Promise((f,g)=>{const h=document.createElement('link');h.rel='stylesheet';h.href=e;h.onload=()=>f(!0);h.onerror=()=>g();document.head.appendChild(h)}));break}catch(f){}for(const e of c)try{await(new Promise((f,g)=>{const h=document.createElement('script');h.src=e;h.defer=!0;h.onload=()=>f(!0);h.onerror=()=>g();document.head.appendChild(h)}));d=!0;status.textContent='MathLive from '+e;break}catch(f){}return d}
-    
-    // REVISED: Robust initialization using customElements.whenDefined to prevent race conditions.
-    (async () => {
-      const loaded = await loadMathLive();
-      if (loaded) {
-        // Wait until the 'math-field' element is fully defined and ready.
-        customElements.whenDefined('math-field').then(() => {
-          status.textContent = 'MathLive ready';
-          configureMathLive(); // Now it's safe to configure it.
-          sync();              // Now it's safe to do the initial sync.
-        }).catch(err => {
-          status.textContent = 'Error initializing MathLive component.';
-          console.error(err);
-        });
-      } else {
-        status.textContent = 'Fallback mode. MathLive failed to load.';
-        sync(); // Attempt a sync for the textareas.
-      }
-    })();
+    (async()=>{const a=await loadMathLive();a&&customElements.get('math-field')?(status.textContent='MathLive ready',setTimeout(configureMathLive,100)):status.textContent='Fallback mode';render()})();
 
     /* ---------------- Copy buttons ---------------- */
     async function copyToClipboard(a,b){try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(a);status.textContent=`Copied ${b} ✓`;return}}catch(c){console.warn('clipboard API failed',c)}const d=document.createElement('textarea');d.value=a;d.setAttribute('readonly','');d.style.position='fixed';d.style.left='-9999px';document.body.appendChild(d);d.select();try{document.execCommand('copy');status.textContent=`Copied ${b} ✓`}catch(c){status.textContent=`Copy ${b} failed`}finally{document.body.removeChild(d)}}
-    document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(ta.value??'','LaTeX'));
+    document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
     document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
 
     /* ---------- Tests ---------- */
     function log(a){const b=document.getElementById('log');b.textContent+=(b.textContent?'\n':'')+a}function clearLog(){document.getElementById('log').textContent=''}
-    function runTests(){clearLog();activateTab('vec');const a=document.querySelector('.key select');if(!a){log('FAIL: No selector key found on "Vectors" tab.');return}log('Running tests on a selectable key...');log(26<=a.options.length?'PASS: selector contains at least 26 letters':'FAIL: selector size = '+a.options.length);const b=ta.value,c=a.value;a.value='v'===a.value?'u':'v';a.dispatchEvent(new Event('change',{bubbles:!0}));log(b===ta.value?'PASS: change selection does not insert':'FAIL: selection triggered insertion');const d=ta.value;a.parentElement&&a.parentElement.click();log(ta.value.length>d.length?'PASS: clicking key inserts':'FAIL: clicking key did not insert');a.value=c;a.dispatchEvent(new Event('change',{bubbles:!0}));activateTab('calc')}
+    function runTests(){clearLog();activateTab('vec');const a=document.querySelector('.key select');if(!a){log('FAIL: No selector key found on "Vectors" tab.');return}log('Running tests on a selectable key...');log(26<=a.options.length?'PASS: selector contains at least 26 letters':'FAIL: selector size = '+a.options.length);const b=getLatex(),c=a.value;a.value='v'===a.value?'u':'v';a.dispatchEvent(new Event('change',{bubbles:!0}));log(b===getLatex()?'PASS: change selection does not insert':'FAIL: selection triggered insertion');const d=getLatex();a.parentElement&&a.parentElement.click();log(getLatex().length>d.length?'PASS: clicking key inserts':'FAIL: clicking key did not insert');a.value=c;a.dispatchEvent(new Event('change',{bubbles:!0}));activateTab('calc')}
     document.getElementById('run').addEventListener('click',runTests);
   </script>
-
 </body>
 </html>
