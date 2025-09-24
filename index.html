@@ -187,38 +187,59 @@
         .selector option { font-size: 14px; }
         .tooltip { display: none; position: absolute; background: var(--color-tooltip-bg); color: var(--color-tooltip-text); padding: 4px 8px; border-radius: 4px; font-size: 12px; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 900; box-shadow: 0 6px 16px rgba(15,23,42,0.25); }
 
+        /* (removed) hint corner and popover styles */
+
         math-field::part(virtual-keyboard-toggle) { display: none !important; visibility: hidden !important; }
         math-field::part(menu-toggle) { display: none !important; visibility: hidden !important; }
 
         /* Shrink MathJax output inside keys */
-        #expanded-area .key mjx-container {
+        /* Default: make symbols larger in non-vector tabs */
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key > div {
+            max-height: 40px;
+        }
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container {
+            font-size: 0.9rem !important;
+            max-height: 36px !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            line-height: 1 !important;
+        }
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container svg {
+            max-height: 34px !important;
+            max-width: 100% !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container mjx-math,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container *,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mrow,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mi,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mo,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mn {
+            font-size: 0.6rem !important;
+            line-height: 1 !important;
+        }
+        /* Vector tab: keep more compact to fit large constructs */
+        #expanded-area[data-tab-id="vec"] .key mjx-container {
             font-size: 0.7rem !important;
             max-height: 28px !important;
             max-width: 100% !important;
             overflow: hidden !important;
             line-height: 1 !important;
         }
-        #expanded-area .key mjx-container svg {
+        #expanded-area[data-tab-id="vec"] .key mjx-container svg {
             max-height: 26px !important;
             max-width: 100% !important;
             width: auto !important;
             height: auto !important;
         }
-        #expanded-area .key mjx-container mjx-math {
+        #expanded-area[data-tab-id="vec"] .key mjx-container mjx-math,
+        #expanded-area[data-tab-id="vec"] .key mjx-container *,
+        #expanded-area[data-tab-id="vec"] .key mjx-mrow,
+        #expanded-area[data-tab-id="vec"] .key mjx-mi,
+        #expanded-area[data-tab-id="vec"] .key mjx-mo,
+        #expanded-area[data-tab-id="vec"] .key mjx-mn {
             font-size: 0.4rem !important;
-            line-height: 1 !important;
-        }
-        #expanded-area .key mjx-container * {
-            font-size: 0.4rem !important;
-            max-height: 14px !important;
-            line-height: 1 !important;
-        }
-        #expanded-area .key mjx-mrow,
-        #expanded-area .key mjx-mi,
-        #expanded-area .key mjx-mo,
-        #expanded-area .key mjx-mn {
-            font-size: 0.4rem !important;
-            max-height: 14px !important;
             line-height: 1 !important;
         }
 
@@ -639,121 +660,8 @@
         /* ---------------- Toolbar and Tabs ---------------- */
         const tabs=[{id:'calc',label:'Calculus'},{id:'func',label:'Functions'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
         const tabRowConfig={};
-        const inlineHintDictionary=new Map([
-            ['\\int','int'],
-            ['\\sum','sum'],
-            ['\\prod','prod'],
-            ['\\lim','lim'],
-            ['\\sqrt','sqrt'],
-            ['\\frac','frac'],
-            ['\\vec','vec'],
-            ['\\dot','dot'],
-            ['\\ddot','ddot'],
-            ['\\sin','sin'],
-            ['\\cos','cos'],
-            ['\\tan','tan'],
-            ['\\ln','ln'],
-            ['\\log','log'],
-            ['\\operatorname{proj}','proj'],
-            ['\\overrightarrow','overrightarrow'],
-            ['\\alpha','alpha'],
-            ['\\beta','beta'],
-            ['\\gamma','gamma'],
-            ['\\delta','delta'],
-            ['\\theta','theta'],
-            ['\\lambda','lambda'],
-            ['\\mu','mu'],
-            ['\\sigma','sigma'],
-            ['\\omega','omega'],
-            ['\\Delta','Delta'],
-            ['\\infty','infty'],
-            ['\\angle','angle'],
-            ['\\geq','>='],
-            ['\\leq','<='],
-            ['\\approx','approx'],
-            ['\\equiv','equiv'],
-            ['\\implies','implies'],
-            ['\\iff','iff']
-        ]);
-        const HOVER_HINT_DELAY=120;
-        const hintIgnorePatterns=[/\\left\\./];
-        const unicodeOptionLabels=new Map([
-            ['\\alpha','α'],
-            ['\\beta','β'],
-            ['\\gamma','γ'],
-            ['\\delta','δ'],
-            ['\\theta','θ'],
-            ['\\lambda','λ'],
-            ['\\mu','μ'],
-            ['\\sigma','σ'],
-            ['\\omega','ω'],
-            ['\\phi','φ'],
-            ['\\psi','ψ'],
-            ['\\eta','η'],
-            ['\\rho','ρ'],
-            ['\\tau','τ'],
-            ['\\Delta','Δ']
-        ]);
         const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
-        const formatOptionLabel=(value,label)=>{
-            const candidate=typeof label==='string'?label:value;
-            if(typeof candidate!=='string') return label??value;
-            return unicodeOptionLabels.get(candidate)||unicodeOptionLabels.get(value)||label||value;
-        };
-        function formatHintText(hint){
-            if(!hint) return null;
-            const trimmed=hint.trim();
-            if(!trimmed) return null;
-            return trimmed.startsWith('\\') ? `Type ${trimmed}` : `Type "${trimmed}"`;
-        }
-        function deriveHintFromInsert(insert){
-            if(!insert) return null;
-            const trimmed=insert.trim();
-            const commandMatch=trimmed.match(/^\\[a-zA-Z]+/);
-            if(commandMatch){
-                const command=commandMatch[0];
-                if(inlineHintDictionary.has(command)) return inlineHintDictionary.get(command);
-                return command;
-            }
-            const wordMatch=trimmed.match(/^[a-zA-Z]+/);
-            if(wordMatch) return wordMatch[0];
-            return null;
-        }
-        function getInlineHint(keyConfig){
-            if(!keyConfig) return null;
-            if(typeof keyConfig.hint==='function') return keyConfig.hint(keyConfig);
-            if(keyConfig.hint) return keyConfig.hint;
-            if(hintIgnorePatterns.some(re => re.test(keyConfig.insert||''))) return null;
-            if(keyConfig.keyType==='cis' || keyConfig.keyType==='cos-isin') return 'cis';
-            if(keyConfig.base&&inlineHintDictionary.has(keyConfig.base)) return inlineHintDictionary.get(keyConfig.base);
-            return deriveHintFromInsert(keyConfig.insert||'');
-        }
-        function registerHintTooltip(target,getHint){
-            let hoverTimer;
-            target.addEventListener('mouseenter',()=>{
-                const hint=getHint();
-                const formatted=formatHintText(hint);
-                if(!formatted) return;
-                if(hint) target.setAttribute('data-hint', hint);
-                target.setAttribute('title', formatted);
-                hoverTimer=setTimeout(()=>{
-                    let tooltip=target.querySelector('.tooltip');
-                    if(!tooltip){
-                        tooltip=document.createElement('div');
-                        tooltip.className='tooltip';
-                        target.appendChild(tooltip);
-                    }
-                    tooltip.textContent=formatted;
-                    tooltip.style.display='block';
-                },HOVER_HINT_DELAY);
-            });
-            target.addEventListener('mouseleave',()=>{
-                clearTimeout(hoverTimer);
-                const tooltip=target.querySelector('.tooltip');
-                if(tooltip) tooltip.remove();
-            });
-        }
-        function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();const hint=inlineHintDictionary.get(b)||deriveHintFromInsert(`${b}{${d}}`);return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0,hint}}
+        function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
         
         const layouts={
             calc:[
@@ -765,7 +673,7 @@
                 {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
                 {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
             ],
-            func:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\placeholder{}}(\\placeholder{})',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},{display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}'},{display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}'}],
+            func:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\placeholder{}}(\\placeholder{})',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},{display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}', hint: 'root'},{display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}', hint: 'root'}],
             sym:[
                 {display:'>',insert:'>',renderMode:'text'},
                 {display:'<',insert:'<',renderMode:'text'},
@@ -1000,7 +908,8 @@
 
         function createKeyElement(d){
             if(d.isSelectable){
-                const key=document.createElement('div');
+                const key=document.createElement('button');
+                key.type='button';
                 key.className='key has-selector';
                 key.tabIndex=-1;
 
@@ -1057,7 +966,7 @@
                 });
 
                 mathContent.textContent=d.display;
-                key.addEventListener('click', event=>{if(event.target!==selector) insertLatex(d.insert);});
+                key.addEventListener('click', event=>{ if(event.target!==selector) insertLatex(d.insert); });
 
                 key.appendChild(mathContent);
                 key.appendChild(selector);
@@ -1106,6 +1015,7 @@
             // Collapse any previous
             expArea.innerHTML = '';
             // Expand new one
+            expArea.setAttribute('data-tab-id', id);
             const layoutItems = layouts[id] ?? [];
             const rowCount = tabRowConfig[id] || 1;
             const perRow = Math.max(1, Math.ceil(layoutItems.length / rowCount) || layoutItems.length || 1);
@@ -1121,13 +1031,9 @@
                 rowDiv.style.alignItems = 'stretch';
                 rowDiv.style.justifyItems = 'stretch';
                 rowDiv.style.columnGap = '16px';
-                 rowItems.forEach(item => {
+                 rowItems.forEach((item, itemIndex) => {
                      const keyEl = createKeyElement(item);
-                     // Register hover hint tooltips for keys that have a typing replacement
-                     // Skip for the Vectors tab (custom templates)
-                     if (id !== 'vec') {
-                        registerHintTooltip(keyEl, () => getInlineHint(item));
-                     }
+                     // replacement hint UI removed
                      rowDiv.appendChild(keyEl);
                  });
                 expArea.appendChild(rowDiv);
