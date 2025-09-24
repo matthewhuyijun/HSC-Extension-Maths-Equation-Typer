@@ -1,614 +1,1274 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
-  <meta charset="utf-8" />
-  <title>HSC Ext 2 – Visual Math Printer (Dual Inputs with Vectors)</title>
-  <style>
-    body{font-family:sans-serif;margin:0;padding:0;background:#f8fafc;color:#111}
-    header{padding:10px;background:#2563eb;color:#fff;display:flex;justify-content:space-between;align-items:center}
-    #status{font-size:12px;margin-left:10px}
-    #preview{padding:10px;min-height:60px;border-bottom:1px solid #ccc;background:#fff}
-    #editorWrap{padding:10px}
-    .editor{margin-bottom:10px;position:relative}
-    .editor label{display:flex;justify-content:flex-start;align-items:center;margin-bottom:4px;gap:8px}
-    .editor button.copyBtn{margin-left:0;font-size:11px;padding:2px 8px;}
-    math-field, textarea{width:100%;min-height:100px;font-size:20px;padding:8px;border:1px solid #ccc;border-radius:6px;display:block;background:#fff}
-    math-field .ML__paren.ML__delim { min-height: 100% !important; }
-    math-field .ML__matrix { position: relative; }
-    math-field .ML__matrix .ML__delim { height: 100% !important; }
-    #keyboard{padding:10px;background:#e2e8f0}
-    .tabs{display:flex;gap:6px;margin-bottom:6px;flex-wrap:wrap}
-    .tab{padding:6px 10px;border:1px solid #ccc;border-radius:6px;cursor:pointer;background:#fff}
-    .tab.active{background:#2563eb;color:#fff}
-    .keys{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-    .key{padding:8px;border:1px solid #ccc;border-radius:10px;cursor:pointer;background:#fff;outline:none;min-height:88px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;}
-    .key mjx-container{font-size:24px; max-width: 100%;}
-    .selector{font-size:12px;position:absolute;top:4px;right:4px;z-index:10;}
-    #tests{padding:10px;border-top:1px solid #ccc;background:#fff;font:12px/1.4 ui-monospace,Consolas,monospace}
-    #tests button{padding:6px 10px;border:1px solid #ccc;border-radius:6px;background:#fff;cursor:pointer}
-    #log{white-space:pre-wrap}
+    <meta charset="utf-8">
+    <title>HSC Ext 2 – Visual Math Printer (Dual Inputs with Vectors)</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --color-bg: #f8fafc;
+            --color-text: #111111;
+            --color-header-bg: #2563eb;
+            --color-header-text: #ffffff;
+            --color-toolbar-bg: #e2e8f0;
+            --color-surface: #ffffff;
+            --color-surface-alt: #f1f5f9;
+            --color-border: #cbd5e1;
+            --color-border-strong: #cbd5e1;
+            --color-tab-bg: #ffffff;
+            --color-tab-text: #111111;
+            --color-tab-active-bg: #2563eb;
+            --color-tab-active-text: #ffffff;
+            --color-tooltip-bg: rgba(51, 51, 51, 0.95);
+            --color-tooltip-text: #ffffff;
+            --color-control-bg: #ffffff;
+            --color-control-text: #111111;
+        }
 
-    /* Added: Hide MathLive toolbar icons and features */
-    math-field::part(virtual-keyboard-toggle) { display: none !important; }
-    math-field::part(menu-toggle) { display: none !important; }
-    math-field::part(toolbar) { display: none !important; }
-  </style>
-  <script>
-    window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
-    window.whenMathJaxReady = window.whenMathJaxReady || function(){};
-  </script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
+        [data-theme="dark"] {
+            color-scheme: dark;
+            --color-bg: #0f172a;
+            --color-text: #e2e8f0;
+            --color-header-bg: #1d4ed8;
+            --color-header-text: #e2e8f0;
+            --color-toolbar-bg: #1f2937;
+            --color-surface: #1e293b;
+            --color-surface-alt: #111827;
+            --color-border: #334155;
+            --color-border-strong: #1f2937;
+            --color-tab-bg: #1f2937;
+            --color-tab-text: #e2e8f0;
+            --color-tab-active-bg: #2563eb;
+            --color-tab-active-text: #e2e8f0;
+            --color-tooltip-bg: rgba(15, 23, 42, 0.9);
+            --color-tooltip-text: #f8fafc;
+            --color-control-bg: #1f2937;
+            --color-control-text: #e2e8f0;
+        }
+
+        body { font-family: sans-serif; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); }
+        header { padding: 12px 16px; background: var(--color-header-bg); color: var(--color-header-text); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+        .header-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        header h1 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 600; }
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .header-copy {
+            padding: 5px 12px;
+            border: 1px solid var(--color-border);
+            border-radius: 8px;
+            background: var(--color-surface);
+            color: var(--color-text);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+            transition: transform .1s ease, box-shadow .1s ease, background .2s ease;
+        }
+        .header-copy:hover { box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25); }
+        .header-copy:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18); }
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        #status { font-size: 12px; color: var(--color-header-text); }
+        .theme-switcher { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-header-text); }
+        .theme-switcher select { padding: 2px 6px; }
+
+        /* --- LAYOUT/STACKING FIXES --- */
+        /* The select dropdowns on the 2nd row of the toolbar were getting covered by the tabs below. */
+        /* Create clear stacking order: toolbar above tabs, and selectors above everything. */
+        /* Keys need a stacking context so their absolutely positioned children (selectors/tooltips) can layer */
+        .key { position: relative; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); display: flex; align-items: center; justify-content: center; padding: 10px; width: 100%; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12); transition: transform .1s ease, box-shadow .1s ease; }
+        .key:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1); }
+        /* Better expanded area sizing - FIXED HEIGHT FOR ALL TABS */
+        #expanded-area .key {
+            height: 120px !important;
+            min-height: 120px !important;
+            max-height: 120px !important;
+            width: 100%;
+            padding: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #expanded-area .key > div {
+            max-height: 34px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        #tabs_wrapper { background: var(--color-toolbar-bg); border-bottom: 1px solid var(--color-border); position: relative; z-index: 5; }
+        .tabs {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 5px;
+            padding: 5px;
+        }
+        .tab {
+            padding: 5px 9px;
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            cursor: pointer;
+            background: var(--color-tab-bg);
+            color: var(--color-tab-text);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background .2s ease, color .2s ease, border-color .2s ease;
+        }
+        .tab::after { content: '▸'; font-size: 12px; color: inherit; transition: transform .2s ease; }
+        .tab[data-expanded="true"] { background: var(--color-tab-active-bg); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); }
+        .tab[data-expanded="true"]::after { content: '▾'; }
+        .tab:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
+
+        button,
+        select {
+            background: var(--color-control-bg);
+            color: var(--color-control-text);
+            border: 1px solid var(--color-border);
+            border-radius: 6px;
+            font-size: 12px;
+            padding: 3px 8px;
+            line-height: 1.25;
+        }
+        button:focus-visible, select:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
+        #expanded-area { display: flex; flex-direction: column; gap: 16px; padding: 14px; background: var(--color-surface-alt); border-bottom: 1px solid var(--color-border-strong); margin-bottom: 5px; width: 100%; position: relative; z-index: 10; overflow: visible; align-items: stretch; }
+        .hidden { display: none; }
+
+        .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
+        .key-row .key { 
+            height: 100%; 
+            min-height: 120px !important;
+            max-height: 120px !important;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 8px;
+        }
+        
+        .key-row .key > * {
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        #mainContent { width: min(960px, 90vw); margin: 18px auto; padding: 0 12px 24px; display: flex; flex-direction: column; gap: 20px; }
+        .section-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; box-shadow: 0 1px 4px rgba(15,23,42,0.12); }
+        .section-card .card-body { padding: 16px; }
+
+        #preview { padding: 0; min-height: 60px; border: none; background: var(--color-surface); color: var(--color-text); }
+        #editorWrap { padding: 0; display: flex; flex-direction: column; gap: 16px; }
+        .editor { margin: 0; position: relative; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-alt); }
+        .editor label { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 8px; gap: 8px; }
+        .editor button.copyBtn { margin-left: 0; font-size: 11px; padding: 2px 8px; }
+        math-field, textarea { width: 100%; min-height: 100px; font-size: 20px; padding: 8px; border: 1px solid var(--color-border); border-radius: 6px; display: block; background: var(--color-surface); color: var(--color-text); }
+        math-field::part(content) { color: var(--color-text); }
+        math-field::part(caret) { border-left: 2px solid var(--color-tab-active-bg); }
+        math-field .ML__paren.ML__delim { min-height: 100% !important; }
+        math-field .ML__matrix { position: relative; }
+        math-field .ML__matrix .ML__delim { height: 100% !important; }
+
+        /* Make the small variable selector dropdowns always layer above tabs/expanded area */
+        .selector { font-size: 14px; position: absolute; top: 2px; right: 2px; z-index: 1000; background: var(--color-control-bg); color: var(--color-control-text); border: 1px solid var(--color-border); border-radius: 6px; padding: 2px 10px; min-height: 28px; min-width: 64px; }
+        /* Reserve space at the top of keys that have a selector to prevent overlap */
+        .key.has-selector { padding-top: 36px; }
+        /* Ensure math content within keys wraps and centers nicely below selector */
+        .key.has-selector .math-display { display: flex; align-items: center; justify-content: center; text-align: center; }
+        .selector option { font-size: 14px; }
+        .tooltip { display: none; position: absolute; background: var(--color-tooltip-bg); color: var(--color-tooltip-text); padding: 4px 8px; border-radius: 4px; font-size: 12px; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 900; box-shadow: 0 6px 16px rgba(15,23,42,0.25); }
+
+        math-field::part(virtual-keyboard-toggle) { display: none !important; visibility: hidden !important; }
+        math-field::part(menu-toggle) { display: none !important; visibility: hidden !important; }
+
+        /* Shrink MathJax output inside keys */
+        #expanded-area .key mjx-container {
+            font-size: 0.7rem !important;
+            max-height: 28px !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            line-height: 1 !important;
+        }
+        #expanded-area .key mjx-container svg {
+            max-height: 26px !important;
+            max-width: 100% !important;
+            width: auto !important;
+            height: auto !important;
+        }
+        #expanded-area .key mjx-container mjx-math {
+            font-size: 0.4rem !important;
+            line-height: 1 !important;
+        }
+        #expanded-area .key mjx-container * {
+            font-size: 0.4rem !important;
+            max-height: 14px !important;
+            line-height: 1 !important;
+        }
+        #expanded-area .key mjx-mrow,
+        #expanded-area .key mjx-mi,
+        #expanded-area .key mjx-mo,
+        #expanded-area .key mjx-mn {
+            font-size: 0.4rem !important;
+            max-height: 14px !important;
+            line-height: 1 !important;
+        }
+
+        .math-display-text {
+            font-family: 'Menlo', 'Courier New', monospace;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+    </style>
+    <script>
+         window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+         window.whenMathJaxReady = window.whenMathJaxReady || function(){};
+    </script>
+     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
 </head>
 <body>
-  <header>
-    <h1>HSC Ext 2 – Visual Math Printer</h1>
-    <div id="status">Loading editor…</div>
-  </header>
+    <header>
+        <div class="header-left">
+            <h1>HSC Ext 2 – Visual Math Printer</h1>
+            <div class="header-actions">
+                <button type="button" class="header-copy" id="headerCopyLatex">Copy LaTeX</button>
+                <button type="button" class="header-copy" id="headerCopyWord">Copy Word Equation</button>
+            </div>
+        </div>
+        <div class="header-controls">
+            <div id="status">Loading editor…</div>
+            <label class="theme-switcher">
+                <span>Theme</span>
+                <select id="themeMode" aria-label="Theme selection">
+                    <option value="system">System</option>
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </label>
+        </div>
+    </header>
 
-  <div id="preview"></div>
-
-  <div id="editorWrap">
-    <div class="editor">
-      <label><strong>Rendered Input (Editable – MathLive)</strong></label>
-      <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="off" remove-extraneous-parentheses="on"></math-field>
+    <div id="tabs_wrapper">
+        <div class="tabs" id="tabs"></div>
     </div>
-    <div class="editor">
-      <label><strong>Raw LaTeX Input</strong><button id="copyBtn" class="copyBtn">Copy LaTeX</button></label>
-      <textarea id="ta" placeholder="Fallback LaTeX input…"></textarea>
+    
+    <!-- Expanded area for full tab keys -->
+    <div id="expanded-area" class="hidden"></div>
+
+    <div id="mainContent">
+        <div class="section-card">
+            <div class="card-body" id="preview"></div>
+        </div>
+
+        <div class="section-card">
+            <div class="card-body" id="editorWrap">
+        <div class="editor">
+            <label><strong>Rendered Input (Editable – MathLive)</strong></label>
+            <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on"></math-field>
+        </div>
+        <div class="editor">
+            <label><strong>Raw LaTeX Input</strong><button id="copyBtn" class="copyBtn">Copy LaTeX</button></label>
+            <textarea id="ta" placeholder="Fallback LaTeX input…"></textarea>
+        </div>
+        <div class="editor">
+            <label><strong>Word Equation</strong><button id="copyWordBtn" class="copyBtn">Copy Word Equation</button></label>
+            <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
+            </div>
+        </div>
     </div>
-    <div class="editor">
-      <label><strong>Word Equation</strong><button id="copyWordBtn" class="copyBtn">Copy Word Equation</button></label>
-      <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
-    </div>
-  </div>
+    <script>
+         function mjxTypeset(el, tries=0){
+             if(!window.MathJax){ 
+                 if(tries<200) { 
+                     setTimeout(()=>mjxTypeset(el,tries+1),25); 
+                     return; 
+                 } else { 
+                     console.warn('MathJax not available after 200 attempts');
+                     return; 
+                 } 
+             }
+             const MJ=window.MathJax;
+             try {
+                 if(MJ && typeof MJ.typeset==='function') { 
+                     MJ.typeset([el]); 
+                 } else if(MJ && typeof MJ.typesetPromise==='function') { 
+                     MJ.typesetPromise([el]); 
+                 } else if(tries<200) { 
+                     setTimeout(()=>mjxTypeset(el,tries+1),25); 
+                 }
+             } catch(e) {
+                 console.warn('MathJax typeset failed', e);
+             }
+         }
 
-  <div id="keyboard">
-    <div class="tabs" id="tabs"></div>
-    <div class="keys" id="keys" tabindex="0"></div>
-  </div>
+        const ta=document.getElementById('ta');
+        const mf2=document.getElementById('mf2');
+        const preview=document.getElementById('preview');
+        const status=document.getElementById('status');
+        const wordOut=document.getElementById('wordOut');
+        const themeSelect=document.getElementById('themeMode');
 
-  <div id="tests">
-    <button id="run">Run tests</button>
-    <div id="log"></div>
-  </div>
-
-  <script>
-    /* ---------------- Utilities ---------------- */
-    function mjxTypeset(el, tries=0){
-      if(!window.MathJax){ if(tries<200) { setTimeout(()=>mjxTypeset(el,tries+1),25); return; } else { return; } }
-      const MJ=window.MathJax;
-      if(MJ && typeof MJ.typeset==='function') { MJ.typeset([el]); }
-      else if(MJ && typeof MJ.typesetPromise==='function') { MJ.typesetPromise([el]); }
-      else if(tries<200) { setTimeout(()=>mjxTypeset(el,tries+1),25); }
-    }
-
-    const ta=document.getElementById('ta');
-    const mf2=document.getElementById('mf2');
-    const preview=document.getElementById('preview');
-    const status=document.getElementById('status');
-    const keysEl=document.getElementById('keys');
-    const wordOut=document.getElementById('wordOut');
-
-    function getLatex(){ return ta.value; }
-
-    /* ---------- LaTeX -> Word Equation conversion ---------- */
-    function toWordEquation(latex) {
-        let w = String(latex ?? '');
-        w = w.replace(/\\:/g, ' '); // Convert \: to regular space
-        w = w.replace(/\\overrightarrow\{([^}]+)\}/g, '\\vec{$1}'); // Convert \overrightarrow{AB} to \vec{AB}
-        w = w.replace(/\\operatorname\{cis\}\(([^)]+)\)/g, '(\\cos($1)+i\\sin($1))');
-        w = w.replace(/\\differentialD\s?/g, 'd');
-        // Ensure Word keeps differential variable (especially theta, mu)
-        w = w.replace(/d\\theta/g, 'd{\\theta}');
-        w = w.replace(/d\\mu/g, 'd{\\mu}');
-        w = w.replace(/\\implies/g, '\\Longrightarrow');
-        w = w.replace(/\\lvert(.*?)\\rvert/g, '\\left|$1\\right|');
-        w = w.replace(/\\operatorname\{proj\}_\{\\underset\{\\sim\}\{([^}]*)\}\}\s*\\underset\{\\sim\}\{([^}]*)\}/g, '{\\rm proj}_{$1\\below\\sim} $2\\below\\sim');
-        w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-        w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-        w = w.replace(/\\operatorname\{proj\}_([A-Za-z])\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-        w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
-        w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
-        w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, function(match, inside) {
-            let content = inside.trim().replace(/\\*$/, '') + '\\\\';
-            return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
-        });
-        w = w.replace(/\\underset\{\\sim\}\{([^}]+)\}/g, '$1\\below\\sim');
-        w = w.replace(/\\underset\{([^}]+)\}\{([^}]+)\}/g, '$2\\below$1');
-        w = w.replace(/\\operatorname\{([^}]+)\}/g, '{\\rm $1}');
-        return w;
-    }
-    
-    function syncFromMathLive() {
-        const rawLatex = mf2.getValue('latex');
-        const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
-        if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
-        wordOut.value = toWordEquation(cleanLatex);
-        preview.innerHTML = '$$' + cleanLatex + '$$';
-        mjxTypeset(preview);
-    }
-
-    function syncFromTextArea() {
-        const cleanLatex = ta.value;
-        if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
-        wordOut.value = toWordEquation(cleanLatex);
-        preview.innerHTML = '$$' + cleanLatex + '$$';
-        mjxTypeset(preview);
-    }
-    
-    function render(){ syncFromMathLive(); }
-
-    function insertLatex(x){
-      try{
-          if(mf2.executeCommand){ mf2.executeCommand('insert', x); }
-          else if(mf2.insert){ mf2.insert(x); }
-          else { mf2.value = (mf2.value||'') + x; }
-      }catch(e){}
-      syncFromMathLive();
-    }
-    
-    mf2.addEventListener('input', syncFromMathLive);
-    ta.addEventListener('input', syncFromTextArea);
-
-    /* ---------- Cleanup: delete object when all boxes emptied ---------- */
-    function normalizeLatexStr(L) {
-        try {
-            const EMPTY_SLOT = String.raw`\s*(?:\\placeholder\{\})?\s*`;
-            const EMPTY_BRACE = String.raw`\{${EMPTY_SLOT}\}`;
-            L = L.replace(new RegExp(String.raw`\\frac${EMPTY_BRACE}${EMPTY_BRACE}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\sqrt${EMPTY_BRACE}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\sqrt\[${EMPTY_SLOT}\]${EMPTY_BRACE}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\(dot|ddot)${EMPTY_BRACE}`, "g"), "");
-            const rm = (open, close) => new RegExp(String.raw`\\left\s*${open}${EMPTY_SLOT}\\right\s*${close}`, 'g');
-            L = L.replace(rm('\\(', '\\)'), "");
-            L = L.replace(rm('\\[', '\\]'), "");
-            L = L.replace(rm('\\{', '\\\\}'), "");
-            L = L.replace(rm('\\|', '\\|'), "");
-            L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}(?:d[a-zA-Z]+)?`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\(sum|prod)_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\(sum|prod)_\{n=${EMPTY_SLOT}\}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
-            L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
-        } catch (e) {
-            console.warn('normalizeLatexStr normalization failed', e);
+        const THEME_STORAGE_KEY='theme-preference';
+        const prefersDarkScheme=window.matchMedia('(prefers-color-scheme: dark)');
+        const themeStorage={
+            get(){ try{ return localStorage.getItem(THEME_STORAGE_KEY); }catch{ return null; } },
+            set(value){ try{ localStorage.setItem(THEME_STORAGE_KEY, value); }catch{} }
+        };
+        const resolveTheme=(choice)=>choice==='system'?(prefersDarkScheme.matches?'dark':'light'):choice;
+        function setDocumentTheme(theme){
+            document.documentElement.setAttribute('data-theme', theme);
+            document.documentElement.style.colorScheme=theme==='dark'?'dark':'light';
         }
-        return L;
-    }
+        function applyTheme(choice){
+            const resolved=resolveTheme(choice);
+            setDocumentTheme(resolved);
+            if(themeSelect&&themeSelect.value!==choice){ themeSelect.value=choice; }
+        }
+        applyTheme(themeStorage.get()||'system');
+        if(themeSelect){
+            themeSelect.addEventListener('change',event=>{
+                const selection=event.target.value;
+                applyTheme(selection);
+                themeStorage.set(selection);
+            });
+        }
+        const handleSystemThemeChange=()=>{
+            const current=themeStorage.get()||'system';
+            if(current==='system'){ applyTheme('system'); }
+        };
+        if(typeof prefersDarkScheme.addEventListener==='function'){
+            prefersDarkScheme.addEventListener('change', handleSystemThemeChange);
+        }else if(typeof prefersDarkScheme.addListener==='function'){
+            prefersDarkScheme.addListener(handleSystemThemeChange);
+        }
 
-    function cleanupEmptyStructures(){ try{ const b=mf2.getValue('latex')||'',a=normalizeLatexStr(b); if(a!==b){ mf2.setValue(a); syncFromMathLive(); } }catch(e){console.warn('cleanup failed',e)} }
-    
-    function configureMathLive() {
-        if (!window.MathfieldElement || !mf2) return;
-        mf2.setOptions({
-            mathModeSpace: '\\:',
-            removeExtraneousParentheses: true,
-            virtualKeyboardMode: 'off',
-            virtualKeyboards: '', // Added: Disable all virtual keyboards
-            virtualKeyboardToggleEnabled: false, // Added: Hide keyboard toggle icon
-            inlineShortcutToolbar: false // Added: Disable inline toolbar/menu
-        });
+        function getLatex(){ return ta.value; }
 
-        let isArmedForDeletion = false; // Tracks "armed" state for double-tap deletion
+        /* ---------- LaTeX -> Word Equation conversion ---------- */
+        function toWordEquation(latex) {
+            let w = String(latex ?? '');
+            w = w.replace(/\\:/g, ' '); // Convert \: to regular space
+            w = w.replace(/\\overrightarrow\{([^}]+)\}/g, '\\vec{$1}'); // Convert \overrightarrow{AB} to \\vec{AB}
+            w = w.replace(/\\operatorname\{cis\}\(([^)]+)\)/g, '(\\cos($1)+i\\sin($1))');
+            w = w.replace(/\\differentialD\s?/g, 'd');
+            // Ensure Word keeps differential variable (especially theta, mu)
+            w = w.replace(/d\\theta/g, 'd{\\theta}');
+            w = w.replace(/d\\mu/g, 'd{\\mu}');
+            w = w.replace(/\\implies/g, '\\Longrightarrow');
+            w = w.replace(/\\lvert(.*?)\\rvert/g, '\\left|$1\\right|');
+            w = w.replace(/\\operatorname\{proj\}_\{\\underset\{\\sim\}\{([^}]*)\}\}\s*\\underset\{\\sim\}\{([^}]*)\}/g, '{\\rm proj}_{$1\\below\\sim} $2\\below\\sim');
+            w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
+            w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
+            w = w.replace(/\\operatorname\{proj\}_([A-Za-z])\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
+            w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
+            w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
+            w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, function(match, inside) {
+                let content = inside.trim().replace(/\\*$/, '') + '\\\\';
+                return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
+            });
+            w = w.replace(/\\underset\{\\sim\}\{([^}]+)\}/g, '$1\\below\\sim');
+            w = w.replace(/\\underset\{([^}]+)\}\{([^}]+)\}/g, '$2\\below$1');
+            w = w.replace(/\\operatorname\{([^}]+)\}/g, '{\\rm $1}');
+            return w;
+        }
+        
+        function syncFromMathLive() {
+            const rawLatex = mf2.getValue('latex');
+            const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
+            if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
+            wordOut.value = toWordEquation(cleanLatex);
+            preview.innerHTML = '$$' + cleanLatex + '$$';
+            mjxTypeset(preview);
+        }
 
-        // Reset armed state on non-deletion actions
-        mf2.addEventListener('keydown', (ev) => {
-            if (ev.key !== 'Backspace') {
-                isArmedForDeletion = false;
-            }
-        });
+        function syncFromTextArea() {
+            const cleanLatex = ta.value;
+            if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
+            wordOut.value = toWordEquation(cleanLatex);
+            preview.innerHTML = '$$' + cleanLatex + '$$';
+            mjxTypeset(preview);
+        }
+        
+        function render(){ syncFromMathLive(); }
 
-        mf2.addEventListener('input', (ev) => {
-            if (ev.inputType !== 'deleteContentBackward' && ev.inputType !== 'deleteContentForward') {
-                isArmedForDeletion = false;
-            }
-        });
-
-        mf2.addEventListener('focus', () => { isArmedForDeletion = false; });
-        mf2.addEventListener('blur', () => {
-            cleanupEmptyStructures();
-            isArmedForDeletion = false;
-        });
-        mf2.addEventListener('move-out', () => {
-            cleanupEmptyStructures();
-            isArmedForDeletion = false;
-        });
-
-        // Custom Backspace handling inspired by Word for Mac Equation Editor
-        // - Navigation between boxes with Backspace when empty (non-first boxes)
-        // - Double-tap to delete entire symbol when in first empty box
-        // - Placeholders (boxes) persist until structure is deleted
-        mf2.addEventListener('keydown', (ev) => {
-            if (ev.key !== 'Backspace') return;
-            ev.preventDefault();
-
-            const sel = mf2.selection;
-            if (!sel.isCollapsed) {
-                mf2.executeCommand('deleteBackward');
-                isArmedForDeletion = false;
-                syncFromMathLive();
-                return;
-            }
-
-            const position = sel.start;
-            // Get atom at current position (assuming MathLive model access)
-            const atom = mf2.model.at(position - 1); // Atom before cursor
-            if (!atom) {
-                mf2.executeCommand('deleteBackward');
-                syncFromMathLive();
-                return;
-            }
-
-            // Check if cursor is at the start of an empty placeholder/box
-            const isEmptyBox = atom.type === 'placeholder' && position === atom.range.end;
-
-            if (!isEmptyBox) {
-                // Normal deletion
-                mf2.executeCommand('deleteBackward');
-                isArmedForDeletion = false;
-                syncFromMathLive();
-                return;
-            }
-
-            // Determine if this is the "first" box in the symbol (e.g., numerator in fraction)
-            const path = mf2.model.path || mf2.model.getPath(position);
-            const branch = path[path.length - 1];
-            const siblings = branch.parent[branch.branch] || [];
-            const boxIndex = siblings.indexOf(atom);
-            const isFirstBox = boxIndex === 0;
-
-            if (!isFirstBox) {
-                // Navigate to previous box (like Word: Backspace moves to prior placeholder)
-                mf2.executeCommand('moveToPrevious');
-                isArmedForDeletion = false;
-                syncFromMathLive();
-                return;
-            }
-
-            // In first empty box: double-tap logic
-            if (isArmedForDeletion) {
-                // Second tap: delete the entire symbol/structure
-                mf2.executeCommand('moveToGroupStart');
-                mf2.executeCommand('extendToGroupEnd');
-                mf2.executeCommand('delete');
-                isArmedForDeletion = false;
-            } else {
-                // First tap: arm for deletion, appears to do nothing (cursor stays)
-                isArmedForDeletion = true;
-            }
-
+        function insertLatex(x){
+            try{
+                if(mf2.executeCommand){ mf2.executeCommand('insert', x); }
+                else if(mf2.insert){ mf2.insert(x); }
+                else { mf2.value = (mf2.value||'') + x; }
+            }catch(e){}
             syncFromMathLive();
-        });
+        }
+        
+        mf2.addEventListener('input', syncFromMathLive);
+        ta.addEventListener('input', syncFromTextArea);
 
-        // Protect navigation into fixed subscripts like \underset{\sim}{} (only main box editable)
-        mf2.addEventListener('keydown', (ev) => {
-            if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) return;
-
-            const position = mf2.position;
-            const path = mf2.model.getPath(position);
-            if (path.length < 2) return;
-
-            const parent = path[path.length - 2];
-            const branch = path[path.length - 1].branch;
-
-            let isProtected = false;
-            if (parent.type === 'underset' && parent.subscript?.length > 0) {
-                const subAtom = parent.subscript[0];
-                isProtected = subAtom.command === 'sim' || subAtom.value === '~';
-            }
-
-            if (isProtected) {
-                ev.preventDefault(); // Block entry into subscript
-                if (ev.key === 'ArrowDown' || (ev.key === 'ArrowRight' && position === parent.body[parent.body.length - 1].range.end)) {
-                    // Skip over subscript, move to next element after structure
-                    mf2.executeCommand('moveToNext');
-                } else if (ev.key === 'ArrowUp' || (ev.key === 'ArrowLeft' && position === parent.subscript[0].range.start)) {
-                    // Skip back to before structure
-                    mf2.executeCommand('moveToPrevious');
-                }
-            }
-        });
-
-        // Redirect selection if it lands in protected subscript
-        mf2.addEventListener('selection-did-change', () => {
+        /* ---------- Cleanup: delete object when all boxes emptied ---------- */
+        function normalizeLatexStr(L) {
             try {
+                const EMPTY_SLOT = String.raw`\s*(?:\\placeholder\{\})?\s*`;
+                const EMPTY_BRACE = String.raw`\{${EMPTY_SLOT}\}`;
+                L = L.replace(new RegExp(String.raw`\\frac${EMPTY_BRACE}${EMPTY_BRACE}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\sqrt${EMPTY_BRACE}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\sqrt\[${EMPTY_SLOT}\]${EMPTY_BRACE}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\(dot|ddot)${EMPTY_BRACE}`, "g"), "");
+                const rm = (open, close) => new RegExp(String.raw`\\left\s*${open}${EMPTY_SLOT}\\right\s*${close}`, 'g');
+                L = L.replace(rm('\\(', '\\)'), "");
+                L = L.replace(rm('\\[', '\\]'), "");
+                L = L.replace(rm('\\{', '\\\\}'), "");
+                L = L.replace(rm('\\|', '\\|'), "");
+                L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}(?:d[a-zA-Z]+)?`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\(sum|prod)_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\(sum|prod)_\{n=${EMPTY_SLOT}\}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
+            } catch (e) {
+                console.warn('normalizeLatexStr normalization failed', e);
+            }
+            return L;
+        }
+
+        function cleanupEmptyStructures(){ try{ const b=mf2.getValue('latex')||'',a=normalizeLatexStr(b); if(a!==b){ mf2.setValue(a); syncFromMathLive(); } }catch(e){console.warn('cleanup failed',e)} }
+        
+        function configureMathLive() {
+            if (!window.MathfieldElement || !mf2) return;
+            mf2.setOptions({
+                mathModeSpace: '\\:',
+                removeExtraneousParentheses: true,
+                virtualKeyboardMode: 'manual',
+                virtualKeyboards: '',
+                virtualKeyboardToggleEnabled: true,
+                inlineShortcutToolbar: false,
+                menus: []
+            });
+
+            let isArmedForDeletion = false; // Tracks "armed" state for double-tap deletion
+
+            // Reset armed state on non-deletion actions
+            mf2.addEventListener('keydown', (ev) => {
+                if (ev.key !== 'Backspace') {
+                    isArmedForDeletion = false;
+                }
+            });
+
+            mf2.addEventListener('input', (ev) => {
+                if (ev.inputType !== 'deleteContentBackward' && ev.inputType !== 'deleteContentForward') {
+                    isArmedForDeletion = false;
+                }
+            });
+
+            mf2.addEventListener('focus', () => { isArmedForDeletion = false; });
+            mf2.addEventListener('blur', () => {
+                cleanupEmptyStructures();
+                isArmedForDeletion = false;
+            });
+            mf2.addEventListener('move-out', () => {
+                cleanupEmptyStructures();
+                isArmedForDeletion = false;
+            });
+
+            // Custom Backspace handling inspired by Word for Mac Equation Editor
+            mf2.addEventListener('keydown', (ev) => {
+                if (ev.key !== 'Backspace') return;
+
                 const sel = mf2.selection;
-                if (!sel.isCollapsed) return;
+                if (!sel.isCollapsed) {
+                    // Let MathLive handle normal deletion
+                    isArmedForDeletion = false;
+                    // Defer sync; MathLive will emit input event
+                    return;
+                }
+
                 const position = sel.start;
+                // Get atom at current position (assuming MathLive model access)
+                const atom = mf2.model.at(position - 1); // Atom before cursor
+                if (!atom) {
+                    // Let MathLive handle normal deletion
+                    return;
+                }
+
+                // Check if cursor is at the start of an empty placeholder/box
+                const isEmptyBox = atom.type === 'placeholder' && position === atom.range.end;
+
+                if (!isEmptyBox) {
+                    // Normal deletion
+                    mf2.executeCommand('deleteBackward');
+                    isArmedForDeletion = false;
+                    syncFromMathLive();
+                    return;
+                }
+
+                // Determine if this is the "first" box in the symbol (e.g., numerator in fraction)
+                const path = mf2.model.path || mf2.model.getPath(position);
+                const branch = path[path.length - 1];
+                const siblings = branch.parent[branch.branch] || [];
+                const boxIndex = siblings.indexOf(atom);
+                const isFirstBox = boxIndex === 0;
+
+                if (!isFirstBox) {
+                    // Navigate to previous box (like Word: Backspace moves to prior placeholder)
+                    mf2.executeCommand('moveToPrevious');
+                    isArmedForDeletion = false;
+                    // Defer sync to input event
+                    return;
+                }
+
+                // In first empty box: double-tap logic
+                if (isArmedForDeletion) {
+                    // Second tap: delete the entire symbol/structure
+                    mf2.executeCommand('moveToGroupStart');
+                    mf2.executeCommand('extendToGroupEnd');
+                    mf2.executeCommand('delete');
+                    isArmedForDeletion = false;
+                } else {
+                    // First tap: arm for deletion, appears to do nothing (cursor stays)
+                    isArmedForDeletion = true;
+                }
+
+                // Defer sync to input event or selection change
+            });
+
+            // Protect navigation into fixed subscripts like \underset{\sim}{} (only main box editable)
+            mf2.addEventListener('keydown', (ev) => {
+                if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) return;
+
+                const position = mf2.position;
                 const path = mf2.model.getPath(position);
                 if (path.length < 2) return;
+
                 const parent = path[path.length - 2];
                 const branch = path[path.length - 1].branch;
-                if (parent.type === 'underset' && branch === 'subscript' && parent.subscript?.length > 0) {
+
+                let isProtected = false;
+                if (parent.type === 'underset' && parent.subscript?.length > 0) {
                     const subAtom = parent.subscript[0];
-                    if (subAtom.command === 'sim' || subAtom.value === '~') {
-                        // Redirect to end of main body
-                        mf2.position = parent.body[parent.body.length - 1].range.end;
+                    isProtected = subAtom.command === 'sim' || subAtom.value === '~';
+                }
+
+                if (isProtected) {
+                    ev.preventDefault(); // Block entry into subscript
+                    if (ev.key === 'ArrowDown' || (ev.key === 'ArrowRight' && position === parent.body[parent.body.length - 1].range.end)) {
+                        // Skip over subscript, move to next element after structure
+                        mf2.executeCommand('moveToNext');
+                    } else if (ev.key === 'ArrowUp' || (ev.key === 'ArrowLeft' && position === parent.subscript[0].range.start)) {
+                        // Skip back to before structure
+                        mf2.executeCommand('moveToPrevious');
                     }
                 }
-            } catch (e) {
-                console.warn('Selection change handler error:', e);
+            });
+
+            // Redirect selection if it lands in protected subscript
+            mf2.addEventListener('selection-did-change', () => {
+                try {
+                    const sel = mf2.selection;
+                    if (!sel.isCollapsed) return;
+                    const position = sel.start;
+                    const path = mf2.model.getPath(position);
+                    if (path.length < 2) return;
+                    const parent = path[path.length - 2];
+                    const branch = path[path.length - 1].branch;
+                    if (parent.type === 'underset' && branch === 'subscript' && parent.subscript?.length > 0) {
+                        const subAtom = parent.subscript[0];
+                        if (subAtom.command === 'sim' || subAtom.value === '~') {
+                            // Redirect to end of main body
+                            mf2.position = parent.body[parent.body.length - 1].range.end;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Selection change handler error:', e);
+                }
+            });
+
+            // Handle deletion of atomic structures like vectors
+            function tryDeleteAtomicObject(direction = 'back') {
+                try {
+                    const S = '\uE000'; // Sentinel
+                    mf2.executeCommand('insert', S);
+                    const withSentinel = mf2.getValue('latex') || '';
+                    mf2.executeCommand('undo');
+
+                    const idx = withSentinel.indexOf(S);
+                    if (idx === -1) return false;
+
+                    const left = withSentinel.slice(0, idx);
+                    const right = withSentinel.slice(idx + S.length);
+
+                    const atomicPatternEnd = /\\underset\{\\sim\}\{[a-zA-Z]\}$/;
+                    const atomicPatternStart = /^\\underset\{\\sim\}\{[a-zA-Z]\}/;
+
+                    if (direction === 'back') {
+                        const match = left.match(atomicPatternEnd);
+                        if (match) {
+                            mf2.setValue(left.slice(0, -match[0].length) + right);
+                            return true;
+                        }
+                    } else if (direction === 'fwd') {
+                        const match = right.match(atomicPatternStart);
+                        if (match) {
+                            mf2.setValue(left + right.slice(match[0].length));
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch (e) {
+                    console.warn('Atomic deletion failed:', e);
+                    return false;
+                }
             }
-        });
 
-        // Handle deletion of atomic structures like vectors
-        function tryDeleteAtomicObject(direction = 'back') {
-            try {
-                const S = '\uE000'; // Sentinel
-                mf2.executeCommand('insert', S);
-                const withSentinel = mf2.getValue('latex') || '';
-                mf2.executeCommand('undo');
-
-                const idx = withSentinel.indexOf(S);
-                if (idx === -1) return false;
-
-                const left = withSentinel.slice(0, idx);
-                const right = withSentinel.slice(idx + S.length);
-
-                const atomicPatternEnd = /\\underset\{\\sim\}\{[a-zA-Z]\}$/;
-                const atomicPatternStart = /^\\underset\{\\sim\}\{[a-zA-Z]\}/;
-
-                if (direction === 'back') {
-                    const match = left.match(atomicPatternEnd);
-                    if (match) {
-                        mf2.setValue(left.slice(0, -match[0].length) + right);
-                        return true;
-                    }
-                } else if (direction === 'fwd') {
-                    const match = right.match(atomicPatternStart);
-                    if (match) {
-                        mf2.setValue(left + right.slice(match[0].length));
-                        return true;
+            mf2.addEventListener('beforeinput', (ev) => {
+                if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
+                    if (tryDeleteAtomicObject(ev.inputType === 'deleteContentBackward' ? 'back' : 'fwd')) {
+                        ev.preventDefault();
+                        syncFromMathLive();
                     }
                 }
-                return false;
-            } catch (e) {
-                console.warn('Atomic deletion failed:', e);
-                return false;
+            });
+        }
+        
+        /* ---------------- Toolbar and Tabs ---------------- */
+        const tabs=[{id:'calc',label:'Calculus'},{id:'func',label:'Functions'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
+        const tabRowConfig={};
+        const inlineHintDictionary=new Map([
+            ['\\int','int'],
+            ['\\sum','sum'],
+            ['\\prod','prod'],
+            ['\\lim','lim'],
+            ['\\sqrt','sqrt'],
+            ['\\frac','frac'],
+            ['\\vec','vec'],
+            ['\\dot','dot'],
+            ['\\ddot','ddot'],
+            ['\\sin','sin'],
+            ['\\cos','cos'],
+            ['\\tan','tan'],
+            ['\\ln','ln'],
+            ['\\log','log'],
+            ['\\operatorname{proj}','proj'],
+            ['\\overrightarrow','overrightarrow'],
+            ['\\alpha','alpha'],
+            ['\\beta','beta'],
+            ['\\gamma','gamma'],
+            ['\\delta','delta'],
+            ['\\theta','theta'],
+            ['\\lambda','lambda'],
+            ['\\mu','mu'],
+            ['\\sigma','sigma'],
+            ['\\omega','omega'],
+            ['\\Delta','Delta'],
+            ['\\infty','infty'],
+            ['\\angle','angle'],
+            ['\\geq','>='],
+            ['\\leq','<='],
+            ['\\approx','approx'],
+            ['\\equiv','equiv'],
+            ['\\implies','implies'],
+            ['\\iff','iff']
+        ]);
+        const HOVER_HINT_DELAY=120;
+        const hintIgnorePatterns=[/\\left\\./];
+        const unicodeOptionLabels=new Map([
+            ['\\alpha','α'],
+            ['\\beta','β'],
+            ['\\gamma','γ'],
+            ['\\delta','δ'],
+            ['\\theta','θ'],
+            ['\\lambda','λ'],
+            ['\\mu','μ'],
+            ['\\sigma','σ'],
+            ['\\omega','ω'],
+            ['\\phi','φ'],
+            ['\\psi','ψ'],
+            ['\\eta','η'],
+            ['\\rho','ρ'],
+            ['\\tau','τ'],
+            ['\\Delta','Δ']
+        ]);
+        const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
+        const formatOptionLabel=(value,label)=>{
+            const candidate=typeof label==='string'?label:value;
+            if(typeof candidate!=='string') return label??value;
+            return unicodeOptionLabels.get(candidate)||unicodeOptionLabels.get(value)||label||value;
+        };
+        function formatHintText(hint){
+            if(!hint) return null;
+            const trimmed=hint.trim();
+            if(!trimmed) return null;
+            return trimmed.startsWith('\\') ? `Type ${trimmed}` : `Type "${trimmed}"`;
+        }
+        function deriveHintFromInsert(insert){
+            if(!insert) return null;
+            const trimmed=insert.trim();
+            const commandMatch=trimmed.match(/^\\[a-zA-Z]+/);
+            if(commandMatch){
+                const command=commandMatch[0];
+                if(inlineHintDictionary.has(command)) return inlineHintDictionary.get(command);
+                return command;
+            }
+            const wordMatch=trimmed.match(/^[a-zA-Z]+/);
+            if(wordMatch) return wordMatch[0];
+            return null;
+        }
+        function getInlineHint(keyConfig){
+            if(!keyConfig) return null;
+            if(typeof keyConfig.hint==='function') return keyConfig.hint(keyConfig);
+            if(keyConfig.hint) return keyConfig.hint;
+            if(hintIgnorePatterns.some(re => re.test(keyConfig.insert||''))) return null;
+            if(keyConfig.keyType==='cis' || keyConfig.keyType==='cos-isin') return 'cis';
+            if(keyConfig.base&&inlineHintDictionary.has(keyConfig.base)) return inlineHintDictionary.get(keyConfig.base);
+            return deriveHintFromInsert(keyConfig.insert||'');
+        }
+        function registerHintTooltip(target,getHint){
+            let hoverTimer;
+            target.addEventListener('mouseenter',()=>{
+                const hint=getHint();
+                const formatted=formatHintText(hint);
+                if(!formatted) return;
+                if(hint) target.setAttribute('data-hint', hint);
+                target.setAttribute('title', formatted);
+                hoverTimer=setTimeout(()=>{
+                    let tooltip=target.querySelector('.tooltip');
+                    if(!tooltip){
+                        tooltip=document.createElement('div');
+                        tooltip.className='tooltip';
+                        target.appendChild(tooltip);
+                    }
+                    tooltip.textContent=formatted;
+                    tooltip.style.display='block';
+                },HOVER_HINT_DELAY);
+            });
+            target.addEventListener('mouseleave',()=>{
+                clearTimeout(hoverTimer);
+                const tooltip=target.querySelector('.tooltip');
+                if(tooltip) tooltip.remove();
+            });
+        }
+        function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();const hint=inlineHintDictionary.get(b)||deriveHintFromInsert(`${b}{${d}}`);return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0,hint}}
+        
+        const layouts={
+            calc:[
+                {display:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{} dx'},
+                {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{} dx'},
+                {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
+                {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
+                {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
+                {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
+                {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
+            ],
+            func:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\placeholder{}}(\\placeholder{})',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},{display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}'},{display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}'}],
+            sym:[
+                {display:'>',insert:'>',renderMode:'text'},
+                {display:'<',insert:'<',renderMode:'text'},
+                {display:'\\geq',insert:'\\geq'},
+                {display:'\\leq',insert:'\\leq'},
+                {display:'\\pm', insert:'\\pm'},
+                {display:'\\angle', insert: '\\angle'},
+                {display:'^{\\circ}', insert:'^{\\circ}',hint:'circ'},
+                {display:'\\neg',insert:'\\neg'},
+                {display:'\\infty',insert:'\\infty'},
+                {display:'\\neq',insert:'\\neq'},
+                {display:'\\approx',insert:'\\approx'},
+                {display:'\\equiv',insert:'\\equiv'},
+                {display:'\\to',insert:'\\to'},
+                {display:'\\implies',insert:'\\implies'},
+                {display:'\\iff',insert:'\\iff'},
+                {display:'\\sim',insert:'\\sim'}
+            ],
+
+            vec:[
+                vectorKey('\\vec','v',['v','u','w','r','a']),
+                vectorKey('\\dot','x',['x','y','z','r','v']),
+                vectorKey('\\ddot','x',['x','y','z','r','a']),
+                {display:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}',insert:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}'},
+                {
+                    isSelectable: true,
+                    base: '\\underset{\\sim}',
+                    currentVar: '\\placeholder{}',
+                    insert: '\\underset{\\sim}{\\placeholder{}}',
+                    display: '\\underset{\\sim}{\\placeholder{}}',
+                    options: [
+                        { value: '\\placeholder{}', text: '□' },
+                        'a','b','c','u','v','w','r',
+                        ...allLetters.filter(l => !['a','b','c','u','v','w','r'].includes(l))
+                    ]
+                },
+                {display:'\\underset{\\sim}{i}',insert:'\\underset{\\sim}{i}'},
+                {display:'\\underset{\\sim}{j}',insert:'\\underset{\\sim}{j}'},
+                {display:'\\underset{\\sim}{k}',insert:'\\underset{\\sim}{k}'},
+                {display:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
+                {display:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
+                {display:'\\overrightarrow{\\placeholder{}}',insert:'\\overrightarrow{\\placeholder{}}'}
+            ],
+            greek:[{display:'\\alpha',insert:'\\alpha'},{display:'\\beta',insert:'\\beta'},{display:'\\gamma',insert:'\\gamma'},{display:'\\delta',insert:'\\delta'},{display:'\\theta',insert:'\\theta'},{display:'\\lambda',insert:'\\lambda'},{display:'\\mu',insert:'\\mu'},{display:'\\sigma',insert:'\\sigma'},{display:'\\omega',insert:'\\omega'},{display:'\\Delta',insert:'\\Delta'}],
+            complex:[
+                {
+                    isSelectable: true,
+                    keyType: 'cis',
+                    currentVar: '\\theta',
+                    display: '\\operatorname{cis}(\\theta)',
+                    insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                    options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'cos-isin',
+                    currentVar: '\\theta',
+                    display: '\\cos(\\theta)+i\\sin(\\theta)',
+                    insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                    options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+                },
+                {display:'|z|',insert:'|z|'},
+                {display:'arg(z)',insert:'arg(z)'},
+                {display:'\\overline{z}',insert:'\\overline{z}'},
+                {display:'Re(z)',insert:'Re(z)'},
+                {display:'Im(z)',insert:'Im(z)'}
+                
+            ],
+            sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}]
+        };
+
+        // Curated layouts for toolbar
+        const curatedLayouts = {
+            calc: [
+                { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{} dx' },
+                { display: '\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}} \\\nplaceholder{} dx' },
+                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
+            ],
+            func: [
+                { display: '\\sqrt{\\placeholder{}}', insert: '\\sqrt{\\placeholder{}}' },
+                { display: '\\sqrt[\\placeholder{}]{\\placeholder{}}', insert: '\\sqrt[\\placeholder{}]{\\placeholder{}}' }
+            ],
+            sym: [
+                { display: '>', insert: '>', renderMode: 'text' },
+                { display: '<', insert: '<', renderMode: 'text' },
+                { display: '\\geq', insert: '\\geq' },
+                { display: '\\leq', insert: '\\leq' },
+                { display: '~', insert: '~', renderMode: 'text' },
+                { display: '^{\\circ}', insert:'^{\\circ}', hint: 'circ' },
+                { display: '\\neg', insert: '\\neg' },
+                { display: '\\infty', insert: '\\infty' }
+            ],
+            vec: [
+                {
+                    isSelectable: true,
+                    base: '\\underset{\\sim}',
+                    currentVar: '\\placeholder{}',
+                    insert: '\\underset{\\sim}{\\placeholder{}}',
+                    display: '\\underset{\\sim}{\\placeholder{}}',
+                    options: [
+                        { value: '\\placeholder{}', text: '□' },
+                        'a','b','c','u','v','w','r'
+                    ].concat(allLetters.filter(l => !['a','b','c','u','v','w','r'].includes(l)))
+                },
+                { display: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}', insert: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}' },
+                { display: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}', insert: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}' },
+                { display: '\\overrightarrow{\\placeholder{}}', insert: '\\overrightarrow{\\placeholder{}}' }
+            ],
+            greek: [
+                { display: '\\alpha', insert: '\\alpha' },
+                { display: '\\beta', insert: '\\beta' },
+                { display: '\\gamma', insert: '\\gamma' },
+                { display: '\\theta', insert: '\\theta' },
+                { display: '\\lambda', insert: '\\lambda' },
+                { display: '\\mu', insert: '\\mu' },
+                { display: '\\sigma', insert: '\\sigma' }
+            ],
+            complex: [
+                {
+                    isSelectable: true,
+                    keyType: 'cos-isin',
+                    currentVar: '\\theta',
+                    display: '\\cos(\\theta)+i\\sin(\\theta)',
+                    insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                    options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+                },
+                { display: '|z|', insert: '|z|' },
+                { display: 'arg(z)', insert: 'arg(z)' },
+                { display: '\\overline{z}', insert: '\\overline{z}' }
+            ],
+            sets: [
+                { display: '\\in', insert: '\\in' },
+                { display: '\\mathbb{N}', insert: '\\mathbb{N}' },
+                { display: '\\mathbb{Z}', insert: '\\mathbb{Z}' },
+                { display: '\\mathbb{Q}', insert: '\\mathbb{Q}' },
+                { display: '\\mathbb{R}', insert: '\\mathbb{R}' }
+            ]
+        };
+
+
+        function buildTabs(){
+            const tabsContainer=document.getElementById('tabs');
+            tabsContainer.innerHTML='';
+            tabs.forEach(tabInfo=>{
+                const tabEl=document.createElement('button');
+                tabEl.type='button';
+                tabEl.className='tab';
+                tabEl.textContent=tabInfo.label;
+                tabEl.dataset.tabId=tabInfo.id;
+                tabEl.addEventListener('click',()=>toggleExpand(tabInfo.id));
+                tabsContainer.appendChild(tabEl);
+            });
+            const tabEls=Array.from(tabsContainer.querySelectorAll('.tab'));
+            tabEls.forEach((tabEl,index)=>{
+                tabEl.addEventListener('keydown',(event)=>handleTabKeyNavigation(event,index,tabEls));
+            });
+            syncTabHighlight();
+        }
+
+        function handleTabKeyNavigation(event,currentIndex,tabEls){
+            const { key } = event;
+            if(['ArrowLeft','ArrowUp','ArrowRight','ArrowDown'].includes(key)){
+                event.preventDefault();
+                const direction = (key==='ArrowLeft'||key==='ArrowUp') ? -1 : 1;
+                const nextIndex = (currentIndex + direction + tabEls.length) % tabEls.length;
+                tabEls[nextIndex].focus();
+                return;
+            }
+            if(key===' ' || key==='Enter'){
+                event.preventDefault();
+                tabEls[currentIndex].click();
             }
         }
 
-        mf2.addEventListener('beforeinput', (ev) => {
-            if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
-                if (tryDeleteAtomicObject(ev.inputType === 'deleteContentBackward' ? 'back' : 'fwd')) {
-                    ev.preventDefault();
-                    syncFromMathLive();
-                }
+        function renderMathInPlace(element){
+            if(!element || !element.dataset) return;
+            const latex = element.dataset.math;
+            if(!latex) return;
+
+            const renderMode = element.dataset.renderMode || 'math';
+            if(renderMode === 'text'){
+                element.textContent = latex;
+                element.classList.add('math-display-text');
+                return;
             }
-        });
-    }
-    
-    /* ---------------- Keyboard (tabs + keys) ---------------- */
-    const tabs=[{id:'calc',label:'Calculus'},{id:'func',label:'Functions'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
-    const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
-    function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
-    
-    const layouts={
-        calc:[
-            {display:'\\int_{\\square}^{\\square} \\square\\,dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{} dx'},
-            {display:'\\int \\square\\,dx', insert:'\\int \\placeholder{} dx'},
-            {display:'\\sum_{n=\\square}^{\\square} \\square',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
-            {display:'\\prod_{n=\\square}^{\\square} \\square',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
-            {display:'\\lim_{x\\to\\square} \\square',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
-            {display:'\\frac{d}{dx}(\\square)',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'},
-            {display:'\\left.\\square\\right|_{\\square}^{\\square}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
-            {display:'\\sqrt{\\square}',insert:'\\sqrt{\\placeholder{}}'},
-            {display:'\\sqrt[\\square]{\\square}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}'}
-        ],
-        func:[{display:'\\sin(\\square)',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\square)',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\square)',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\square)',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\square)',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\square)',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\square)',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\square}(\\square)',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\square}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\square \\rvert',insert:'\\lvert \\placeholder{} \\rvert'}],
-        sym:[
-            {display:'>',insert:'>'},
-            {display:'<',insert:'<'},
-            {display:'\\geq',insert:'\\geq'},
-            {display:'\\leq',insert:'\\leq'},
-            {display:'\\pm', insert:'\\pm'},
-            {display:'\\angle', insert: '\\angle'},
-            {display:'^{\\circ}', insert:'^{\\circ}'},
-            {display:'\\infty',insert:'\\infty'},
-            {display:'\\neq',insert:'\\neq'},
-            {display:'\\approx',insert:'\\approx'},
-            {display:'\\equiv',insert:'\\equiv'},
-            {display:'\\to',insert:'\\to'},
-            {display:'\\implies',insert:'\\implies'},
-            {display:'\\iff',insert:'\\iff'}
-        ],
-        vec:[
-            vectorKey('\\vec','v',['v','u','w','r','a']),
-            vectorKey('\\dot','x',['x','y','z','r','v']),
-            vectorKey('\\ddot','x',['x','y','z','r','a']),
-            {display:'\\operatorname{proj}_{\\underset{\\sim}{\\square}}\\underset{\\sim}{\\square}',insert:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}'},
-            {
-                isSelectable: true,
-                base: '\\underset{\\sim}',
-                currentVar: '\\placeholder{}',
-                insert: '\\underset{\\sim}{\\placeholder{}}',
-                display: '\\underset{\\sim}{\\square}',
-                options: [
-                    { value: '\\placeholder{}', text: '□' },
-                    'a','b','c','u','v','w','r',
-                    ...allLetters.filter(l => !['a','b','c','u','v','w','r'].includes(l))
-                ]
-            },
-            {display:'\\underset{\\sim}{i}',insert:'\\underset{\\sim}{i}'},
-            {display:'\\underset{\\sim}{j}',insert:'\\underset{\\sim}{j}'},
-            {display:'\\underset{\\sim}{k}',insert:'\\underset{\\sim}{k}'},
-            {display:'\\begin{pmatrix} \\square \\\\ \\square \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
-            {display:'\\begin{pmatrix} \\square \\\\ \\square \\\\ \\square \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
-            {display:'\\overrightarrow{\\square}',insert:'\\overrightarrow{\\placeholder{}}'} // New button for \overrightarrow{AB}
-        ],
-        greek:[{display:'\\alpha',insert:'\\alpha'},{display:'\\beta',insert:'\\beta'},{display:'\\gamma',insert:'\\gamma'},{display:'\\delta',insert:'\\delta'},{display:'\\theta',insert:'\\theta'},{display:'\\lambda',insert:'\\lambda'},{display:'\\mu',insert:'\\mu'},{display:'\\sigma',insert:'\\sigma'},{display:'\\omega',insert:'\\omega'},{display:'\\Delta',insert:'\\Delta'}],
-        complex:[
-            {
-                isSelectable: true,
-                keyType: 'cis',
-                currentVar: '\\theta',
-                display: '\\operatorname{cis}(\\theta)',
-                insert: '\\cos(\\theta)+i\\sin(\\theta)',
-                options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
-            },
-            {
-                isSelectable: true,
-                keyType: 'cos-isin',
-                currentVar: '\\theta',
-                display: '\\cos(\\theta)+i\\sin(\\theta)',
-                insert: '\\cos(\\theta)+i\\sin(\\theta)',
-                options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
-            },
-            {display:'|z|',insert:'|z|'},
-            {display:'arg(z)',insert:'arg(z)'},
-            {display:'\\overline{z}',insert:'\\overline{z}'},
-            {display:'Re(z)',insert:'Re(z)'},
-            {display:'Im(z)',insert:'Im(z)'},
-            
-        ],
-        sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}]
-    };
 
-    function buildTabs(){const a=document.getElementById('tabs');a.innerHTML='';tabs.forEach(c=>{const b=document.createElement('div');b.textContent=c.label;b.className='tab';b.onclick=()=>activateTab(c.id);a.appendChild(b)});activateTab('calc')}
-    function buildKeys(c) {
-        const a = document.getElementById('keys');
-        a.innerHTML = '';
-        (layouts[c] || []).forEach((d, e) => {
-            if (d.isSelectable) {
-                const f = document.createElement('div');
-                f.className = 'key';
-                f.setAttribute('data-idx', e);
-                f.tabIndex = 0 === e ? 0 : -1;
-                
-                const mathContent = document.createElement('div');
-                const selector = document.createElement('select');
-                selector.className = 'selector';
+            element.classList.remove('math-display-text');
 
-                d.options.forEach(opt => {
-                    const h = document.createElement('option');
+            let latexForRender = latex;
+            if(latex.includes('\\placeholder')){
+                // Fix stubborn boxes: keep placeholders inside \underset{\sim}{...} at text size
+                latexForRender = latexForRender.replace(/\\underset\\{\\sim\\}\\{\\placeholder\\{\\}\\}/g, '\\underset{\\sim}{\\square}');
+                // Force remaining placeholders to a constant size regardless of script level
+                latexForRender = latexForRender.replace(/\\placeholder\{\}/g, '{\\displaystyle\\square}');
+            }
+
+            if (window.MathJax && window.MathJax.tex2svgPromise) {
+                window.MathJax.tex2svgPromise(latexForRender).then(node => {
+                    const svg = node.querySelector('svg');
+                    if (svg) {
+                        element.innerHTML = '';
+                        const wrapper = document.createElement('span');
+                        wrapper.className = 'math-render';
+                        wrapper.appendChild(svg);
+                        element.appendChild(wrapper);
+                    }
+                }).catch(err => console.warn('MathJax tex2svg failed:', err));
+            } else {
+                element.textContent = latex;
+                element.classList.add('math-display-text');
+            }
+        }
+
+        function latexTokenToUnicode(token){
+            const map = new Map([
+                ['\\alpha','α'],['\\beta','β'],['\\gamma','γ'],['\\delta','δ'],['\\epsilon','ε'],['\\zeta','ζ'],['\\eta','η'],['\\theta','θ'],['\\iota','ι'],['\\kappa','κ'],['\\lambda','λ'],['\\mu','μ'],['\\nu','ν'],['\\xi','ξ'],['\\omicron','ο'],['\\pi','π'],['\\rho','ρ'],['\\sigma','σ'],['\\tau','τ'],['\\upsilon','υ'],['\\phi','φ'],['\\chi','χ'],['\\psi','ψ'],['\\omega','ω'],
+                ['\\Gamma','Γ'],['\\Delta','Δ'],['\\Theta','Θ'],['\\Lambda','Λ'],['\\Xi','Ξ'],['\\Pi','Π'],['\\Sigma','Σ'],['\\Upsilon','Υ'],['\\Phi','Φ'],['\\Psi','Ψ'],['\\Omega','Ω']
+            ]);
+            if(token==='\\placeholder{}') return '□';
+            return map.get(token) || token;
+        }
+
+        function formatSelectOptionLabel(value, providedText){
+            if(typeof providedText==='string' && providedText.trim().length>0){
+                return providedText;
+            }
+            if(typeof value==='string'){
+                return latexTokenToUnicode(value);
+            }
+            return String(value);
+        }
+
+        function createKeyElement(d){
+            if(d.isSelectable){
+                const key=document.createElement('div');
+                key.className='key has-selector';
+                key.tabIndex=-1;
+
+                const mathContent=document.createElement('div');
+                mathContent.className='math-display';
+                mathContent.dataset.math=d.display;
+                // Always render with MathJax unless explicitly requested as text
+                mathContent.dataset.renderMode = d.renderMode || 'math';
+                const selector=document.createElement('select');
+                selector.className='selector';
+
+                d.options.forEach(opt=>{
+                    const optionEl=document.createElement('option');
                     let val, txt;
-                    if (typeof opt === 'object' && opt.value !== undefined) {
+                    if(typeof opt==='object' && opt.value!==undefined){
                         val = opt.value;
                         txt = opt.text;
                     } else {
                         val = opt;
-                        txt = opt;
+                        txt = undefined;
                     }
-                    h.value = val;
-                    h.innerHTML = txt; // Use text for display in dropdown
-                    if (val === d.currentVar) h.selected = true;
-                    selector.appendChild(h);
+                    optionEl.value = val;
+                    optionEl.textContent = formatSelectOptionLabel(val, txt);
+                    if(val === d.currentVar) optionEl.selected = true;
+                    selector.appendChild(optionEl);
                 });
 
-                ['click', 'mousedown', 'touchstart'].forEach(i => {
-                    selector.addEventListener(i, h => h.stopPropagation(), { capture: true });
+                ['click','mousedown','touchstart'].forEach(eventType=>{
+                    selector.addEventListener(eventType, event=>event.stopPropagation(), { capture:true });
                 });
-                
-                selector.addEventListener('change', i => {
-                    d.currentVar = i.target.value;
-                    const currentVal = d.currentVar;
 
-                    if (d.keyType === 'cis') {
-                        d.insert = `\\cos(${currentVal})+i\\sin(${currentVal})`;
-                        d.display = `\\operatorname{cis}(${currentVal})`;
-                    } else if (d.keyType === 'cos-isin') {
-                        d.insert = `\\cos(${currentVal})+i\\sin(${currentVal})`;
-                        d.display = d.insert;
-                    } else { 
-                        d.insert = `${d.base}{${currentVal}}`;
-                        d.display = (currentVal === '\\placeholder{}') ? `${d.base}{\\square}` : `${d.base}{${currentVal}}`;
+                selector.addEventListener('change', event=>{
+                    d.currentVar=event.target.value;
+                    const currentVal=d.currentVar;
+
+                    if(d.keyType==='cis'){
+                        d.insert=`\\cos(${currentVal})+i\\sin(${currentVal})`;
+                        d.display=`\\operatorname{cis}(${currentVal})`;
+                    }else if(d.keyType==='cos-isin'){
+                        d.insert=`\\cos(${currentVal})+i\\sin(${currentVal})`;
+                        d.display=d.insert;
+                    }else{
+                        d.insert=`${d.base}{${currentVal}}`;
+                        d.display=`${d.base}{${currentVal}}`;
                     }
                     
-                    mathContent.innerHTML = '$$' + d.display + '$$';
-                    mjxTypeset(mathContent);
+                    mathContent.dataset.math=d.display;
+                    if(d.renderMode){
+                        mathContent.dataset.renderMode = d.renderMode;
+                    }else{
+                        mathContent.dataset.renderMode = 'math';
+                    }
+                renderMathInPlace(mathContent);
                 });
-                
-                mathContent.innerHTML = '$$' + d.display + '$$';
-                f.addEventListener('click', i => { if (i.target !== selector) insertLatex(d.insert); });
 
-                f.appendChild(mathContent);
-                f.appendChild(selector);
-                a.appendChild(f);
-                mjxTypeset(f);
-            } else {
-                const f = document.createElement('button');
-                f.type = 'button';
-                f.className = 'key';
-                f.setAttribute('data-idx', e);
-                f.tabIndex = 0 === e ? 0 : -1;
-                f.innerHTML = '$$' + d.display + '$$';
-                f.addEventListener('click', () => insertLatex(d.insert));
-                a.appendChild(f);
-                mjxTypeset(f);
+                mathContent.textContent=d.display;
+                key.addEventListener('click', event=>{if(event.target!==selector) insertLatex(d.insert);});
+
+                key.appendChild(mathContent);
+                key.appendChild(selector);
+                renderMathInPlace(mathContent);
+                return key;
             }
-        });
-    }
-    function activateTab(a){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));const c=tabs.find(b=>b.id===a);document.querySelectorAll('.tab').forEach(b=>{if(c&&b.textContent===c.label) b.classList.add('active')});buildKeys(a)}
-    let currentIndex=0;function focusCurrentKey(){const a=[...document.querySelectorAll('.key')];a.forEach((b,c)=>{b.tabIndex=c===currentIndex?0:-1});const b=a[currentIndex];b&&b.focus()}keysEl.addEventListener('keydown',a=>{const b=[...document.querySelectorAll('.key')];if(b.length){if('ArrowRight'===a.key){a.preventDefault();currentIndex=(currentIndex+1)%b.length;focusCurrentKey()}else if('ArrowLeft'===a.key){a.preventDefault();currentIndex=(currentIndex-1+b.length)%b.length;focusCurrentKey()}else if('Enter'===a.key||' '===a.key){a.preventDefault();b[currentIndex].click()}}});buildTabs();
 
-    /* ---------------- Load MathLive ---------------- */
-    async function loadMathLive(){
-        const sources = {
-            coreCss: ['https://unpkg.com/mathlive/dist/mathlive.core.css', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.core.css'],
-            css: ['https://unpkg.com/mathlive/dist/mathlive.css', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.css'],
-            js: ['https://unpkg.com/mathlive/dist/mathlive.min.js', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js']
-        };
-        let loaded = false;
-
-        for (const url of sources.coreCss) {
-            try {
-                await new Promise((resolve, reject) => {
-                    const link = document.createElement('link');
-                    link.rel = 'stylesheet';
-                    link.href = url;
-                    link.onload = () => resolve();
-                    link.onerror = () => reject();
-                    document.head.appendChild(link);
-                });
-                loaded = true;
-                break;
-            } catch {}
+            const key=document.createElement('button');
+            key.type='button';
+            key.className='key';
+            key.tabIndex=-1;
+            const mathSpan=document.createElement('span');
+            mathSpan.className='math-display';
+            mathSpan.dataset.math=d.display;
+            if(d.renderMode){
+                mathSpan.dataset.renderMode = d.renderMode;
+            }else{
+                mathSpan.dataset.renderMode = 'math';
+            }
+            mathSpan.textContent=d.display;
+            key.appendChild(mathSpan);
+            key.addEventListener('click',()=>insertLatex(d.insert));
+            renderMathInPlace(mathSpan);
+            return key;
         }
 
-        for (const url of sources.css) {
-            try {
-                await new Promise((resolve, reject) => {
-                    const link = document.createElement('link');
-                    link.rel = 'stylesheet';
-                    link.href = url;
-                    link.onload = () => resolve();
-                    link.onerror = () => reject();
-                    document.head.appendChild(link);
-                });
-                break;
-            } catch {}
+
+        let currentExpandedTab = null;
+        function syncTabHighlight(){
+            document.querySelectorAll('#tabs .tab').forEach(tabEl=>{
+                const tabId=tabEl.dataset.tabId;
+                const isExpanded=currentExpandedTab===tabId;
+                tabEl.setAttribute('data-expanded', isExpanded ? 'true' : 'false');
+            });
+        }
+        function toggleExpand(id) {
+    const expArea = document.getElementById('expanded-area');
+    if (currentExpandedTab === id) {
+        // Collapse globally current
+                expArea.innerHTML = '';
+                expArea.classList.add('hidden');
+                currentExpandedTab = null;
+                syncTabHighlight();
+                return;
+            }
+            // Collapse any previous
+            expArea.innerHTML = '';
+            // Expand new one
+            const layoutItems = layouts[id] ?? [];
+            const rowCount = tabRowConfig[id] || 1;
+            const perRow = Math.max(1, Math.ceil(layoutItems.length / rowCount) || layoutItems.length || 1);
+
+            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+                const sliceStart = rowIndex * perRow;
+                const rowItems = layoutItems.slice(sliceStart, sliceStart + perRow);
+                if (!rowItems.length) continue;
+                const rowDiv = document.createElement('div');
+                rowDiv.className = 'key-row';
+                rowDiv.style.gridTemplateColumns = `repeat(${rowItems.length}, minmax(0, 1fr))`;
+                rowDiv.style.width = '100%';
+                rowDiv.style.alignItems = 'stretch';
+                rowDiv.style.justifyItems = 'stretch';
+                rowDiv.style.columnGap = '16px';
+                 rowItems.forEach(item => {
+                     const keyEl = createKeyElement(item);
+                     // Register hover hint tooltips for keys that have a typing replacement
+                     // Skip for the Vectors tab (custom templates)
+                     if (id !== 'vec') {
+                        registerHintTooltip(keyEl, () => getInlineHint(item));
+                     }
+                     rowDiv.appendChild(keyEl);
+                 });
+                expArea.appendChild(rowDiv);
+            }
+            expArea.classList.remove('hidden');
+            currentExpandedTab = id;
+            syncTabHighlight();
+            
+            // Typeset the newly created buttons with proper timing
+            setTimeout(() => {
+                typesetMathElements();
+            }, 100);
+            
+            // Additional typeset after a longer delay to ensure MathJax is ready
+            setTimeout(() => {
+                typesetMathElements();
+            }, 500);
+        }
+        
+        buildTabs(); // Build tabs early
+
+        /* ---------------- Load MathLive ---------------- */
+        async function loadMathLive(){
+            const sources = {
+                coreCss: ['https://unpkg.com/mathlive/dist/mathlive.core.css', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.core.css'],
+                css: ['https://unpkg.com/mathlive/dist/mathlive.css', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.css'],
+                js: ['https://unpkg.com/mathlive/dist/mathlive.min.js', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js']
+            };
+            let loaded = false;
+
+            // Load core CSS
+            for (const url of sources.coreCss) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = url;
+                        link.onload = () => resolve();
+                        link.onerror = () => reject();
+                        document.head.appendChild(link);
+                    });
+                    loaded = true;
+                    break;
+                } catch (e) {
+                    console.warn('Failed to load core CSS from', url, e);
+                }
+            }
+
+            // Load main CSS
+            for (const url of sources.css) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = url;
+                        link.onload = () => resolve();
+                        link.onerror = () => reject();
+                        document.head.appendChild(link);
+                    });
+                    break;
+                } catch (e) {
+                    console.warn('Failed to load CSS from', url, e);
+                }
+            }
+
+            // Load JavaScript
+            for (const url of sources.js) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = url;
+                        script.defer = true;
+                        script.onload = () => resolve();
+                        script.onerror = () => reject();
+                        document.head.appendChild(script);
+                    });
+                    status.textContent = 'MathLive loaded';
+                    loaded = true;
+                    break;
+                } catch (e) {
+                    console.warn('Failed to load MathLive JS from', url, e);
+                }
+            }
+
+            if (!loaded) {
+                console.warn('MathLive failed to load from all sources');
+                status.textContent = 'MathLive unavailable';
+            }
+
+            return loaded;
         }
 
-        for (const url of sources.js) {
-            try {
-                await new Promise((resolve, reject) => {
-                    const script = document.createElement('script');
-                    script.src = url;
-                    script.defer = true;
-                    script.onload = () => resolve();
-                    script.onerror = () => reject();
-                    document.head.appendChild(script);
-                });
-                status.textContent = 'MathLive loaded from ' + url;
-                loaded = true;
-                break;
-            } catch {}
+        async function waitForMathFieldDefinition(){
+            try{
+                if(window.customElements && typeof customElements.whenDefined==='function'){
+                    await customElements.whenDefined('math-field');
+                }
+            }catch(e){ console.warn('math-field definition wait failed', e); }
         }
 
-        return loaded;
-    }
-    (async()=>{const a=await loadMathLive();if(a&&customElements.get('math-field')){status.textContent='MathLive ready';setTimeout(configureMathLive,100);}else{status.textContent='Fallback mode';}render()})();
+        function typesetMathElements(){
+            const mathElements=document.querySelectorAll('.math-display');
+            mathElements.forEach(renderMathInPlace);
+        }
 
-    /* ---------------- Copy buttons ---------------- */
-    async function copyToClipboard(a,b){try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(a);status.textContent=`Copied ${b} ✓`;return}}catch(c){console.warn('clipboard API failed',c)}const d=document.createElement('textarea');d.value=a;d.setAttribute('readonly','');d.style.position='fixed';d.style.left='-9999px';document.body.appendChild(d);d.select();try{document.execCommand('copy');status.textContent=`Copied ${b} ✓`}catch(c){status.textContent=`Copy ${b} failed`}finally{document.body.removeChild(d)}}
-    document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
-    document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+        (async()=>{
+            const loaded=await loadMathLive();
+            await waitForMathFieldDefinition();
+            
+            // Wait for MathJax to be ready
+            if (window.MathJax && window.MathJax.startup) {
+                await window.MathJax.startup.promise;
+            }
+            
+            // Initial typeset of any existing elements
+            typesetMathElements();
+            
+            if(loaded && window.MathfieldElement){
+                configureMathLive();
+                status.textContent='Ready';
+            }else{
+                status.textContent='Fallback mode - MathLive not available';
+            }
+            
+            // Ensure buttons are properly typeset after a short delay
+            setTimeout(() => {
+                typesetMathElements();
+            }, 500);
+            
+            // Additional typeset after MathJax is fully ready
+            setTimeout(() => {
+                typesetMathElements();
+            }, 1000);
+        })();
 
-    /* ---------- Tests ---------- */
-    function log(a){const b=document.getElementById('log');b.textContent+=(b.textContent?'\n':'')+a}function clearLog(){document.getElementById('log').textContent=''}
-    function runTests(){clearLog();activateTab('vec');const a=document.querySelector('.key select');if(!a){log('FAIL: No selector key found on "Vectors" tab.');return}log('Running tests on a selectable key...');log(26<=a.options.length?'PASS: selector contains at least 26 letters':'FAIL: selector size = '+a.options.length);const b=getLatex(),c=a.value;a.value='v'===a.value?'u':'v';a.dispatchEvent(new Event('change',{bubbles:!0}));log(b===getLatex()?'PASS: change selection does not insert':'FAIL: selection triggered insertion');const d=getLatex();a.parentElement&&a.parentElement.click();log(getLatex().length>d.length?'PASS: clicking key inserts':'FAIL: clicking key did not insert');a.value=c;a.dispatchEvent(new Event('change',{bubbles:!0}));activateTab('calc')}
-    document.getElementById('run').addEventListener('click',runTests);
-  </script>
+        /* ---------------- Copy buttons ---------------- */
+        async function copyToClipboard(a,b){try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(a);status.textContent=`Copied ${b} ✓`;return}}catch(c){console.warn('clipboard API failed',c)}const d=document.createElement('textarea');d.value=a;d.setAttribute('readonly','');d.style.position='fixed';d.style.left='-9999px';document.body.appendChild(d);d.select();try{document.execCommand('copy');status.textContent=`Copied ${b} ✓`}catch(c){status.textContent=`Copy ${b} failed`}finally{document.body.removeChild(d)}}
+        document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
+        document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+        document.getElementById('headerCopyLatex').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
+        document.getElementById('headerCopyWord').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+    </script>
 </body>
 </html>
