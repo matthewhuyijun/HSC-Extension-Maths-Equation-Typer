@@ -103,15 +103,15 @@
         .header-copy:hover,
         .copyBtn:focus-visible,
         .header-copy:focus-visible {
-            background: var(--copy-hover-bg);
-            color: var(--copy-hover-ink);
-            border-color: var(--copy-hover-border);
-            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+            background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--copy-bg));
+            border-color: var(--color-tab-active-bg);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+            transform: translateY(-1px);
         }
         .copyBtn:focus-visible,
         .header-copy:focus-visible { outline: 2px solid rgba(37, 99, 235, 0.6); outline-offset: 2px; }
         .copyBtn:active,
-        .header-copy:active { transform: translateY(1px); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25); }
+        .header-copy:active { box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25); }
         .header-controls { display: flex; align-items: center; gap: 12px; }
         #status { font-size: 12px; color: var(--color-header-text); font-weight: 600; }
         .theme-switcher { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-header-text); }
@@ -129,7 +129,7 @@
         /* Keys need a stacking context so their absolutely positioned children (selectors/tooltips) can layer */
         .key { position: relative; border-radius: 14px; border: 1px solid var(--key-border); background: var(--key-surface); color: var(--color-text); display: flex; align-items: center; justify-content: center; padding: 12px; width: 100%; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); transition: transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease; --key-content-max-height: calc(100% - 16px); }
         .key:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1); }
-        .key:hover { background: color-mix(in srgb, var(--color-tab-active-bg) 18%, var(--key-surface)); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); }
+        .key:hover { background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface)); border-color: var(--color-tab-active-bg); }
         /* Better expanded area sizing - FIXED HEIGHT FOR ALL TABS */
         #expanded-area .key {
             height: 120px !important;
@@ -185,16 +185,21 @@
             gap: 10px;
             font-size: 12px;
             font-weight: 600;
-            transition: background .2s ease, color .2s ease, border-color .2s ease;
+            transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .15s ease;
             flex: 1;
             min-width: 0;
             text-align: center;
         }
-        .tab:hover { background: var(--color-tab-active-bg); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); box-shadow: 0 12px 22px rgba(15,23,42,0.15); }
+        .tab:hover {
+            background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--color-tab-bg));
+            border-color: var(--color-tab-active-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 22px rgba(15,23,42,0.18);
+        }
         .tab::after { content: ''; }
         .tab[data-expanded="true"] { background: var(--color-tab-active-bg); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); }
         .tab[data-expanded="true"]::after { content: ''; }
-        .tab:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
+        .tab:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; transform: translateY(-1px); }
 
         button,
         select {
@@ -710,7 +715,19 @@ body {
             let w = String(latex ?? '');
 
             // Arrow variants
-            w = w.replace(/\\xrightarrow\{([^}]*)\}/g, '\\buildrel $1 \\over \\longlongrightarrow');
+            w = w.replace(/\\xrightarrow\s*\{\s*([\\s\\S]*?)\s*\}/g, (match, rawLabel) => {
+                const label = (rawLabel || '').trim();
+                if (!label) {
+                    return '\\longrightarrow';
+                }
+                const hasPlaceholder = /\\placeholder/.test(label);
+                const startsWithCommand = /^\\[A-Za-z]/.test(label);
+                if (hasPlaceholder || startsWithCommand) {
+                    return `\\buildrel${label}\\over\\longrightarrow`;
+                }
+                return `\\buildrel\\ ${label}\\over\\longrightarrow`;
+            });
+            w = w.replace(/\\\\buildrel/g, '\\buildrel');
             w = w.replace(/\\implies/g, '\\Longrightarrow');
 
             // Spacing and differential clean-up
