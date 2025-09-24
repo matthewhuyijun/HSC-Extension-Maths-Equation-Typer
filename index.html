@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
-    <meta charset="utf-8">
-    <title>HSC Ext 2 – Visual Math Printer (Dual Inputs with Vectors)</title>
-    <style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HSC Ext 2 – Visual Math Printer (Dual Inputs with Vectors)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
         :root {
             color-scheme: light;
             --color-bg: #f8fafc;
             --color-text: #111111;
+            --ink: #111827;
+            --muted: #6b7280;
             --color-header-bg: #2563eb;
             --color-header-text: #ffffff;
             --color-toolbar-bg: #e2e8f0;
@@ -23,12 +27,22 @@
             --color-tooltip-text: #ffffff;
             --color-control-bg: #ffffff;
             --color-control-text: #111111;
+            --color-caret: #1d4ed8;
+            /* Copy button palette (from chem tryper) */
+            --copy-bg: #ffffff;
+            --copy-border: rgba(15, 23, 42, 0.15);
+            --copy-ink: #0f172a;
+            --copy-hover-bg: var(--color-tab-active-bg);
+            --copy-hover-ink: var(--color-tab-active-text);
+            --copy-hover-border: rgba(37, 99, 235, 0.65);
         }
 
         [data-theme="dark"] {
             color-scheme: dark;
             --color-bg: #0f172a;
             --color-text: #e2e8f0;
+            --ink: #e2e8f0;
+            --muted: #94a3b8;
             --color-header-bg: #1d4ed8;
             --color-header-text: #e2e8f0;
             --color-toolbar-bg: #1f2937;
@@ -44,9 +58,19 @@
             --color-tooltip-text: #f8fafc;
             --color-control-bg: #1f2937;
             --color-control-text: #e2e8f0;
+            --color-caret: #93c5fd;
+            /* Copy button palette (from chem tryper) */
+            --copy-bg: rgba(15, 23, 42, 0.85);
+            --copy-border: rgba(148, 163, 184, 0.45);
+            --copy-ink: #f8fafc;
+            --copy-hover-bg: var(--color-tab-active-bg);
+            --copy-hover-ink: var(--color-tab-active-text);
+            --copy-hover-border: rgba(37, 99, 235, 0.65);
         }
 
-        body { font-family: sans-serif; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); }
+        * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; }
+        body { font-family: sans-serif; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; min-height: 100vh; }
         header { padding: 12px 16px; background: var(--color-header-bg); color: var(--color-header-text); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
         .header-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         header h1 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 600; }
@@ -55,38 +79,64 @@
             gap: 6px;
             flex-wrap: wrap;
         }
+        .copyBtn,
         .header-copy {
-            padding: 5px 12px;
-            border: 1px solid var(--color-border);
-            border-radius: 8px;
-            background: var(--color-surface);
-            color: var(--color-text);
-            font-size: 12px;
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: 1px solid var(--copy-border);
+            background: var(--copy-bg);
+            color: var(--copy-ink);
             font-weight: 600;
+            letter-spacing: -0.01em;
             cursor: pointer;
-            box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
-            transition: transform .1s ease, box-shadow .1s ease, background .2s ease;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25);
+            transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .12s ease, border-color .18s ease;
         }
-        .header-copy:hover { box-shadow: 0 8px 18px rgba(15, 23, 42, 0.25); }
-        .header-copy:active { transform: translateY(1px); box-shadow: 0 4px 10px rgba(15, 23, 42, 0.18); }
+        .copyBtn { font-size: 12px; }
+        .header-copy { font-size: 14px; }
+        .copyBtn:hover,
+        .header-copy:hover,
+        .copyBtn:focus-visible,
+        .header-copy:focus-visible {
+            background: var(--copy-hover-bg);
+            color: var(--copy-hover-ink);
+            border-color: var(--copy-hover-border);
+            box-shadow: 0 4px 14px rgba(15, 23, 42, 0.2);
+        }
+        .copyBtn:focus-visible,
+        .header-copy:focus-visible { outline: 2px solid rgba(37, 99, 235, 0.6); outline-offset: 2px; }
+        .copyBtn:active,
+        .header-copy:active { transform: translateY(1px); box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25); }
         .header-controls { display: flex; align-items: center; gap: 12px; }
-        #status { font-size: 12px; color: var(--color-header-text); }
+        #status { font-size: 12px; color: var(--color-header-text); font-weight: 600; }
         .theme-switcher { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-header-text); }
         .theme-switcher select { padding: 2px 6px; }
+        .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; border: 0; padding: 0; margin: -1px; }
+        .theme-segmented { display: inline-flex; align-items: center; gap: 6px; padding: 4px; background: var(--copy-bg); border: 1px solid var(--copy-border); border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.15); }
+        .theme-segmented input { position: absolute; opacity: 0; pointer-events: none; }
+        .theme-segmented label { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 28px; padding: 0 8px; border-radius: 8px; color: var(--copy-ink); opacity: 0.7; user-select: none; }
+        .theme-segmented input:checked + label { background: var(--color-surface); opacity: 1; box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08), inset 0 0 0 1px var(--copy-border); }
+        .theme-segmented label:hover { opacity: 0.9; }
 
         /* --- LAYOUT/STACKING FIXES --- */
         /* The select dropdowns on the 2nd row of the toolbar were getting covered by the tabs below. */
         /* Create clear stacking order: toolbar above tabs, and selectors above everything. */
         /* Keys need a stacking context so their absolutely positioned children (selectors/tooltips) can layer */
-        .key { position: relative; border-radius: 6px; border: 1px solid var(--color-border); background: var(--color-surface); color: var(--color-text); display: flex; align-items: center; justify-content: center; padding: 10px; width: 100%; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.12); transition: transform .1s ease, box-shadow .1s ease; }
+        .key { position: relative; border-radius: 14px; border: 1px solid var(--key-border); background: var(--key-surface); color: var(--color-text); display: flex; align-items: center; justify-content: center; padding: 12px; width: 100%; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); transition: transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease; --key-content-max-height: calc(100% - 16px); }
         .key:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1); }
+        .key:hover { background: color-mix(in srgb, var(--color-tab-active-bg) 18%, var(--key-surface)); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); }
         /* Better expanded area sizing - FIXED HEIGHT FOR ALL TABS */
         #expanded-area .key {
             height: 120px !important;
             min-height: 120px !important;
             max-height: 120px !important;
             width: 100%;
-            padding: 8px;
+            padding: 12px;
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -94,7 +144,7 @@
         }
 
         #expanded-area .key > div {
-            max-height: 34px;
+            max-height: var(--key-content-max-height);
             overflow: hidden;
             display: flex;
             align-items: center;
@@ -102,32 +152,48 @@
             width: 100%;
         }
 
-        #tabs_wrapper { background: var(--color-toolbar-bg); border-bottom: 1px solid var(--color-border); position: relative; z-index: 5; }
+        #tabs_wrapper {
+            background: var(--panel-surface);
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            position: relative;
+            z-index: 5;
+            width: 95%;
+            max-width: 1200px;
+            margin: 16px auto 0;
+            padding: 14px 16px;
+            box-shadow: 0 18px 36px var(--panel-shadow);
+        }
         .tabs {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-            gap: 5px;
-            padding: 5px;
+            display: flex;
+            gap: 8px;
+            padding: 0;
+            flex-wrap: wrap;
+            width: 100%;
         }
         .tab {
-            padding: 5px 9px;
+            padding: 10px 16px;
             border: 1px solid var(--color-border);
-            border-radius: 6px;
+            border-radius: 12px;
             cursor: pointer;
             background: var(--color-tab-bg);
             color: var(--color-tab-text);
             position: relative;
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             gap: 10px;
             font-size: 12px;
             font-weight: 600;
             transition: background .2s ease, color .2s ease, border-color .2s ease;
+            flex: 1;
+            min-width: 0;
+            text-align: center;
         }
-        .tab::after { content: '▸'; font-size: 12px; color: inherit; transition: transform .2s ease; }
+        .tab:hover { background: var(--color-tab-active-bg); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); box-shadow: 0 12px 22px rgba(15,23,42,0.15); }
+        .tab::after { content: ''; }
         .tab[data-expanded="true"] { background: var(--color-tab-active-bg); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); }
-        .tab[data-expanded="true"]::after { content: '▾'; }
+        .tab[data-expanded="true"]::after { content: ''; }
         .tab:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
 
         button,
@@ -141,7 +207,25 @@
             line-height: 1.25;
         }
         button:focus-visible, select:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
-        #expanded-area { display: flex; flex-direction: column; gap: 16px; padding: 14px; background: var(--color-surface-alt); border-bottom: 1px solid var(--color-border-strong); margin-bottom: 5px; width: 100%; position: relative; z-index: 10; overflow: visible; align-items: stretch; }
+        .hover-area { position: relative; display: block; width: 100%; }
+        #expanded-area {
+            --expanded-columns: 1;
+            display: grid;
+            grid-template-columns: repeat(var(--expanded-columns), minmax(0, 1fr));
+            gap: 16px;
+            padding: 20px;
+            background: var(--panel-surface);
+            border: 1px solid var(--panel-border);
+            border-radius: 18px;
+            margin: 16px auto 12px;
+            width: 95%;
+            max-width: 1200px;
+            position: static;
+            z-index: auto;
+            overflow: visible;
+            box-shadow: 0 22px 40px var(--panel-shadow);
+        }
+        #expanded-area:hover { background: color-mix(in srgb, var(--panel-surface) 92%, white); }
         .hidden { display: none; }
 
         .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
@@ -154,7 +238,8 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-start;
-            padding: 8px;
+            padding: 12px;
+            border-radius: 14px;
         }
         
         .key-row .key > * {
@@ -162,18 +247,58 @@
             overflow: hidden;
         }
 
-        #mainContent { width: min(960px, 90vw); margin: 18px auto; padding: 0 12px 24px; display: flex; flex-direction: column; gap: 20px; }
-        .section-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 12px; box-shadow: 0 1px 4px rgba(15,23,42,0.12); }
-        .section-card .card-body { padding: 16px; }
+        #mainContent { width: 100%; margin: 12px auto 0; padding: 0 0 48px; display: flex; flex-direction: column; gap: 24px; flex: 1 1 auto; align-items: center; }
+        /* Match chem-tryper card structure */
+        .section-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 18px; box-shadow: 0 22px 40px var(--panel-shadow); overflow: visible; width: 95%; max-width: 1200px; margin: 0 auto; }
+        .section-card:first-of-type { margin-top: 0; }
+        .section-card .card-body { padding: 28px 24px; width: 100%; margin: 0; }
+        .section-card:first-of-type .card-body { padding-top: 28px; padding-bottom: 28px; }
+        .section-card:last-of-type { margin-top: auto; }
+        .card { background: color-mix(in srgb, var(--panel-surface) 96%, transparent); border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); border-radius: 18px; box-shadow: 0 18px 36px var(--panel-shadow); overflow: hidden; }
+        .body { padding: 20px; }
+        .stack { display: grid; gap: 18px; }
 
-        #preview { padding: 0; min-height: 60px; border: none; background: var(--color-surface); color: var(--color-text); }
-        #editorWrap { padding: 0; display: flex; flex-direction: column; gap: 16px; }
-        .editor { margin: 0; position: relative; padding: 12px; border: 1px solid var(--color-border); border-radius: 8px; background: var(--color-surface-alt); }
-        .editor label { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 8px; gap: 8px; }
-        .editor button.copyBtn { margin-left: 0; font-size: 11px; padding: 2px 8px; }
-        math-field, textarea { width: 100%; min-height: 100px; font-size: 20px; padding: 8px; border: 1px solid var(--color-border); border-radius: 6px; display: block; background: var(--color-surface); color: var(--color-text); }
+        /* 顶部预览仍为独立卡片 */
+        #preview { min-height: 72px; padding: 24px; border: none; background: color-mix(in srgb, var(--panel-surface) 92%, white); color: var(--color-text); border-radius: 12px; border: 1px solid color-mix(in srgb, var(--panel-border) 75%, transparent); }
+
+        /* Editor stack exactly like chem-tryper */
+        #editorWrap { padding: 8px 0 16px; display: grid; gap: 20px; background: transparent; border: none; border-radius: 0; }
+        .editor {
+            position: relative;
+            padding: 20px;
+            border-radius: 18px;
+            background: var(--key-surface);
+            border: 1px solid var(--key-border);
+            box-shadow: 0 18px 36px var(--panel-shadow);
+            display: grid;
+            gap: 16px;
+        }
+        .editor-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .editor-header label,
+        .editor label {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+            margin: 0;
+        }
+        .editor-header label span,
+        .editor label span { display: block; }
+        .editor button.copyBtn { margin-left: 0; }
+        /* Input bars like chem-tryper */
+        math-field, textarea { width: 100%; min-height: 52px; font-size: 19.8px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); border-radius: 14px; display: block; background: color-mix(in srgb, var(--panel-surface) 96%, transparent); color: var(--color-text); margin: 0; transition: border-color .2s ease, background .2s ease; box-shadow: inset 0 1px 3px rgba(2, 6, 23, 0.05); }
+        #mf2 { min-height: 96px; }
+        #ta,
+        #wordOut { font-size: 16px; }
+        textarea { resize: none; }
         math-field::part(content) { color: var(--color-text); }
-        math-field::part(caret) { border-left: 2px solid var(--color-tab-active-bg); }
+        math-field::part(caret) { border-left: 3px solid var(--color-caret); }
         math-field .ML__paren.ML__delim { min-height: 100% !important; }
         math-field .ML__matrix { position: relative; }
         math-field .ML__matrix .ML__delim { height: 100% !important; }
@@ -195,20 +320,20 @@
         /* Shrink MathJax output inside keys */
         /* Default: make symbols larger in non-vector tabs */
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key > div {
-            max-height: 40px;
+            max-height: 100%;
         }
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container {
-            font-size: 0.9rem !important;
-            max-height: 36px !important;
+            font-size: clamp(1.05rem, 3.6vw, 1.6rem) !important;
+            max-height: 100% !important;
             max-width: 100% !important;
             overflow: hidden !important;
-            line-height: 1 !important;
+            line-height: 1.05 !important;
         }
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container svg {
-            max-height: 34px !important;
+            max-height: 100% !important;
             max-width: 100% !important;
             width: auto !important;
-            height: auto !important;
+            height: 100% !important;
         }
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container mjx-math,
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container *,
@@ -216,22 +341,22 @@
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mi,
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mo,
         #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mn {
-            font-size: 0.6rem !important;
-            line-height: 1 !important;
+            font-size: clamp(0.9rem, 3vw, 1.2rem) !important;
+            line-height: 1.06 !important;
         }
         /* Vector tab: keep more compact to fit large constructs */
         #expanded-area[data-tab-id="vec"] .key mjx-container {
-            font-size: 0.7rem !important;
-            max-height: 28px !important;
+            font-size: clamp(0.8rem, 2.6vw, 1.1rem) !important;
+            max-height: 100% !important;
             max-width: 100% !important;
             overflow: hidden !important;
-            line-height: 1 !important;
+            line-height: 1.05 !important;
         }
         #expanded-area[data-tab-id="vec"] .key mjx-container svg {
-            max-height: 26px !important;
+            max-height: 100% !important;
             max-width: 100% !important;
             width: auto !important;
-            height: auto !important;
+            height: 100% !important;
         }
         #expanded-area[data-tab-id="vec"] .key mjx-container mjx-math,
         #expanded-area[data-tab-id="vec"] .key mjx-container *,
@@ -239,8 +364,8 @@
         #expanded-area[data-tab-id="vec"] .key mjx-mi,
         #expanded-area[data-tab-id="vec"] .key mjx-mo,
         #expanded-area[data-tab-id="vec"] .key mjx-mn {
-            font-size: 0.4rem !important;
-            line-height: 1 !important;
+            font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+            line-height: 1.06 !important;
         }
 
         .math-display-text {
@@ -248,10 +373,185 @@
             font-size: 0.75rem;
             white-space: nowrap;
         }
+
+/* === Pretty-up pack (drop-in overrides) === */
+
+/* Font + smoother text */
+html, body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Subtle gradient background */
+:root {
+  --bg-grad-1: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.10), transparent 60%),
+               radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,.10), transparent 60%);
+  --panel-surface: rgba(244, 247, 255, 0.9);
+  --panel-border: rgba(148, 163, 184, 0.35);
+  --panel-shadow: rgba(30, 41, 59, 0.18);
+  --key-surface: rgba(255, 255, 255, 0.96);
+  --key-border: rgba(148, 163, 184, 0.38);
+}
+[data-theme="dark"] {
+  --bg-grad-1: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.18), transparent 60%),
+               radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,.18), transparent 60%);
+  --panel-surface: rgba(23, 33, 58, 0.88);
+  --panel-border: rgba(63, 76, 110, 0.55);
+  --panel-shadow: rgba(2, 6, 23, 0.32);
+  --key-surface: rgba(30, 44, 76, 0.92);
+  --key-border: rgba(84, 105, 150, 0.55);
+}
+body { background-image: var(--bg-grad-1); }
+
+/* Header: soft gradient + nicer title */
+header {
+  background: linear-gradient(135deg, var(--color-header-bg), #3b82f6 55%, #6366f1);
+  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.28);
+}
+header h1 {
+  letter-spacing: -0.01em;
+  font-size: 20px;
+  line-height: 1.2;
+  position: relative;
+}
+header h1::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -6px;
+  width: 100px; height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffffffaa, #c7d2fe 60%, transparent);
+  filter: blur(.3px);
+}
+
+/* Cards: glassy, soft hover */
+.section-card {
+  border-radius: 18px;
+  backdrop-filter: saturate(1.1) blur(6px);
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+  transition: transform .15s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+}
+.section-card:hover {
+  transform: none;
+  box-shadow: 0 16px 30px rgba(8, 15, 35, 0.18);
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+}
+
+/* Tabs: pill-ish, floatier */
+.tab {
+  border-radius: 999px;
+  padding: 8px 14px;
+  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.12);
+}
+#tabs { gap: 8px; padding: 10px; }
+
+/* Expanded keys: tighter look + lift on hover */
+#expanded-area { gap: 14px; border-radius: 18px; }
+.key {
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.12);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease;
+}
+.key:hover { transform: translateY(-1px); }
+
+/* Inputs: clearer focus ring */
+math-field, textarea {
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(2, 6, 23, 0.04);
+}
+math-field:focus-within, textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, white);
+  outline-offset: 2px;
+  border-color: var(--color-tab-active-bg);
+}
+
+/* Buttons: chunkier, friendlier */
+.copyBtn, .header-copy {
+  letter-spacing: 0;
+  border-radius: 12px;
+  padding: 9px 18px;
+  box-shadow: 0 10px 24px rgba(2, 6, 23, 0.2);
+}
+.copyBtn:hover, .header-copy:hover {
+  transform: translateY(-1px);
+}
+
+/* Preview area: gentle surface + inner spacing */
+#preview {
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
+}
+
+/* Theme toggle chip: crisper */
+.theme-segmented {
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.18);
+}
+.theme-segmented input:checked + label {
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+}
+
+/* Small motion for MathJax renders */
+.math-render svg { transition: transform .12s ease; }
+.key:hover .math-render svg { transform: translateY(-1px); }
+
+/* === Subtle auto light/dark SVG wallpaper === */
+:root {
+  /* tiny dot grid for light mode */
+  --wallpaper-light: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>\
+<rect width='100%' height='100%' fill='none'/>\
+<circle cx='14' cy='14' r='0.75' fill='%23cbd5e1' opacity='0.55'/>\
+</svg>");
+  /* tiny dot grid for dark mode */
+  --wallpaper-dark: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>\
+<rect width='100%' height='100%' fill='none'/>\
+<circle cx='14' cy='14' r='0.75' fill='%23334155' opacity='0.55'/>\
+</svg>");
+  --wallpaper: var(--wallpaper-light);
+}
+
+/* your script already toggles data-theme on <html> */
+[data-theme="dark"] {
+  --wallpaper: var(--wallpaper-dark);
+}
+
+/* layer the wallpaper under any existing gradient/background */
+body {
+  background-image: var(--bg-grad-1, none), var(--wallpaper);
+  background-size: auto, 28px 28px;          /* keep your gradient size as-is; dot grid at 28px */
+  background-attachment: fixed, fixed;        /* subtle parallax feel, also prevents seams */
+  background-position: center, center;
+  background-repeat: no-repeat, repeat;
+}
+
+/* === Copy toast styles === */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%) translateY(40px);
+  background: rgba(34,197,94,0.95); /* green success */
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 28px rgba(2,6,23,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9999;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
     </style>
     <script>
-         window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
-         window.whenMathJaxReady = window.whenMathJaxReady || function(){};
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+        window.whenMathJaxReady = window.whenMathJaxReady || function(){};
     </script>
      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
 </head>
@@ -267,8 +567,16 @@
         <div class="header-controls">
             <div id="status">Loading editor…</div>
             <label class="theme-switcher">
-                <span>Theme</span>
-                <select id="themeMode" aria-label="Theme selection">
+                <span class="visually-hidden">Theme</span>
+                <div class="theme-segmented" role="radiogroup" aria-label="Theme selection">
+                    <input type="radio" id="themeLight" name="themeSegment" value="light" aria-label="Light">
+                    <label for="themeLight" title="Light">☀️</label>
+                    <input type="radio" id="themeDark" name="themeSegment" value="dark" aria-label="Dark">
+                    <label for="themeDark" title="Dark">🌙</label>
+                    <input type="radio" id="themeSystem" name="themeSegment" value="system" aria-label="System">
+                    <label for="themeSystem" title="System">🖥️</label>
+                </div>
+                <select id="themeMode" aria-label="Theme selection" class="visually-hidden">
                     <option value="system">System</option>
                     <option value="light">Light</option>
                     <option value="dark">Dark</option>
@@ -282,29 +590,38 @@
     </div>
     
     <!-- Expanded area for full tab keys -->
-    <div id="expanded-area" class="hidden"></div>
+    <div id="expanded-area"></div>
 
-    <div id="mainContent">
-        <div class="section-card">
-            <div class="card-body" id="preview"></div>
+<div id="mainContent">
+        <div class="section-card card">
+            <div class="card-body body" id="preview"></div>
         </div>
 
-        <div class="section-card">
-            <div class="card-body" id="editorWrap">
-        <div class="editor">
-            <label><strong>Rendered Input (Editable – MathLive)</strong></label>
-            <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on"></math-field>
+        <div class="section-card card">
+            <div class="card-body body stack" id="editorWrap">
+      <div class="editor">
+        <div class="editor-header">
+          <label for="mf2"><span>Rendered Input (Editable)</span></label>
         </div>
-        <div class="editor">
-            <label><strong>Raw LaTeX Input</strong><button id="copyBtn" class="copyBtn">Copy LaTeX</button></label>
-            <textarea id="ta" placeholder="Fallback LaTeX input…"></textarea>
+        <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on" placeholder="Type here…"></math-field>
+      </div>
+      <div class="editor">
+        <div class="editor-header">
+          <label for="ta"><span>Raw LaTeX Input</span></label>
+          <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
         </div>
-        <div class="editor">
-            <label><strong>Word Equation</strong><button id="copyWordBtn" class="copyBtn">Copy Word Equation</button></label>
-            <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
-            </div>
+        <textarea id="ta" placeholder="Type or paste LaTeX here…"></textarea>
+      </div>
+      <div class="editor">
+        <div class="editor-header">
+          <label for="wordOut"><span>Word Equation</span></label>
+          <button id="copyWordBtn" class="copyBtn">Copy Word Equation</button>
+        </div>
+        <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
+      </div>
         </div>
     </div>
+    <div id="toast" role="status" aria-live="polite"></div>
     <script>
          function mjxTypeset(el, tries=0){
              if(!window.MathJax){ 
@@ -336,6 +653,7 @@
         const status=document.getElementById('status');
         const wordOut=document.getElementById('wordOut');
         const themeSelect=document.getElementById('themeMode');
+        const themeSeg=document.querySelector('.theme-segmented');
 
         const THEME_STORAGE_KEY='theme-preference';
         const prefersDarkScheme=window.matchMedia('(prefers-color-scheme: dark)');
@@ -352,6 +670,10 @@
             const resolved=resolveTheme(choice);
             setDocumentTheme(resolved);
             if(themeSelect&&themeSelect.value!==choice){ themeSelect.value=choice; }
+            if(themeSeg){
+                const input=themeSeg.querySelector(`input[value="${choice}"]`);
+                if(input&& !input.checked){ input.checked=true; }
+            }
         }
         applyTheme(themeStorage.get()||'system');
         if(themeSelect){
@@ -359,6 +681,16 @@
                 const selection=event.target.value;
                 applyTheme(selection);
                 themeStorage.set(selection);
+            });
+        }
+        if(themeSeg){
+            themeSeg.addEventListener('change',event=>{
+                const target=event.target;
+                if(target&&target.name==='themeSegment'){
+                    const selection=target.value;
+                    applyTheme(selection);
+                    themeStorage.set(selection);
+                }
             });
         }
         const handleSystemThemeChange=()=>{
@@ -376,29 +708,56 @@
         /* ---------- LaTeX -> Word Equation conversion ---------- */
         function toWordEquation(latex) {
             let w = String(latex ?? '');
-            w = w.replace(/\\:/g, ' '); // Convert \: to regular space
-            w = w.replace(/\\overrightarrow\{([^}]+)\}/g, '\\vec{$1}'); // Convert \overrightarrow{AB} to \\vec{AB}
-            w = w.replace(/\\operatorname\{cis\}\(([^)]+)\)/g, '(\\cos($1)+i\\sin($1))');
+
+            // Arrow variants
+            w = w.replace(/\\xrightarrow\{([^}]*)\}/g, '\\buildrel $1 \\over \\longlongrightarrow');
+            w = w.replace(/\\implies/g, '\\Longrightarrow');
+
+            // Spacing and differential clean-up
+            w = w.replace(/\\:/g, ' ');
             w = w.replace(/\\differentialD\s?/g, 'd');
-            // Ensure Word keeps differential variable (especially theta, mu)
             w = w.replace(/d\\theta/g, 'd{\\theta}');
             w = w.replace(/d\\mu/g, 'd{\\mu}');
-            w = w.replace(/\\implies/g, '\\Longrightarrow');
-            w = w.replace(/\\lvert(.*?)\\rvert/g, '\\left|$1\\right|');
-            w = w.replace(/\\operatorname\{proj\}_\{\\underset\{\\sim\}\{([^}]*)\}\}\s*\\underset\{\\sim\}\{([^}]*)\}/g, '{\\rm proj}_{$1\\below\\sim} $2\\below\\sim');
+
+            // Absolute value and matrix shaping for Word
+            w = w.replace(/\\lvert([\s\S]*?)\\rvert/g, '\\left|$1\\right|');
+            w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, (match, inside) => {
+                const content = inside.trim().replace(/\\*$/, '') + '\\\\';
+                return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
+            });
+
+            // Vector notation: underset tilde -> below tilde
+            w = w.replace(
+                /\\operatorname\{proj\}_\{\\underset\{\\sim\}\{([^}]*)\}\}\s*\\underset\{\\sim\}\{([^}]*)\}/g,
+                (match, u, v) => `proj_{${u}\\below\\sim}  ${v}\\below\\sim`
+            );
+            w = w.replace(/\\underset\{\\sim\}\{([^}]+)\}/g, '$1\\below\\sim');
+            w = w.replace(/\\underset\{([^}]+)\}\{([^}]+)\}/g, '$2\\below$1');
+            w = w.replace(/\\overrightarrow\s*\{([^}]*)\}/g, '\\vec{$1}');
+            w = w.replace(/\\overrightarrow\s*([A-Za-z]+)/g, (match, token) => `\\vec{${token}}`);
+
+            // Generic projection operator fallbacks to Roman text with spacing
             w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
             w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
             w = w.replace(/\\operatorname\{proj\}_([A-Za-z])\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-            w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
-            w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\()/g, '{\\rm proj}_$1\\ ');
-            w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, function(match, inside) {
-                let content = inside.trim().replace(/\\*$/, '') + '\\\\';
-                return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
-            });
-            w = w.replace(/\\underset\{\\sim\}\{([^}]+)\}/g, '$1\\below\\sim');
-            w = w.replace(/\\underset\{([^}]+)\}\{([^}]+)\}/g, '$2\\below$1');
+            w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
+            w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
+
+            // Remaining operatorname → roman text
             w = w.replace(/\\operatorname\{([^}]+)\}/g, '{\\rm $1}');
+
             return w;
+        }
+        
+        // Replace MathLive placeholders with visible boxes for MathJax preview
+        function latexForPreview(latex){
+            try{
+                const src = String(latex ?? '');
+                // Replace \placeholder{...} (usually empty) with a boxed space
+                // Using two medium spaces to create a reasonably sized box
+                const boxedGap = String.raw`\\boxed{\\;\\;}`;
+                return src.replace(/\\placeholder\{[^}]*\}/g, boxedGap);
+            }catch(e){ return String(latex ?? ''); }
         }
         
         function syncFromMathLive() {
@@ -406,7 +765,7 @@
             const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
             if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
             wordOut.value = toWordEquation(cleanLatex);
-            preview.innerHTML = '$$' + cleanLatex + '$$';
+            preview.innerHTML = '$$' + latexForPreview(cleanLatex) + '$$';
             mjxTypeset(preview);
         }
 
@@ -414,7 +773,7 @@
             const cleanLatex = ta.value;
             if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
             wordOut.value = toWordEquation(cleanLatex);
-            preview.innerHTML = '$$' + cleanLatex + '$$';
+            preview.innerHTML = '$$' + latexForPreview(cleanLatex) + '$$';
             mjxTypeset(preview);
         }
         
@@ -427,6 +786,7 @@
                 else { mf2.value = (mf2.value||'') + x; }
             }catch(e){}
             syncFromMathLive();
+            try{ mf2.focus(); }catch(e){}
         }
         
         mf2.addEventListener('input', syncFromMathLive);
@@ -559,6 +919,8 @@
                 // Defer sync to input event or selection change
             });
 
+            // Typing behavior: allow free typing like Desmos (no auto-termination interception)
+
             // Protect navigation into fixed subscripts like \underset{\sim}{} (only main box editable)
             mf2.addEventListener('keydown', (ev) => {
                 if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) return;
@@ -675,14 +1037,14 @@
             ],
             func:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\placeholder{}}(\\placeholder{})',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},{display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}', hint: 'root'},{display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}', hint: 'root'}],
             sym:[
-                {display:'>',insert:'>',renderMode:'text'},
-                {display:'<',insert:'<',renderMode:'text'},
                 {display:'\\geq',insert:'\\geq'},
                 {display:'\\leq',insert:'\\leq'},
                 {display:'\\pm', insert:'\\pm'},
                 {display:'\\angle', insert: '\\angle'},
                 {display:'^{\\circ}', insert:'^{\\circ}',hint:'circ'},
                 {display:'\\neg',insert:'\\neg'},
+                {display:'\\exists',insert:'\\exists'},
+                {display:'\\forall',insert:'\\forall'},
                 {display:'\\infty',insert:'\\infty'},
                 {display:'\\neq',insert:'\\neq'},
                 {display:'\\approx',insert:'\\approx'},
@@ -757,13 +1119,13 @@
                 { display: '\\sqrt[\\placeholder{}]{\\placeholder{}}', insert: '\\sqrt[\\placeholder{}]{\\placeholder{}}' }
             ],
             sym: [
-                { display: '>', insert: '>', renderMode: 'text' },
-                { display: '<', insert: '<', renderMode: 'text' },
                 { display: '\\geq', insert: '\\geq' },
                 { display: '\\leq', insert: '\\leq' },
                 { display: '~', insert: '~', renderMode: 'text' },
                 { display: '^{\\circ}', insert:'^{\\circ}', hint: 'circ' },
                 { display: '\\neg', insert: '\\neg' },
+                { display: '\\exists', insert: '\\exists' },
+                { display: '\\forall', insert: '\\forall' },
                 { display: '\\infty', insert: '\\infty' }
             ],
             vec: [
@@ -823,13 +1185,42 @@
                 tabEl.className='tab';
                 tabEl.textContent=tabInfo.label;
                 tabEl.dataset.tabId=tabInfo.id;
-                tabEl.addEventListener('click',()=>toggleExpand(tabInfo.id));
+                const activateTab = () => {
+                    pinnedTabId = tabInfo.id;
+                    toggleExpand(tabInfo.id);
+                };
+
+                tabEl.addEventListener('click', activateTab);
+                tabEl.addEventListener('mouseenter', activateTab);
+                
                 tabsContainer.appendChild(tabEl);
             });
             const tabEls=Array.from(tabsContainer.querySelectorAll('.tab'));
             tabEls.forEach((tabEl,index)=>{
                 tabEl.addEventListener('keydown',(event)=>handleTabKeyNavigation(event,index,tabEls));
             });
+            
+            // Add mouseleave functionality to hide expanded list when cursor moves away from the entire hover area
+            const expArea = document.getElementById('expanded-area');
+            
+            // Create a single hover area that includes both tabs and expanded area
+            const hoverArea = document.createElement('div');
+            hoverArea.className = 'hover-area';
+            hoverArea.style.position = 'relative';
+            hoverArea.style.display = 'block';
+            hoverArea.style.width = '100%';
+            
+            // Move tabs container and expanded area into the hover area
+            const parent = tabsContainer.parentNode;
+            parent.insertBefore(hoverArea, tabsContainer);
+            hoverArea.appendChild(tabsContainer);
+            hoverArea.appendChild(expArea);
+            hoverArea.addEventListener('mouseleave', () => {
+                if (pinnedTabId) {
+                    toggleExpand(pinnedTabId);
+                }
+            });
+
             syncTabHighlight();
         }
 
@@ -963,6 +1354,7 @@
                         mathContent.dataset.renderMode = 'math';
                     }
                 renderMathInPlace(mathContent);
+                try { mf2 && mf2.focus({ preventScroll: true }); setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0); } catch(_) {}
                 });
 
                 mathContent.textContent=d.display;
@@ -995,6 +1387,7 @@
 
 
         let currentExpandedTab = null;
+        let pinnedTabId = null;
         function syncTabHighlight(){
             document.querySelectorAll('#tabs .tab').forEach(tabEl=>{
                 const tabId=tabEl.dataset.tabId;
@@ -1003,42 +1396,25 @@
             });
         }
         function toggleExpand(id) {
-    const expArea = document.getElementById('expanded-area');
-    if (currentExpandedTab === id) {
-        // Collapse globally current
-                expArea.innerHTML = '';
-                expArea.classList.add('hidden');
-                currentExpandedTab = null;
-                syncTabHighlight();
+            const expArea = document.getElementById('expanded-area');
+            if (!expArea) return;
+            if (currentExpandedTab === id && expArea.childElementCount) {
                 return;
             }
-            // Collapse any previous
+
             expArea.innerHTML = '';
-            // Expand new one
             expArea.setAttribute('data-tab-id', id);
             const layoutItems = layouts[id] ?? [];
             const rowCount = tabRowConfig[id] || 1;
             const perRow = Math.max(1, Math.ceil(layoutItems.length / rowCount) || layoutItems.length || 1);
 
-            for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-                const sliceStart = rowIndex * perRow;
-                const rowItems = layoutItems.slice(sliceStart, sliceStart + perRow);
-                if (!rowItems.length) continue;
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'key-row';
-                rowDiv.style.gridTemplateColumns = `repeat(${rowItems.length}, minmax(0, 1fr))`;
-                rowDiv.style.width = '100%';
-                rowDiv.style.alignItems = 'stretch';
-                rowDiv.style.justifyItems = 'stretch';
-                rowDiv.style.columnGap = '16px';
-                 rowItems.forEach((item, itemIndex) => {
-                     const keyEl = createKeyElement(item);
-                     // replacement hint UI removed
-                     rowDiv.appendChild(keyEl);
-                 });
-                expArea.appendChild(rowDiv);
-            }
-            expArea.classList.remove('hidden');
+            // Add keys directly to expanded area for horizontal grid layout
+            layoutItems.forEach((item, itemIndex) => {
+                const keyEl = createKeyElement(item);
+                expArea.appendChild(keyEl);
+            });
+            const columnCount = Math.max(layoutItems.length, 1);
+            expArea.style.setProperty('--expanded-columns', columnCount);
             currentExpandedTab = id;
             syncTabHighlight();
             
@@ -1051,9 +1427,17 @@
             setTimeout(() => {
                 typesetMathElements();
             }, 500);
+
+            // Ensure math field remains active after interacting with tabs
+            try { mf2 && mf2.focus({ preventScroll: true }); } catch(_) {}
+            setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0);
         }
         
         buildTabs(); // Build tabs early
+        if (tabs.length) {
+            pinnedTabId = tabs[0].id;
+            toggleExpand(pinnedTabId);
+        }
 
         /* ---------------- Load MathLive ---------------- */
         async function loadMathLive(){
@@ -1154,6 +1538,7 @@
             if(loaded && window.MathfieldElement){
                 configureMathLive();
                 status.textContent='Ready';
+                try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){}
             }else{
                 status.textContent='Fallback mode - MathLive not available';
             }
@@ -1169,8 +1554,48 @@
             }, 1000);
         })();
 
+        function showToast(msg = 'Copied!') {
+          const toast = document.getElementById('toast');
+          if (!toast) return;
+          toast.textContent = msg;
+          toast.classList.add('show');
+          clearTimeout(showToast._t);
+          showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+        }
+
         /* ---------------- Copy buttons ---------------- */
-        async function copyToClipboard(a,b){try{if(navigator.clipboard&&navigator.clipboard.writeText){await navigator.clipboard.writeText(a);status.textContent=`Copied ${b} ✓`;return}}catch(c){console.warn('clipboard API failed',c)}const d=document.createElement('textarea');d.value=a;d.setAttribute('readonly','');d.style.position='fixed';d.style.left='-9999px';document.body.appendChild(d);d.select();try{document.execCommand('copy');status.textContent=`Copied ${b} ✓`}catch(c){status.textContent=`Copy ${b} failed`}finally{document.body.removeChild(d)}}
+        async function copyToClipboard(a, b) {
+          const label = b || 'text';
+          let ok = false;
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(a);
+              ok = true;
+            }
+          } catch (c) {
+            // fall through to legacy path
+          }
+          if (!ok) {
+            const d = document.createElement('textarea');
+            d.value = a;
+            d.setAttribute('readonly', '');
+            d.style.position = 'fixed';
+            d.style.left = '-9999px';
+            document.body.appendChild(d);
+            d.select();
+            try {
+              document.execCommand('copy');
+              ok = true;
+            } catch (c) {
+              ok = false;
+            } finally {
+              document.body.removeChild(d);
+            }
+          }
+
+          status.textContent = ok ? `Copied ${label} ✓` : `Copy ${label} failed`;
+          showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
+        }
         document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
         document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
         document.getElementById('headerCopyLatex').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
