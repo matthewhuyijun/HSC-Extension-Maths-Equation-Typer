@@ -158,9 +158,8 @@
             border-radius: 18px;
             position: relative;
             z-index: 5;
-            width: 95%;
-            max-width: 1200px;
-            margin: 16px auto 0;
+            width: 100%;
+            margin: 16px 0 0;
             padding: 14px 16px;
             box-shadow: 0 18px 36px var(--panel-shadow);
         }
@@ -168,8 +167,9 @@
             display: flex;
             gap: 8px;
             padding: 0;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             width: 100%;
+            justify-content: space-between;
         }
         .tab {
             padding: 10px 16px;
@@ -189,6 +189,8 @@
             flex: 1;
             min-width: 0;
             text-align: center;
+            width: 100%;
+            max-width: none;
         }
         .tab:hover {
             background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--color-tab-bg));
@@ -222,9 +224,8 @@
             background: var(--panel-surface);
             border: 1px solid var(--panel-border);
             border-radius: 18px;
-            margin: 16px auto 12px;
-            width: 95%;
-            max-width: 1200px;
+            margin: 16px 0 12px;
+            width: 100%;
             position: static;
             z-index: auto;
             overflow: visible;
@@ -252,58 +253,134 @@
             overflow: hidden;
         }
 
-        #mainContent { width: 100%; margin: 12px auto 0; padding: 0 0 48px; display: flex; flex-direction: column; gap: 24px; flex: 1 1 auto; align-items: center; }
         /* Match chem-tryper card structure */
-        .section-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 18px; box-shadow: 0 22px 40px var(--panel-shadow); overflow: visible; width: 95%; max-width: 1200px; margin: 0 auto; }
-        .section-card:first-of-type { margin-top: 0; }
-        .section-card .card-body { padding: 28px 24px; width: 100%; margin: 0; }
-        .section-card:first-of-type .card-body { padding-top: 28px; padding-bottom: 28px; }
+        .section-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 1px rgba(15, 23, 42, 0.06); }
+        .section-card .card-body { padding: 20px; }
         .section-card:last-of-type { margin-top: auto; }
         .card { background: color-mix(in srgb, var(--panel-surface) 96%, transparent); border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); border-radius: 18px; box-shadow: 0 18px 36px var(--panel-shadow); overflow: hidden; }
         .body { padding: 20px; }
-        .stack { display: grid; gap: 18px; }
+        .stack { display: flex; flex-direction: column; gap: 16px; }
 
-        /* 顶部预览仍为独立卡片 */
-        #preview { min-height: 72px; padding: 24px; border: none; background: color-mix(in srgb, var(--panel-surface) 92%, white); color: var(--color-text); border-radius: 12px; border: 1px solid color-mix(in srgb, var(--panel-border) 75%, transparent); }
+        
+        /* === CLEAR WIDTH SYSTEM === */
 
-        /* Editor stack exactly like chem-tryper */
-        #editorWrap { padding: 8px 0 16px; display: grid; gap: 20px; background: transparent; border: none; border-radius: 0; }
-        .editor {
-            position: relative;
-            padding: 20px;
-            border-radius: 18px;
-            background: var(--key-surface);
-            border: 1px solid var(--key-border);
-            box-shadow: 0 18px 36px var(--panel-shadow);
-            display: grid;
-            gap: 16px;
+        /* Base styling for all form elements */
+        textarea, math-field {
+            font-size: 16px; 
+            padding: 12px; 
+            border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); 
+            border-radius: 6px; 
+            display: block; 
+            background: color-mix(in srgb, var(--panel-surface) 96%, transparent); 
+            color: var(--color-text); 
+            margin: 0; 
+            transition: border-color .2s ease, background .2s ease; 
+            box-shadow: inset 0 1px 3px rgba(2, 6, 23, 0.05); 
+            box-sizing: border-box;
+            resize: none;
         }
-        .editor-header {
+
+        /* 100% WIDTH ELEMENTS */
+        /* Math field (Rendered Input) */
+        #mf2 {
+            width: 100%;
+            max-width: 100%;
+            min-height: 96px;
+        }
+
+        /* Preview area */
+        #preview {
+            width: 100%;
+            max-width: 100%;
+            min-height: 60px; 
+            padding: 16px; 
+            border: none; 
+            background: color-mix(in srgb, var(--panel-surface) 92%, white); 
+            color: var(--color-text); 
+            border-radius: 6px; 
+            border: 1px solid color-mix(in srgb, var(--panel-border) 75%, transparent);
+        }
+
+        /* All buttons */
+        button, .copyBtn, .header-copy {
+            width: auto; /* Let buttons size naturally */
+        }
+
+        /* 100% WIDTH ELEMENTS - ALL TEXT AREAS SAME WIDTH */
+        /* Raw LaTeX Input and Word Equation textareas */
+        #ta, #wordOut {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        /* CONTAINER WIDTHS */
+        /* Ensure containers don't constrain their children */
+        .editor {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .editor label {
+            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 16px;
+            gap: 8px;
+            font-size: 13px;
+            color: var(--muted);
         }
-        .editor-header label,
-        .editor label {
-            display: block;
-            font-size: 16px;
+
+        .editor label strong {
             font-weight: 600;
             color: var(--ink);
-            letter-spacing: -0.01em;
-            margin: 0;
         }
-        .editor-header label span,
-        .editor label span { display: block; }
-        .editor button.copyBtn { margin-left: 0; }
-        /* Input bars like chem-tryper */
-        math-field, textarea { width: 100%; min-height: 52px; font-size: 19.8px; padding: 12px 14px; border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); border-radius: 14px; display: block; background: color-mix(in srgb, var(--panel-surface) 96%, transparent); color: var(--color-text); margin: 0; transition: border-color .2s ease, background .2s ease; box-shadow: inset 0 1px 3px rgba(2, 6, 23, 0.05); }
-        #mf2 { min-height: 96px; }
-        #ta,
-        #wordOut { font-size: 16px; }
-        textarea { resize: none; }
+
+        .editor .copyBtn {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        #editorWrap {
+            width: 100%;
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 16px; 
+            background: transparent; 
+            border: none; 
+            border-radius: 0;
+        }
+
+        .section-card, .card-body, .stack {
+            width: 100%;
+        }
+
+        #mainContent {
+            width: 100%;
+            max-width: 100%; 
+            margin: 0 auto; 
+            padding: 24px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px;
+        }
         math-field::part(content) { color: var(--color-text); }
         math-field::part(caret) { border-left: 3px solid var(--color-caret); }
+        /* Better selection highlighting for dark mode */
+        math-field::part(selection) { 
+            background: color-mix(in srgb, var(--color-caret) 30%, transparent);
+            color: var(--color-text);
+        }
+        /* Highlighted text when typing */
+        math-field .ML__selection { 
+            background: color-mix(in srgb, var(--color-caret) 25%, transparent) !important;
+            color: var(--color-text) !important;
+        }
+        /* Better focus highlighting */
+        math-field:focus-within::part(content) {
+            background: color-mix(in srgb, var(--color-caret) 5%, var(--color-surface));
+        }
         math-field .ML__paren.ML__delim { min-height: 100% !important; }
         math-field .ML__matrix { position: relative; }
         math-field .ML__matrix .ML__delim { height: 100% !important; }
@@ -479,12 +556,6 @@ math-field:focus-within, textarea:focus {
   transform: translateY(-1px);
 }
 
-/* Preview area: gentle surface + inner spacing */
-#preview {
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-}
 
 /* Theme toggle chip: crisper */
 .theme-segmented {
@@ -605,23 +676,21 @@ body {
         <div class="section-card card">
             <div class="card-body body stack" id="editorWrap">
       <div class="editor">
-        <div class="editor-header">
-          <label for="mf2"><span>Rendered Input (Editable)</span></label>
-        </div>
+        <label for="mf2"><strong>Rendered Input (Editable)</strong></label>
         <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on" placeholder="Type here…"></math-field>
       </div>
       <div class="editor">
-        <div class="editor-header">
-          <label for="ta"><span>Raw LaTeX Input</span></label>
+        <label for="ta">
+          <strong>Raw LaTeX Input</strong>
           <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
-        </div>
+        </label>
         <textarea id="ta" placeholder="Type or paste LaTeX here…"></textarea>
       </div>
       <div class="editor">
-        <div class="editor-header">
-          <label for="wordOut"><span>Word Equation</span></label>
+        <label for="wordOut">
+          <strong>Word Equation</strong>
           <button id="copyWordBtn" class="copyBtn">Copy Word Equation</button>
-        </div>
+        </label>
         <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
       </div>
         </div>
@@ -1042,6 +1111,20 @@ body {
         const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
         function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
         
+        // 按钮同步系统
+        const buttonSyncGroups = {
+            // 导数组：dot 和 ddot 按钮
+            derivatives: {
+                groupId: 'derivatives',
+                buttons: []
+            },
+            // 复数组：modulus, arg, conjugate, real, imaginary 按钮
+            complex: {
+                groupId: 'complex',
+                buttons: []
+            }
+        };
+
         const layouts={
             calc:[
                 {display:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{} dx'},
@@ -1074,8 +1157,8 @@ body {
 
             vec:[
                 vectorKey('\\vec','v',['v','u','w','r','a']),
-                vectorKey('\\dot','x',['x','y','z','r','v']),
-                vectorKey('\\ddot','x',['x','y','z','r','a']),
+                {...vectorKey('\\dot','x',['x','y','z','r','v']), syncGroup: 'derivatives'},
+                {...vectorKey('\\ddot','x',['x','y','z','r','a']), syncGroup: 'derivatives'},
                 {display:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}',insert:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}'},
                 {
                     isSelectable: true,
@@ -1114,11 +1197,51 @@ body {
                     insert: '\\cos(\\theta)+i\\sin(\\theta)',
                     options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
                 },
-                {display:'|z|',insert:'|z|'},
-                {display:'arg(z)',insert:'arg(z)'},
-                {display:'\\overline{z}',insert:'\\overline{z}'},
-                {display:'Re(z)',insert:'Re(z)'},
-                {display:'Im(z)',insert:'Im(z)'}
+                {
+                    isSelectable: true,
+                    keyType: 'modulus',
+                    currentVar: 'z',
+                    display: '|z|',
+                    insert: '|z|',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'arg',
+                    currentVar: 'z',
+                    display: 'arg(z)',
+                    insert: 'arg(z)',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'conjugate',
+                    currentVar: 'z',
+                    display: '\\overline{z}',
+                    insert: '\\overline{z}',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'real',
+                    currentVar: 'z',
+                    display: 'Re(z)',
+                    insert: 'Re(z)',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'imaginary',
+                    currentVar: 'z',
+                    display: 'Im(z)',
+                    insert: 'Im(z)',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                }
                 
             ],
             sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}]
@@ -1179,9 +1302,33 @@ body {
                     insert: '\\cos(\\theta)+i\\sin(\\theta)',
                     options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
                 },
-                { display: '|z|', insert: '|z|' },
-                { display: 'arg(z)', insert: 'arg(z)' },
-                { display: '\\overline{z}', insert: '\\overline{z}' }
+                {
+                    isSelectable: true,
+                    keyType: 'modulus',
+                    currentVar: 'z',
+                    display: '|z|',
+                    insert: '|z|',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'arg',
+                    currentVar: 'z',
+                    display: 'arg(z)',
+                    insert: 'arg(z)',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'conjugate',
+                    currentVar: 'z',
+                    display: '\\overline{z}',
+                    insert: '\\overline{z}',
+                    options: ['z', '\\omega', '\\placeholder{}'],
+                    syncGroup: 'complex'
+                }
             ],
             sets: [
                 { display: '\\in', insert: '\\in' },
@@ -1314,6 +1461,66 @@ body {
             return String(value);
         }
 
+        // 同步按钮组功能
+        function syncButtonGroup(groupId, newValue, sourceButton) {
+            const group = buttonSyncGroups[groupId];
+            if (!group) return;
+            
+            // 同步同组所有按钮
+            group.buttons.forEach(buttonData => {
+                if (buttonData === sourceButton) return; // 跳过源按钮
+                
+                // 更新按钮数据
+                buttonData.currentVar = newValue;
+                
+                // 重新计算显示和插入内容
+                if (buttonData.keyType === 'modulus') {
+                    buttonData.insert = `|${newValue}|`;
+                    buttonData.display = `|${newValue}|`;
+                } else if (buttonData.keyType === 'arg') {
+                    buttonData.insert = `arg(${newValue})`;
+                    buttonData.display = `arg(${newValue})`;
+                } else if (buttonData.keyType === 'conjugate') {
+                    buttonData.insert = `\\overline{${newValue}}`;
+                    buttonData.display = `\\overline{${newValue}}`;
+                } else if (buttonData.keyType === 'real') {
+                    buttonData.insert = `Re(${newValue})`;
+                    buttonData.display = `Re(${newValue})`;
+                } else if (buttonData.keyType === 'imaginary') {
+                    buttonData.insert = `Im(${newValue})`;
+                    buttonData.display = `Im(${newValue})`;
+                } else if (buttonData.base) {
+                    // 处理导数按钮
+                    buttonData.insert = `${buttonData.base}{${newValue}}`;
+                    buttonData.display = `${buttonData.base}{${newValue}}`;
+                }
+                
+                // 更新对应的DOM元素
+                const buttonElement = buttonData.element;
+                if (buttonElement) {
+                    const selector = buttonElement.querySelector('.selector');
+                    const mathContent = buttonElement.querySelector('.math-display');
+                    
+                    if (selector) {
+                        selector.value = newValue;
+                    }
+                    
+                    if (mathContent) {
+                        mathContent.dataset.math = buttonData.display;
+                        renderMathInPlace(mathContent);
+                    }
+                }
+            });
+        }
+        
+        // 注册按钮到同步组
+        function registerButtonToSyncGroup(buttonData, element) {
+            if (buttonData.syncGroup) {
+                buttonData.element = element; // 保存DOM元素引用
+                buttonSyncGroups[buttonData.syncGroup].buttons.push(buttonData);
+            }
+        }
+
         function createKeyElement(d){
             if(d.isSelectable){
                 const key=document.createElement('button');
@@ -1359,6 +1566,21 @@ body {
                     }else if(d.keyType==='cos-isin'){
                         d.insert=`\\cos(${currentVal})+i\\sin(${currentVal})`;
                         d.display=d.insert;
+                    }else if(d.keyType==='modulus'){
+                        d.insert=`|${currentVal}|`;
+                        d.display=`|${currentVal}|`;
+                    }else if(d.keyType==='arg'){
+                        d.insert=`arg(${currentVal})`;
+                        d.display=`arg(${currentVal})`;
+                    }else if(d.keyType==='conjugate'){
+                        d.insert=`\\overline{${currentVal}}`;
+                        d.display=`\\overline{${currentVal}}`;
+                    }else if(d.keyType==='real'){
+                        d.insert=`Re(${currentVal})`;
+                        d.display=`Re(${currentVal})`;
+                    }else if(d.keyType==='imaginary'){
+                        d.insert=`Im(${currentVal})`;
+                        d.display=`Im(${currentVal})`;
                     }else{
                         d.insert=`${d.base}{${currentVal}}`;
                         d.display=`${d.base}{${currentVal}}`;
@@ -1370,6 +1592,12 @@ body {
                     }else{
                         mathContent.dataset.renderMode = 'math';
                     }
+                    
+                    // 同步到同组其他按钮
+                    if(d.syncGroup) {
+                        syncButtonGroup(d.syncGroup, currentVal, d);
+                    }
+                    
                 renderMathInPlace(mathContent);
                 try { mf2 && mf2.focus({ preventScroll: true }); setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0); } catch(_) {}
                 });
@@ -1377,9 +1605,24 @@ body {
                 mathContent.textContent=d.display;
                 key.addEventListener('click', event=>{ if(event.target!==selector) insertLatex(d.insert); });
 
+                // Add hover expansion functionality
+                key.addEventListener('mouseenter', () => {
+                    // Find which tab this key belongs to and expand it
+                    const expArea = document.getElementById('expanded-area');
+                    if (expArea && expArea.getAttribute('data-tab-id')) {
+                        const currentTabId = expArea.getAttribute('data-tab-id');
+                        // Always expand the tab when hovering over a key
+                        toggleExpand(currentTabId);
+                    }
+                });
+
                 key.appendChild(mathContent);
                 key.appendChild(selector);
                 renderMathInPlace(mathContent);
+                
+                // 注册到同步组
+                registerButtonToSyncGroup(d, key);
+                
                 return key;
             }
 
@@ -1398,6 +1641,18 @@ body {
             mathSpan.textContent=d.display;
             key.appendChild(mathSpan);
             key.addEventListener('click',()=>insertLatex(d.insert));
+            
+            // Add hover expansion functionality
+            key.addEventListener('mouseenter', () => {
+                // Find which tab this key belongs to and expand it
+                const expArea = document.getElementById('expanded-area');
+                if (expArea && expArea.getAttribute('data-tab-id')) {
+                    const currentTabId = expArea.getAttribute('data-tab-id');
+                    // Always expand the tab when hovering over a key
+                    toggleExpand(currentTabId);
+                }
+            });
+            
             renderMathInPlace(mathSpan);
             return key;
         }
@@ -1615,8 +1870,65 @@ body {
         }
         document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
         document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+        
+        // Add hover expansion functionality to editor copy buttons
+        document.getElementById('copyBtn').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        document.getElementById('copyWordBtn').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
         document.getElementById('headerCopyLatex').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
         document.getElementById('headerCopyWord').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+        
+        // Add hover expansion functionality to header buttons
+        document.getElementById('headerCopyLatex').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        document.getElementById('headerCopyWord').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        
+        // Simple, clear width enforcement
+        function setTextareaWidths() {
+            const ta = document.getElementById('ta');
+            const wordOut = document.getElementById('wordOut');
+            
+            if (ta) {
+                ta.style.width = '100%';
+                ta.style.maxWidth = '100%';
+                console.log('Set #ta to 100% width');
+            }
+            
+            if (wordOut) {
+                wordOut.style.width = '100%';
+                wordOut.style.maxWidth = '100%';
+                console.log('Set #wordOut to 100% width');
+            }
+        }
+
+        // Apply on page load
+        document.addEventListener('DOMContentLoaded', setTextareaWidths);
+
+        // Apply after a short delay to ensure all styles are loaded
+        setTimeout(setTextareaWidths, 100);
+        
     </script>
 </body>
 </html>
