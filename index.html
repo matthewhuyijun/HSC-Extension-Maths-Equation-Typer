@@ -1,34 +1,51 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="system">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HSC Ext 2 – Visual Math Printer (Dual Inputs with Vectors)</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+<title>E2 MathsTyper</title>
+<!-- Instant theme detection to prevent flash -->
+<script>
+(function() {
+  const saved = localStorage.getItem('theme-preference') || 'system';
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const resolved = saved === 'system' ? (prefersDark ? 'dark' : 'light') : saved;
+  document.documentElement.setAttribute('data-theme', resolved);
+  document.documentElement.style.colorScheme = resolved;
+})();
+</script>
+<!-- Lucide Icons CDN -->
+<script src="https://unpkg.com/lucide@latest"></script>
 <style>
+        /* ============================================
+           🎨 MATHLIVE DEMO COLOR SCHEME 🎨
+           Matching mathlive.io/mathfield/demo
+           ============================================ */
+        
         :root {
             color-scheme: light;
-            --color-bg: #f8fafc;
-            --color-text: #111111;
-            --ink: #111827;
+            /* Light mode - clean white background like demo */
+            --color-bg: #ffffff;
+            --color-text: #1f2937;
+            --ink: #1f2937;
             --muted: #6b7280;
             --color-header-bg: #2563eb;
             --color-header-text: #ffffff;
-            --color-toolbar-bg: #e2e8f0;
+            --color-toolbar-bg: #f3f4f6;
             --color-surface: #ffffff;
-            --color-surface-alt: #f1f5f9;
-            --color-border: #cbd5e1;
-            --color-border-strong: #cbd5e1;
+            --color-surface-alt: #f9fafb;
+            --color-border: #e5e7eb;
+            --color-border-strong: #d1d5db;
             --color-tab-bg: #ffffff;
-            --color-tab-text: #111111;
+            --color-tab-text: #1f2937;
             --color-tab-active-bg: #2563eb;
             --color-tab-active-text: #ffffff;
-            --color-tooltip-bg: rgba(51, 51, 51, 0.95);
+            --color-tooltip-bg: rgba(31, 41, 55, 0.95);
             --color-tooltip-text: #ffffff;
             --color-control-bg: #ffffff;
-            --color-control-text: #111111;
-            --color-caret: #1d4ed8;
-            /* Copy button palette (from chem tryper) */
+            --color-control-text: #1f2937;
+            --color-caret: #3b82f6;
+            /* Copy button palette */
             --copy-bg: #ffffff;
             --copy-border: rgba(15, 23, 42, 0.15);
             --copy-ink: #0f172a;
@@ -39,39 +56,39 @@
 
         [data-theme="dark"] {
             color-scheme: dark;
-            --color-bg: #0f172a;
-            --color-text: #e2e8f0;
-            --ink: #e2e8f0;
-            --muted: #94a3b8;
+            /* Dark mode - deep dark background like demo */
+            --color-bg: #111827;
+            --color-text: #f3f4f6;
+            --ink: #f3f4f6;
+            --muted: #9ca3af;
             --color-header-bg: #1d4ed8;
-            --color-header-text: #e2e8f0;
+            --color-header-text: #f3f4f6;
             --color-toolbar-bg: #1f2937;
-            --color-surface: #1e293b;
-            --color-surface-alt: #111827;
-            --color-border: #334155;
-            --color-border-strong: #1f2937;
+            --color-surface: #1f2937;
+            --color-surface-alt: #0f172a;
+            --color-border: #374151;
+            --color-border-strong: #4b5563;
             --color-tab-bg: #1f2937;
-            --color-tab-text: #e2e8f0;
+            --color-tab-text: #f3f4f6;
             --color-tab-active-bg: #2563eb;
-            --color-tab-active-text: #e2e8f0;
-            --color-tooltip-bg: rgba(15, 23, 42, 0.9);
-            --color-tooltip-text: #f8fafc;
+            --color-tab-active-text: #f3f4f6;
+            --color-tooltip-bg: rgba(15, 23, 42, 0.95);
+            --color-tooltip-text: #f9fafb;
             --color-control-bg: #1f2937;
-            --color-control-text: #e2e8f0;
-            --color-caret: #93c5fd;
-            /* Copy button palette (from chem tryper) */
-            --copy-bg: rgba(15, 23, 42, 0.85);
+            --color-control-text: #f3f4f6;
+            --color-caret: #60a5fa;
+            /* Copy button palette */
+            --copy-bg: rgba(31, 41, 55, 0.85);
             --copy-border: rgba(148, 163, 184, 0.45);
-            --copy-ink: #f8fafc;
+            --copy-ink: #f9fafb;
             --copy-hover-bg: var(--color-tab-active-bg);
             --copy-hover-ink: var(--color-tab-active-text);
             --copy-hover-border: rgba(37, 99, 235, 0.65);
         }
 
         * { box-sizing: border-box; }
-        html, body { overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; touch-action: pan-y; }
-        body { font-family: sans-serif; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; min-height: 100vh; }
-        header { padding: 12px 16px; background: var(--color-header-bg); color: var(--color-header-text); display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+        html, body { overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-y; height: 100vh; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; height: 100vh; }
         .header-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         header h1 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 600; }
         .header-actions {
@@ -79,49 +96,47 @@
             gap: 6px;
             flex-wrap: wrap;
         }
-        .copyBtn,
-        .header-copy {
+        /* Copy buttons in main content area */
+        .copyBtn {
             appearance: none;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 8px 18px;
-            border-radius: 999px;
-            border: 1px solid var(--copy-border);
-            background: var(--copy-bg);
-            color: var(--copy-ink);
-            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--key-border);
+            background: var(--key-surface);
+            color: var(--color-text);
+            font-weight: 500;
+            font-size: 13px;
             letter-spacing: -0.01em;
             cursor: pointer;
-            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.25);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .12s ease, border-color .18s ease;
         }
-        .copyBtn { font-size: 12px; }
-        .header-copy { font-size: 14px; }
         .copyBtn:hover,
-        .header-copy:hover,
-        .copyBtn:focus-visible,
-        .header-copy:focus-visible {
+        .copyBtn:focus-visible {
             background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--copy-bg));
             border-color: var(--color-tab-active-bg);
             box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
             transform: translateY(-1px);
         }
-        .copyBtn:focus-visible,
-        .header-copy:focus-visible { outline: 2px solid rgba(37, 99, 235, 0.6); outline-offset: 2px; }
-        .copyBtn:active,
-        .header-copy:active { box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25); }
+        .copyBtn:focus-visible { outline: 2px solid rgba(37, 99, 235, 0.6); outline-offset: 2px; }
+        .copyBtn:active { 
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
+        }
         .header-controls { display: flex; align-items: center; gap: 12px; }
         #status { font-size: 12px; color: var(--color-header-text); font-weight: 600; }
         .theme-switcher { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-header-text); }
         .theme-switcher select { padding: 2px 6px; }
         .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; border: 0; padding: 0; margin: -1px; }
-        .theme-segmented { display: inline-flex; align-items: center; gap: 6px; padding: 4px; background: var(--copy-bg); border: 1px solid var(--copy-border); border-radius: 12px; box-shadow: 0 6px 18px rgba(15, 23, 42, 0.15); }
+        .theme-segmented { display: inline-flex; align-items: center; gap: 6px; padding: 4px; background: var(--key-surface); border: 1px solid var(--key-border); border-radius: 12px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); min-height: 36px; }
         .theme-segmented input { position: absolute; opacity: 0; pointer-events: none; }
-        .theme-segmented label { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 28px; padding: 0 8px; border-radius: 8px; color: var(--copy-ink); opacity: 0.7; user-select: none; }
-        .theme-segmented input:checked + label { background: var(--color-surface); opacity: 1; box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08), inset 0 0 0 1px var(--copy-border); }
-        .theme-segmented label:hover { opacity: 0.9; }
+        .theme-segmented label { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 28px; padding: 0 8px; border-radius: 8px; color: var(--color-text); opacity: 0.7; user-select: none; transition: opacity 0.2s ease, background 0.2s ease; }
+        .theme-segmented input:checked + label { background: var(--color-surface); opacity: 1; box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08), inset 0 0 0 1px var(--key-border); }
+        .theme-segmented label:hover { opacity: 0.9; background: color-mix(in srgb, var(--color-tab-active-bg) 15%, transparent); }
 
         /* --- LAYOUT/STACKING FIXES --- */
         /* The select dropdowns on the 2nd row of the toolbar were getting covered by the tabs below. */
@@ -152,16 +167,11 @@
             width: 100%;
         }
 
+        /* Container wrapper for perfect alignment */
         #tabs_wrapper {
-            background: var(--panel-surface);
-            border: 1px solid var(--panel-border);
-            border-radius: 18px;
-            position: relative;
-            z-index: 5;
-            width: 100%;
-            margin: 16px 0 0;
-            padding: 14px 16px;
-            box-shadow: 0 18px 36px var(--panel-shadow);
+            margin: 16px 5% 0 5%;
+            padding: 0 24px;
+            box-sizing: border-box;
         }
         .tabs {
             display: flex;
@@ -191,27 +201,51 @@
             text-align: center;
             width: 100%;
             max-width: none;
+            box-shadow: 0 0 0 rgba(59,130,246,0);
         }
         .tab:hover {
             background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--color-tab-bg));
             border-color: var(--color-tab-active-bg);
             transform: translateY(-1px);
-            box-shadow: 0 12px 22px rgba(15,23,42,0.18);
+            box-shadow: 0 0 20px rgba(59,130,246,0.4), 0 12px 22px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.1);
         }
         .tab::after { content: ''; }
-        .tab[data-expanded="true"] { background: var(--color-tab-active-bg); color: var(--color-tab-active-text); border-color: var(--color-tab-active-bg); }
+        .tab[data-expanded="true"] { 
+            background: var(--color-tab-active-bg); 
+            color: var(--color-tab-active-text); 
+            border-color: var(--color-tab-active-bg);
+            box-shadow: 0 0 20px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
         .tab[data-expanded="true"]::after { content: ''; }
+        .tab[data-expanded="true"]:hover {
+            background: var(--color-tab-active-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 0 25px rgba(59,130,246,0.6), 0 12px 22px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
         .tab:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; transform: translateY(-1px); }
 
         button,
         select {
-            background: var(--color-control-bg);
-            color: var(--color-control-text);
-            border: 1px solid var(--color-border);
-            border-radius: 6px;
+            background: var(--key-surface);
+            color: var(--color-text);
+            border: 1px solid var(--key-border);
+            border-radius: 8px;
             font-size: 12px;
-            padding: 3px 8px;
+            padding: 6px 12px;
             line-height: 1.25;
+            cursor: pointer;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface));
+            border-color: var(--color-tab-active-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
         }
         button:focus-visible, select:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
         .hover-area { position: relative; display: block; width: 100%; }
@@ -220,18 +254,11 @@
             display: grid;
             grid-template-columns: repeat(var(--expanded-columns), minmax(0, 1fr));
             gap: 16px;
-            padding: 20px;
-            background: var(--panel-surface);
-            border: 1px solid var(--panel-border);
-            border-radius: 18px;
-            margin: 16px 0 12px;
-            width: 100%;
-            position: static;
-            z-index: auto;
-            overflow: visible;
-            box-shadow: 0 22px 40px var(--panel-shadow);
+            padding: 20px 24px;
+            margin: 16px 5% 12px 5%;
+            box-sizing: border-box;
         }
-        #expanded-area:hover { background: color-mix(in srgb, var(--panel-surface) 92%, white); }
+        #expanded-area:hover { background: transparent; }
         .hidden { display: none; }
 
         .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
@@ -253,56 +280,68 @@
             overflow: hidden;
         }
 
-        /* Match chem-tryper card structure */
-        .section-card { background: var(--panel-surface); border: 1px solid var(--panel-border); border-radius: 8px; overflow: hidden; box-shadow: 0 1px 1px rgba(15, 23, 42, 0.06); }
-        .section-card .card-body { padding: 20px; }
+        /* Clean MathLive-style layout - no card backgrounds */
+        .section-card { background: transparent; border: none; border-radius: 0; overflow: visible; box-shadow: none; }
+        .section-card .card-body { padding: 0; }
         .section-card:last-of-type { margin-top: auto; }
-        .card { background: color-mix(in srgb, var(--panel-surface) 96%, transparent); border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); border-radius: 18px; box-shadow: 0 18px 36px var(--panel-shadow); overflow: hidden; }
-        .body { padding: 20px; }
-        .stack { display: flex; flex-direction: column; gap: 16px; }
+        .card { background: transparent; border: none; border-radius: 0; box-shadow: none; overflow: visible; }
+        .body { padding: 0; }
+        .stack { display: flex; flex-direction: column; gap: 24px; }
 
         
         /* === CLEAR WIDTH SYSTEM === */
 
-        /* Base styling for all form elements */
-        textarea, math-field {
+        /* Base styling for textareas only */
+        textarea {
             font-size: 16px; 
             padding: 12px; 
-            border: 1px solid color-mix(in srgb, var(--panel-border) 80%, transparent); 
+            border: 1px solid var(--color-border); 
             border-radius: 6px; 
             display: block; 
-            background: color-mix(in srgb, var(--panel-surface) 96%, transparent); 
+            background: var(--color-surface); 
             color: var(--color-text); 
             margin: 0; 
-            transition: border-color .2s ease, background .2s ease; 
-            box-shadow: inset 0 1px 3px rgba(2, 6, 23, 0.05); 
+            transition: border-color .2s ease, box-shadow .2s ease; 
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
             box-sizing: border-box;
             resize: none;
         }
 
-        /* 100% WIDTH ELEMENTS */
-        /* Math field (Rendered Input) */
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-tab-active-bg);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* 🎯 MathField styled exactly like MathLive demo using CSS variables */
         #mf2 {
             width: 100%;
-            max-width: 100%;
-            min-height: 96px;
+            --background: #ffffff;
+            --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
+            --hue: 211;
+            --border-radius: 8px;
+            --padding: 12px 16px;
+            font-size: 1.2rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Preview area */
-        #preview {
-            width: 100%;
-            max-width: 100%;
-            min-height: 60px; 
-            padding: 16px; 
-            border: none; 
-            background: color-mix(in srgb, var(--panel-surface) 92%, white); 
-            color: var(--color-text); 
-            border-radius: 6px; 
-            border: 1px solid color-mix(in srgb, var(--panel-border) 75%, transparent);
+        /* Focus state - clean blue ring like demo */
+        #mf2:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+            outline: none;
         }
+
+        /* Allow content to wrap naturally */
+        #mf2::part(content) {
+            white-space: normal;
+        }
+
 
         /* All buttons */
-        button, .copyBtn, .header-copy {
+        button, .copyBtn {
             width: auto; /* Let buttons size naturally */
         }
 
@@ -311,6 +350,9 @@
         #ta, #wordOut {
             width: 100%;
             max-width: 100%;
+            min-height: 48px; /* Approx one line height */
+            height: auto;
+            overflow-y: auto; /* Allow scrolling if content exceeds one line */
         }
 
         /* CONTAINER WIDTHS */
@@ -319,7 +361,23 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
+        }
+
+        /* Dark mode mathfield - matching demo style */
+        [data-theme="dark"] #mf2 {
+            --background: #1e293b;
+            --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
+            border-color: #334155;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            font-size: 1.2rem;
+            --border-radius: 8px;
+            --padding: 12px 16px;
+        }
+        
+        [data-theme="dark"] #mf2:focus-within {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         .editor label {
@@ -327,8 +385,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
-            color: var(--muted);
+            font-size: 14px;
+            color: var(--ink);
+            margin-bottom: 0;
         }
 
         .editor label strong {
@@ -343,10 +402,10 @@
 
         #editorWrap {
             width: 100%;
-            padding: 20px; 
+            padding: 0; 
             display: flex; 
             flex-direction: column; 
-            gap: 16px; 
+            gap: 24px; 
             background: transparent; 
             border: none; 
             border-radius: 0;
@@ -356,34 +415,61 @@
             width: 100%;
         }
 
+        /* 主内容区域 */
         #mainContent {
-            width: 100%;
-            max-width: 100%; 
-            margin: 0 auto; 
-            padding: 24px; 
+            margin: 0 5%; 
+            padding: 48px 24px; 
             display: flex; 
             flex-direction: column; 
             gap: 24px;
+            box-sizing: border-box;
         }
-        math-field::part(content) { color: var(--color-text); }
-        math-field::part(caret) { border-left: 3px solid var(--color-caret); }
-        /* Better selection highlighting for dark mode */
-        math-field::part(selection) { 
-            background: color-mix(in srgb, var(--color-caret) 30%, transparent);
-            color: var(--color-text);
+        /* ============================================
+           🎨 MATHLIVE GLOBAL SETTINGS
+           ============================================ */
+        
+        math-field {
+            /* Core colors matching demo */
+            --caret-color: #3b82f6;
+            --selection-background-color: rgba(59, 130, 246, 0.2);
+            --selection-color: currentColor;
+            --contains-highlight-background-color: rgba(59, 130, 246, 0.1);
+            --primary-color: #3b82f6;
+            
+            /* Placeholder */
+            --placeholder-color: #9ca3af;
+            --placeholder-opacity: 0.6;
         }
-        /* Highlighted text when typing */
-        math-field .ML__selection { 
-            background: color-mix(in srgb, var(--color-caret) 25%, transparent) !important;
-            color: var(--color-text) !important;
+        
+        /* Dark theme adjustments */
+        [data-theme="dark"] math-field {
+            --caret-color: #60a5fa;
+            --selection-background-color: rgba(96, 165, 250, 0.25);
+            --selection-color: currentColor;
+            --contains-highlight-background-color: rgba(96, 165, 250, 0.12);
+            --primary-color: #60a5fa;
         }
-        /* Better focus highlighting */
-        math-field:focus-within::part(content) {
-            background: color-mix(in srgb, var(--color-caret) 5%, var(--color-surface));
-        }
+        
+        /* Matrix/parenthesis sizing */
         math-field .ML__paren.ML__delim { min-height: 100% !important; }
         math-field .ML__matrix { position: relative; }
         math-field .ML__matrix .ML__delim { height: 100% !important; }
+
+        /* Fix placeholder/square color to match theme */
+        math-field .ML__placeholder,
+        math-field .ML__square,
+        math-field .ML__char[data-char="□"],
+        math-field .ML__char[data-char="■"] {
+            background: transparent !important;
+            color: var(--color-border) !important;
+        }
+        
+        /* Dark mode placeholders */
+        [data-theme="dark"] math-field .ML__placeholder {
+            background: rgba(156, 163, 175, 0.1) !important;
+            border: 1px dashed rgba(156, 163, 175, 0.3) !important;
+            opacity: 0.7;
+        }
 
         /* Make the small variable selector dropdowns always layer above tabs/expanded area */
         .selector { font-size: 14px; position: absolute; top: 2px; right: 2px; z-index: 1000; background: var(--color-control-bg); color: var(--color-control-text); border: 1px solid var(--color-border); border-radius: 6px; padding: 2px 10px; min-height: 28px; min-width: 64px; }
@@ -459,7 +545,7 @@
 /* === Pretty-up pack (drop-in overrides) === */
 
 /* Font + smoother text */
-html, body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji"; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+html, body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 /* Subtle gradient background */
 :root {
@@ -484,14 +570,17 @@ body { background-image: var(--bg-grad-1); }
 
 /* Header: soft gradient + nicer title */
 header {
-  background: linear-gradient(135deg, var(--color-header-bg), #3b82f6 55%, #6366f1);
-  box-shadow: 0 8px 20px rgba(2, 6, 23, 0.28);
+  background: linear-gradient(135deg, #2563eb, #3b82f6 60%, #6366f1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
 }
 header h1 {
   letter-spacing: -0.01em;
   font-size: 20px;
   line-height: 1.2;
   position: relative;
+  color: #ffffff;
+  font-weight: 700;
 }
 header h1::after {
   content: "";
@@ -503,18 +592,18 @@ header h1::after {
   filter: blur(.3px);
 }
 
-/* Cards: glassy, soft hover */
+/* Clean layout - no card styling */
 .section-card {
-  border-radius: 18px;
-  backdrop-filter: saturate(1.1) blur(6px);
-  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
-  border: 1px solid color-mix(in srgb, var(--color-border) 70%, transparent);
-  transition: transform .15s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
+  border-radius: 0;
+  backdrop-filter: none;
+  background: transparent;
+  border: none;
+  transition: none;
 }
 .section-card:hover {
   transform: none;
-  box-shadow: 0 16px 30px rgba(8, 15, 35, 0.18);
-  background: color-mix(in srgb, var(--color-surface) 92%, transparent);
+  box-shadow: none;
+  background: transparent;
 }
 
 /* Tabs: pill-ish, floatier */
@@ -523,10 +612,10 @@ header h1::after {
   padding: 8px 14px;
   box-shadow: 0 6px 14px rgba(2, 6, 23, 0.12);
 }
-#tabs { gap: 8px; padding: 10px; }
+#tabs { gap: 8px; padding: 0; }
 
 /* Expanded keys: tighter look + lift on hover */
-#expanded-area { gap: 14px; border-radius: 18px; }
+#expanded-area { gap: 14px; border-radius: 0; }
 .key {
   border-radius: 14px;
   box-shadow: 0 10px 22px rgba(2, 6, 23, 0.12);
@@ -534,26 +623,23 @@ header h1::after {
 }
 .key:hover { transform: translateY(-1px); }
 
-/* Inputs: clearer focus ring */
-math-field, textarea {
+/* Textarea focus ring */
+textarea {
   border-radius: 10px;
   box-shadow: 0 1px 0 rgba(2, 6, 23, 0.04);
 }
-math-field:focus-within, textarea:focus {
+textarea:focus {
   outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, white);
   outline-offset: 2px;
   border-color: var(--color-tab-active-bg);
 }
 
-/* Buttons: chunkier, friendlier */
-.copyBtn, .header-copy {
+/* Content area copy buttons */
+.copyBtn {
   letter-spacing: 0;
   border-radius: 12px;
   padding: 9px 18px;
   box-shadow: 0 10px 24px rgba(2, 6, 23, 0.2);
-}
-.copyBtn:hover, .header-copy:hover {
-  transform: translateY(-1px);
 }
 
 
@@ -624,43 +710,1058 @@ body {
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* === Dark mode overrides removed - using main theme definitions above === */
+
+/* Input / math-field focus - using CSS variables */
+
+/* Segmented control - using CSS variables */
+
+/* === Dark mode styling - using CSS variables === */
+
+/* Selected / active pills */
+html[data-theme="dark"] .segmented .pill[aria-selected="true"],
+html[data-theme="dark"] .segmented .pill.is-active {
+  background-color: #686868 !important;   /* slightly brighter for selected */
+  color: #ffffff !important;
+  border-color: #777777 !important;
+}
+
+/* Inputs, math fields, LaTeX areas */
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] .math-field,
+html[data-theme="dark"] .output-box,
+html[data-theme="dark"] .latex-preview,
+html[data-theme="dark"] .rendered-input,
+html[data-theme="dark"] .raw-latex,
+html[data-theme="dark"] .word-equation {
+  background: var(--color-input-bg) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-button-border) !important;
+  box-shadow: none !important;
+}
+
+/* Highlight when active or hovered - using blue theme */
+html[data-theme="dark"] textarea:focus,
+html[data-theme="dark"] input[type="text"]:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+}
+
+/* Theme toggle buttons (sun/moon/monitor icons) */
+html[data-theme="dark"] .theme-toggle button {
+  background: var(--color-button-bg) !important;
+  border: 1px solid var(--color-button-border) !important;
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .theme-toggle button.active,
+html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
+  background: var(--color-tab-active-bg) !important;
+  border-color: var(--color-tab-active-bg) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================
+   🎨 BLUE THEME - Using definitions from top of file
+   ============================================ */
+
+/* Dark mode focus handled in main #mf2 styles above */
+
+/* Key buttons */
+.key {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.key:hover {
+  background-color: #e0ecff;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .key {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .key:hover {
+  background-color: #374151;
+  border-color: #60a5fa;
+}
     </style>
     <script>
         window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
         window.whenMathJaxReady = window.whenMathJaxReady || function(){};
     </script>
      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
+    
+    <!-- ===== 蓝色渐变导航条样式 ===== -->
+    <style>
+    :root{
+      /* ============================================
+         🎯 EXACT MATHLIVE DEMO HEADER COLORS
+         Matching https://mathlive.io/mathfield/demo/
+         ============================================ */
+      --page-max-width: 1200px;
+      --page-pad-x: 24px;
+
+      /* MathLive demo header - solid blue (#4f7df9) */
+      --bar-from: #4f7df9;
+      --bar-to:   #4f7df9;
+      --bar-h: 64px;
+      --bar-pad-x: var(--page-pad-x);
+      --maxw: var(--page-max-width);
+
+      /* White pill buttons exactly like demo */
+      --chip-bg: #ffffff;
+      --chip-ink: #1e293b;
+      --chip-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+
+      --label-ink: rgba(255, 255, 255, 0.9);
+      --underline: rgba(255,255,255,.95);
+      --underline-glow: rgba(255,255,255,.35);
+    }
+
+    /* Header bar - exact MathLive demo style */
+    .header-bar{
+      position: sticky; top: 0; z-index: 60;
+      width: 100%;
+      height: var(--bar-h);
+      min-height: var(--bar-h);
+      max-height: var(--bar-h);
+      overflow: hidden;
+      background: #4f7df9;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      color: #ffffff;
+      transition: background 0.2s ease;
+    }
+    
+    /* Dark mode header */
+    [data-theme="dark"] .header-bar{
+      background: #2d4a9e;
+    }
+
+    /* Header inner layout: three sections (title | actions | theme) */
+    .header-row{
+      height: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "title actions right";
+      align-items: center;
+      gap: 16px;
+      padding: 0 var(--bar-pad-x);
+      max-width: var(--maxw);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Title - exact MathLive demo style */
+    .h-title{
+      position: relative;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      white-space: nowrap;
+      color: #ffffff;
+      text-decoration: none;
+      grid-area: title;
+    }
+    
+    /* 汉堡菜单按钮 - 默认隐藏 */
+    .hamburger-btn {
+      display: none;
+      appearance: none;
+      border: 0;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+      grid-area: title;
+      justify-self: end;
+      margin-left: auto;
+    }
+    
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .hamburger-btn svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    /* Action buttons area - keep to the left */
+    .h-actions{ 
+      display: flex; 
+      align-items: center; 
+      gap: 14px;
+      grid-area: actions;
+    }
+    /* White pill buttons - semi-transparent with blue hover */
+    .chip-btn{
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      box-shadow: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .chip-btn:hover{
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+    .chip-btn:active{
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(0);
+    }
+    
+    /* Dark mode adjustments for chip buttons */
+    [data-theme="dark"] .chip-btn{
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    [data-theme="dark"] .chip-btn:hover{
+      background: rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="dark"] .chip-btn:active{
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Right side: theme toggle */
+    .h-right{ 
+      display: flex; 
+      align-items: center; 
+      gap: 14px;
+      grid-area: right;
+    }
+
+    /* Theme toggle buttons - MathLive demo style */
+    .theme-switch{
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .theme-opt{
+      appearance: none;
+      min-height: 36px;
+      min-width: 36px;
+      padding: 6px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      color: rgba(255, 255, 255, 0.85);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .theme-opt.is-active{
+      background: rgba(255, 255, 255, 0.2);
+      color: rgba(255, 255, 255, 1);
+    }
+    .theme-opt:hover{ 
+      background: rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 1);
+    }
+    .theme-opt:active {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* 🗑️ 已合并到最后的统一响应式规则中（见文件末尾） */
+    
+    /* 内容包装器：占据剩余空间并可滚动 */
+    .content-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       🎨 MATHLIVE DEMO EXACT STYLING
+       Matching https://mathlive.io/mathfield/demo/
+       ============================================ */
+
+    /* Dark mode header - darker blue */
+    [data-theme="dark"] .header-bar{
+      background: #3b6dd9;
+    }
+
+    /* 主题切换：按钮样式（已在上方定义，此处移除重复） */
+
+    /* Theme toggle icon styling */
+    .theme-opt svg {
+      width: 18px;
+      height: 18px;
+      display: block;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      transition: transform 0.2s ease;
+    }
+
+    .theme-opt:hover svg {
+      transform: scale(1.1);
+    }
+
+    /* 🗑️ 已合并到下方统一的响应式规则中 */
+
+    /* ============================================
+       🎯 统一三块区域的宽度与内边距
+       ============================================ */
+    :root {
+      --content-max: var(--page-max-width);   /* 🔄 复用全局最大宽度 */
+      --content-pad-x: var(--page-pad-x);     /* 🔄 复用全局 padding */
+    }
+
+    /* 全局边框计算一致，避免 padding/边框把宽度撑超或看起来变窄 */
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+    }
+
+    /* 统一三块区域的宽度：红框（tabs）、绿框（expanded-area）、蓝框（mainContent）*/
+    #tabs_wrapper,        /* 红框：工具区 */
+    #expanded-area,       /* 绿框：符号面板 */
+    #mainContent {        /* 蓝框：主内容区 */
+      width: 100%;
+      max-width: var(--content-max);
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding-left: var(--content-pad-x) !important;
+      padding-right: var(--content-pad-x) !important;
+    }
+
+    /* 保持原有的上下边距，只统一左右 */
+    #tabs_wrapper {
+      margin-top: 16px !important;
+      margin-bottom: 0 !important;
+    }
+
+    #expanded-area {
+      margin-top: 16px !important;
+      margin-bottom: 12px !important;
+      padding-top: 20px !important;
+      padding-bottom: 20px !important;
+    }
+
+    #mainContent {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 48px !important;
+      padding-bottom: 48px !important;
+    }
+
+    /* ============================================
+       📱 响应式：小屏统一样式（合并所有 640px 断点）
+       ============================================ */
+    @media (max-width: 640px) {
+      :root {
+        --page-pad-x: 16px;                  /* 🔄 统一小屏 padding */
+        --content-pad-x: var(--page-pad-x);  /* 自动继承 */
+        --bar-pad-x: var(--page-pad-x);      /* 自动继承 */
+      }
+      
+      /* Header 小屏调整 - 汉堡菜单 */
+      .header-row {
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "title right";
+      }
+      
+      /* 显示汉堡菜单按钮 */
+      .hamburger-btn {
+        display: block;
+      }
+      
+      /* 隐藏操作按钮区域，变成下拉菜单 */
+      .h-actions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-header-bg);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px var(--bar-pad-x);
+        box-shadow: 0 8px 24px rgba(15,23,42,.25);
+        border-top: 1px solid var(--color-border);
+        z-index: 50;
+      }
+      
+      /* 菜单打开状态 */
+      .h-actions.menu-open {
+        display: flex;
+      }
+      
+      .h-actions .header-copy {
+        width: 100%;
+        text-align: left;
+        padding: 12px 20px;
+        margin: 4px 0;
+        font-size: 15px;
+        border-radius: 999px;
+        background-color: #ffffff;
+        border: none;
+        color: #1e293b;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .h-actions .header-copy:hover {
+        transform: translateY(-1px);
+      }
+      
+      .h-actions .header-copy:active {
+        background-color: #e2e8f0;
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      /* Dark mode mobile buttons */
+      [data-theme="dark"] .h-actions .header-copy {
+        background-color: #ffffff;
+        border: none;
+        color: #1e293b;
+      }
+      
+      [data-theme="dark"] .h-actions .header-copy:hover {
+        transform: translateY(-1px);
+      }
+      
+      .h-title { 
+        font-size: 18px;
+      }
+      
+      /* 隐藏状态文本在小屏 */
+      .h-status {
+        display: none;
+      }
+
+      /* 🎯 MathField 小屏调整 */
+      #mf2 {
+        font-size: 1.1rem;     /* 字体略小 */
+        --padding: 10px 14px;  /* padding 减小 */
+      }
+
+      /* 小屏下的容器 padding 减小 */
+      .editor:has(#mf2) {
+        padding: 12px;
+      }
+    }
+
+    /* ============================================
+       🎨 与符号键盘一致的胶囊皮肤
+       ============================================ */
+    :root{
+      /* 若你已经定义过这些变量，可忽略或微调 */
+      --pill-bg-top: #1c2740;         /* 上半部深蓝 */
+      --pill-bg-btm: #152034;         /* 下半部深蓝 */
+      --pill-stroke: #6aa2ff;         /* 描边/光晕主色 */
+      --pill-ink: #e6eefc;            /* 文本颜色 */
+      --pill-shadow: 0 10px 24px rgba(3,12,30,.45);
+      --pill-inner: 0 1px 0 rgba(255,255,255,.06) inset;
+      --pill-stroke-soft: rgba(106,162,255,.36);
+    }
+
+    /* 皮肤类：把按钮做成与符号 key 一样的深色胶囊 */
+    .btn--symbol-skin{
+      appearance:none;
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:.5rem; padding:.9rem 1.2rem;
+      border-radius:22px;
+      background:linear-gradient(180deg,var(--pill-bg-top),var(--pill-bg-btm));
+      color:var(--pill-ink);
+      border:1px solid rgba(106,162,255,.35);
+      box-shadow: var(--pill-inner), var(--pill-shadow);
+      font-weight:800; letter-spacing:.2px;
+      transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease, background .18s ease;
+    }
+
+    /* 与图2一致的外环光晕 + 轻上浮 */
+    .btn--symbol-skin:hover{
+      transform: translateY(-2px);
+      border-color: var(--pill-stroke);
+      box-shadow:
+        var(--pill-inner),
+        0 0 0 2px var(--pill-stroke-soft),
+        0 14px 32px rgba(3,12,30,.58);
+    }
+
+    /* 点击回落 */
+    .btn--symbol-skin:active{ transform: translateY(0) }
+
+    /* 如现有按钮样式会"顶掉"背景/阴影，先清理一下（可选） */
+    .copyBtn.btn--symbol-skin,
+    .chip-btn.btn--symbol-skin{
+      background: linear-gradient(180deg,var(--pill-bg-top),var(--pill-bg-btm)) !important;
+      border: 1px solid rgba(106,162,255,.35) !important;
+      box-shadow: var(--pill-inner), var(--pill-shadow) !important;
+      color: var(--pill-ink) !important;
+    }
+
+    /* Header buttons - white pill style */
+    .header-actions .header-copy {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 999px;
+      background-color: #ffffff;
+      border: none;
+      color: #1e293b;
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-actions .header-copy:hover {
+      transform: translateY(-1px);
+    }
+
+    .header-actions .header-copy:active {
+      background-color: #e2e8f0;
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-actions .header-copy:focus-visible {
+      background-color: #f8fafc;
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+      transform: translateY(-1px);
+    }
+    
+    /* Dark mode header buttons */
+    [data-theme="dark"] .header-actions .header-copy {
+      background-color: #ffffff;
+      border: none;
+      color: #1e293b;
+    }
+    
+    [data-theme="dark"] .header-actions .header-copy:hover {
+      transform: translateY(-1px);
+    }
+    
+    .header-actions .header-copy svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* ——— 全站字体：与 sample html 一致的系统无衬线栈 ——— */
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                   "Helvetica Neue", Arial, "Apple Color Emoji",
+                   "Segoe UI Emoji", "Segoe UI Symbol";
+    }
+
+    /* Keep textarea focus as is */
+    .io-grid textarea:focus {
+      outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, var(--color-text));
+      outline-offset: 2px;
+      border-color: var(--color-tab-active-bg);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tab-active-bg) 10%, transparent);
+    }
+
+    /* ——— 小标题：加粗、加大，与右侧按钮横向对齐 ——— */
+    .io-labelbar {            /* 标题 + 复制按钮在同一行 */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .io-label {
+      font-weight: 800;       /* 加粗 */
+      font-size: 1.05rem;     /* 比正文略大 */
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0 0 0 2px;    /* No bottom margin - gap handled by .io-section */
+    }
+
+    /* Rendered 那块也统一小标题风格 */
+    .io-rendered > .io-label {
+      display: block;
+      margin: 0 0 0 2px;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    /* LaTeX Preview label bar should have same spacing */
+    .io-labelbar + .preview-bar {
+      margin-top: 6px;
+    }
+
+    /* ——— 输入/输出区的栅格布局 ——— */
+    /* 大屏：Rendered 独占一行；下面两栏并排等宽 */
+    .io-grid {
+      display: grid;
+      gap: 12px;
+      grid-template-columns: repeat(12, 1fr);
+      align-items: start;
+    }
+
+    /* 三块的"占位" */
+    .io-rendered { grid-column: 1 / -1; }        /* 顶部整行 */
+    .io-raw      { grid-column: 1 / 7;  }        /* 左半 */
+    .io-word     { grid-column: 7 / -1; }        /* 右半 */
+    .io-preview  { grid-column: 1 / -1; }        /* LaTeX Preview 整行，与 Rendered 同宽 */
+
+    /* 统一每块的内部间距与宽度 */
+    .io-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* 文字区基础样式（textarea only, mathfield styled separately） */
+    .io-grid textarea {
+      width: 100%;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+    }
+    
+    /* MathField width (other styles defined above for demo match) */
+    .io-grid math-field {
+      width: 100%;
+    }
+
+    /* 小屏：三块垂直排列，间距更紧凑 */
+    @media (max-width: 960px) {
+      .io-raw  { grid-column: 1 / -1; }
+      .io-word { grid-column: 1 / -1; }
+      .io-preview { grid-column: 1 / -1; }
+    }
+    @media (max-width: 640px) {
+      .io-grid  { gap: 16px; }
+      .io-label { font-size: 1rem; }
+      .io-grid textarea { padding: 10px 12px; }
+      /* MathField mobile padding handled in #mf2 section */
+    }
+
+    /* 让 math-field 高度随内容增长（不换行可去掉） */
+    #mf2::part(content){ white-space: normal; }
+
+    /* 暗色模式下的 textarea 样式 (mathfield dark mode handled separately) */
+    [data-theme="dark"] .io-grid textarea {
+      background: var(--color-surface) !important;
+      color: var(--color-text) !important;
+      border: 1px solid var(--color-border) !important;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+    }
+
+    [data-theme="dark"] .io-grid textarea:focus {
+      border-color: var(--color-tab-active-bg) !important;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+    }
+
+    /* Textarea min-height */
+    #ta, #wordOut { min-height: 56px; }
+
+    /* ========== Preview Bar Styling ========== */
+    .preview-bar {
+      padding: 12px 14px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      min-height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      overflow-x: auto;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+      transition: border-color 0.2s ease;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    [data-theme="dark"] .preview-bar {
+      background: #1e293b;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+    }
+
+    .preview-bar .MathJax {
+      font-size: inherit;
+    }
+
+    /* ========== Shortcuts Popup Modal Styling ========== */
+    .shortcuts-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+      animation: fadeIn 0.2s ease;
+    }
+
+    .shortcuts-modal.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .shortcuts-content {
+      background: var(--color-surface);
+      border-radius: 16px;
+      max-width: 800px;
+      width: 90%;
+      max-height: 85vh;
+      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.3);
+      display: flex;
+      flex-direction: column;
+      animation: slideUp 0.3s ease;
+      overflow: hidden;
+    }
+
+    .shortcuts-header {
+      padding: 24px 28px;
+      background: var(--color-header-bg);
+      color: var(--color-header-text);
+      border-radius: 12px 12px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 4px 12px rgba(2, 6, 23, 0.15);
+    }
+
+    .shortcuts-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--color-header-text);
+    }
+    
+    .shortcuts-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex: 1;
+    }
+    
+    .shortcuts-commands-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: white;
+      border: none;
+      border-radius: 12px;
+      color: #1a1a1a;
+      text-decoration: none;
+      font-size: 15px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .shortcuts-commands-btn:hover {
+      background: #f8f8f8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    
+    .shortcuts-commands-btn i {
+      width: 18px;
+      height: 18px;
+    }
+
+    .shortcuts-close {
+      background: rgba(255, 255, 255, 0.15);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      font-size: 24px;
+      cursor: pointer;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      padding: 0;
+      box-shadow: none;
+      backdrop-filter: blur(8px);
+    }
+
+    .shortcuts-close:hover {
+      background: rgba(255, 255, 255, 0.25);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: white;
+      transform: translateY(-1px);
+    }
+
+    .shortcuts-body {
+      padding: 24px 28px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .shortcuts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .shortcut-item {
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+
+    .shortcut-item:hover {
+      background: var(--color-surface);
+      border-color: var(--color-tab-active-bg);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+    }
+
+    .shortcut-input {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--color-tab-active-bg);
+      background: rgba(37, 99, 235, 0.1);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+
+    .shortcut-output {
+      font-size: 18px;
+      color: var(--color-text);
+    }
+
+    .shortcuts-search {
+      width: 100%;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      background: var(--color-surface-alt);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--color-text);
+      transition: all 0.2s ease;
+    }
+
+    .shortcuts-search:focus {
+      outline: none;
+      border-color: var(--color-tab-active-bg);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .shortcuts-search::placeholder {
+      color: var(--muted);
+    }
+
+    .shortcuts-footer {
+      padding: 16px 28px;
+      border-top: 1px solid var(--color-border);
+      text-align: center;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 640px) {
+      .shortcuts-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .shortcuts-content {
+        width: 95%;
+        max-height: 90vh;
+      }
+    }
+
+    /* === Ex2 header buttons: blue highlight identical to key cards === */
+    .header-actions .header-copy {
+      background: var(--copy-bg);
+      border: 1px solid var(--copy-border);
+      color: var(--copy-ink);
+      border-radius: 999px;
+      box-shadow: 0 0 0 rgba(59,130,246,0); /* initial no glow */
+      transition:
+        background .2s ease,
+        border-color .2s ease,
+        color .2s ease,
+        transform .15s ease,
+        box-shadow .25s ease;
+    }
+
+    /* hover = same electric blue glow as dark keys */
+    .header-actions .header-copy:hover,
+    .header-actions .header-copy:focus-visible {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--copy-bg));
+      border-color: var(--color-tab-active-bg);
+      color: var(--copy-ink);
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 10px rgba(59,130,246,0.4),
+        0 0 25px rgba(59,130,246,0.3),
+        0 0 45px rgba(59,130,246,0.2);
+    }
+
+    /* active press = slight shrink + fade */
+    .header-actions .header-copy:active {
+      transform: translateY(0);
+      box-shadow: 0 0 6px rgba(59,130,246,0.25);
+    }
+
+    /* dark mode: same glow logic, different base */
+    [data-theme="dark"] .header-actions .header-copy {
+      background: var(--copy-bg);
+      border: 1px solid var(--copy-border);
+      color: var(--copy-ink);
+    }
+
+    [data-theme="dark"] .header-actions .header-copy:hover,
+    [data-theme="dark"] .header-actions .header-copy:focus-visible {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--copy-bg));
+      border-color: var(--color-tab-active-bg);
+      transform: translateY(-2px);
+      box-shadow:
+        0 0 12px rgba(59,130,246,0.6),
+        0 0 28px rgba(59,130,246,0.45),
+        0 0 60px rgba(59,130,246,0.25);
+    }
+    </style>
 </head>
 <body>
-    <header>
-        <div class="header-left">
-            <h1>HSC Ext 2 – Visual Math Printer</h1>
-            <div class="header-actions">
-                <button type="button" class="header-copy" id="headerCopyLatex">Copy LaTeX</button>
-                <button type="button" class="header-copy" id="headerCopyWord">Copy Word Equation</button>
+    <!-- ===== 蓝色渐变导航条 ===== -->
+    <header class="header-bar" role="banner">
+      <div class="header-row">
+        <!-- 左：标题（可作为首页链接） -->
+
+        <!-- 汉堡菜单按钮（仅小屏显示） -->
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <!-- 中：操作按钮（保留原有 ID 以兼容现有 JS） -->
+        <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
+          <button class="header-copy" id="headerCopyLatex">
+            <i data-lucide="copy"></i> Copy LaTeX
+          </button>
+          <button class="header-copy" id="headerCopyWord">
+            <i data-lucide="file-text"></i> Copy Word Equation
+          </button>
+          <button class="header-copy" id="shortcutsBtn" title="View available inline shortcuts">
+            <i data-lucide="keyboard"></i> Shortcuts
+          </button>
             </div>
+
+        <!-- 右：主题切换 -->
+        <div class="h-right">
+          <div class="theme-switch" role="group" aria-label="Theme">
+            <button class="theme-opt" data-theme="light" title="Light" aria-label="Switch to light theme">
+              <i data-lucide="sun"></i>
+            </button>
+            <button class="theme-opt" data-theme="dark" title="Dark" aria-label="Switch to dark theme">
+              <i data-lucide="moon"></i>
+            </button>
+            <button class="theme-opt is-active" data-theme="system" title="System" aria-label="Use system theme">
+              <i data-lucide="monitor"></i>
+            </button>
         </div>
-        <div class="header-controls">
-            <div id="status">Loading editor…</div>
-            <label class="theme-switcher">
-                <span class="visually-hidden">Theme</span>
-                <div class="theme-segmented" role="radiogroup" aria-label="Theme selection">
-                    <input type="radio" id="themeLight" name="themeSegment" value="light" aria-label="Light">
-                    <label for="themeLight" title="Light">☀️</label>
-                    <input type="radio" id="themeDark" name="themeSegment" value="dark" aria-label="Dark">
-                    <label for="themeDark" title="Dark">🌙</label>
-                    <input type="radio" id="themeSystem" name="themeSegment" value="system" aria-label="System">
-                    <label for="themeSystem" title="System">🖥️</label>
                 </div>
-                <select id="themeMode" aria-label="Theme selection" class="visually-hidden">
-                    <option value="system">System</option>
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
-                </select>
-            </label>
         </div>
     </header>
 
+    <script>
+    /* 蓝色导航条的主题切换逻辑 */
+    (function(){
+      const html = document.documentElement;
+      const opts = document.querySelectorAll('.theme-opt');
+      const THEME_STORAGE_KEY = 'theme-preference';
+      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+      
+      const apply = (mode)=>{
+        opts.forEach(o=>o.classList.toggle('is-active', o.dataset.theme===mode));
+        const resolved = mode === 'system' ? (prefersDarkScheme.matches ? 'dark' : 'light') : mode;
+        html.setAttribute('data-theme', resolved); 
+        html.style.colorScheme = resolved === 'dark' ? 'dark' : 'light';
+        localStorage.setItem(THEME_STORAGE_KEY, mode); 
+      };
+      
+      // 初始化 - 默认使用 system
+      const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
+      apply(saved);
+      
+      // 绑定
+      opts.forEach(btn => btn.addEventListener('click', ()=> apply(btn.dataset.theme)));
+      
+      // 监听系统主题变化
+      const handleSystemChange = () => {
+        const current = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
+        if(current === 'system'){ apply('system'); }
+      };
+      if(typeof prefersDarkScheme.addEventListener === 'function'){
+        prefersDarkScheme.addEventListener('change', handleSystemChange);
+      } else if(typeof prefersDarkScheme.addListener === 'function'){
+        prefersDarkScheme.addListener(handleSystemChange);
+      }
+    })();
+
+    /* 初始化 Lucide 图标 */
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+    </script>
+
+    <!-- 可滚动的内容容器 -->
+    <div class="content-wrapper">
     <div id="tabs_wrapper">
         <div class="tabs" id="tabs"></div>
     </div>
@@ -670,31 +1771,43 @@ body {
 
 <div id="mainContent">
         <div class="section-card card">
-            <div class="card-body body" id="preview"></div>
+            <div class="card-body body stack" id="editorWrap">
+      <!-- 在三块编辑区的外面加一层容器 -->
+      <div class="io-grid">
+        <!-- 1. Rendered -->
+        <div class="io-section io-rendered">
+          <label class="io-label" for="mf2">Rendered Input (Editable)</label>
+          <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on" menu-items="[]"></math-field>
+      </div>
+
+        <!-- 2. Raw LaTeX -->
+        <div class="io-section io-raw">
+          <div class="io-labelbar">
+            <label class="io-label" for="ta">Raw LaTeX Input</label>
+          <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
+      </div>
+          <textarea id="ta"></textarea>
         </div>
 
-        <div class="section-card card">
-            <div class="card-body body stack" id="editorWrap">
-      <div class="editor">
-        <label for="mf2"><strong>Rendered Input (Editable)</strong></label>
-        <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on" placeholder="Type here…"></math-field>
-      </div>
-      <div class="editor">
-        <label for="ta">
-          <strong>Raw LaTeX Input</strong>
-          <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
-        </label>
-        <textarea id="ta" placeholder="Type or paste LaTeX here…"></textarea>
-      </div>
-      <div class="editor">
-        <label for="wordOut">
-          <strong>Word Equation</strong>
+        <!-- 3. Word Equation -->
+        <div class="io-section io-word">
+          <div class="io-labelbar">
+            <label class="io-label" for="wordOut">Word Equation</label>
           <button id="copyWordBtn" class="copyBtn">Copy Word Equation</button>
-        </label>
-        <textarea id="wordOut" placeholder="Word equation output…" readonly></textarea>
+      </div>
+          <textarea id="wordOut" readonly></textarea>
+        </div>
+
+        <!-- 4. LaTeX Preview (full width like Rendered Input) -->
+        <div class="io-section io-preview">
+          <label class="io-label">LaTeX Preview</label>
+          <div class="preview-bar" id="latexPreview"></div>
+    </div>
       </div>
         </div>
     </div>
+    </div><!-- end content-wrapper -->
+    
     <div id="toast" role="status" aria-live="polite"></div>
     <script>
          function mjxTypeset(el, tries=0){
@@ -723,144 +1836,643 @@ body {
 
         const ta=document.getElementById('ta');
         const mf2=document.getElementById('mf2');
-        const preview=document.getElementById('preview');
-        const status=document.getElementById('status');
         const wordOut=document.getElementById('wordOut');
-        const themeSelect=document.getElementById('themeMode');
-        const themeSeg=document.querySelector('.theme-segmented');
-
-        const THEME_STORAGE_KEY='theme-preference';
-        const prefersDarkScheme=window.matchMedia('(prefers-color-scheme: dark)');
-        const themeStorage={
-            get(){ try{ return localStorage.getItem(THEME_STORAGE_KEY); }catch{ return null; } },
-            set(value){ try{ localStorage.setItem(THEME_STORAGE_KEY, value); }catch{} }
-        };
-        const resolveTheme=(choice)=>choice==='system'?(prefersDarkScheme.matches?'dark':'light'):choice;
-        function setDocumentTheme(theme){
-            document.documentElement.setAttribute('data-theme', theme);
-            document.documentElement.style.colorScheme=theme==='dark'?'dark':'light';
-        }
-        function applyTheme(choice){
-            const resolved=resolveTheme(choice);
-            setDocumentTheme(resolved);
-            if(themeSelect&&themeSelect.value!==choice){ themeSelect.value=choice; }
-            if(themeSeg){
-                const input=themeSeg.querySelector(`input[value="${choice}"]`);
-                if(input&& !input.checked){ input.checked=true; }
-            }
-        }
-        applyTheme(themeStorage.get()||'system');
-        if(themeSelect){
-            themeSelect.addEventListener('change',event=>{
-                const selection=event.target.value;
-                applyTheme(selection);
-                themeStorage.set(selection);
-            });
-        }
-        if(themeSeg){
-            themeSeg.addEventListener('change',event=>{
-                const target=event.target;
-                if(target&&target.name==='themeSegment'){
-                    const selection=target.value;
-                    applyTheme(selection);
-                    themeStorage.set(selection);
-                }
-            });
-        }
-        const handleSystemThemeChange=()=>{
-            const current=themeStorage.get()||'system';
-            if(current==='system'){ applyTheme('system'); }
-        };
-        if(typeof prefersDarkScheme.addEventListener==='function'){
-            prefersDarkScheme.addEventListener('change', handleSystemThemeChange);
-        }else if(typeof prefersDarkScheme.addListener==='function'){
-            prefersDarkScheme.addListener(handleSystemThemeChange);
-        }
+        
+        // Theme handling is now done in the header script above
 
         function getLatex(){ return ta.value; }
 
         /* ---------- LaTeX -> Word Equation conversion ---------- */
         function toWordEquation(latex) {
-            let w = String(latex ?? '');
+            const supers = {
+                '0': '⁰',
+                '1': '¹',
+                '2': '²',
+                '3': '³',
+                '4': '⁴',
+                '5': '⁵',
+                '6': '⁶',
+                '7': '⁷',
+                '8': '⁸',
+                '9': '⁹',
+                '+': '⁺',
+                '-': '⁻',
+                '=': '⁼',
+                '(': '⁽',
+                ')': '⁾',
+                'n': 'ⁿ',
+                'i': 'ⁱ'
+            };
+            const subs = {
+                '0': '₀',
+                '1': '₁',
+                '2': '₂',
+                '3': '₃',
+                '4': '₄',
+                '5': '₅',
+                '6': '₆',
+                '7': '₇',
+                '8': '₈',
+                '9': '₉',
+                '+': '₊',
+                '-': '₋',
+                '=': '₌',
+                '(': '₍',
+                ')': '₎',
+                'a': 'ₐ',
+                'e': 'ₑ',
+                'h': 'ₕ',
+                'i': 'ᵢ',
+                'j': 'ⱼ',
+                'k': 'ₖ',
+                'l': 'ₗ',
+                'm': 'ₘ',
+                'n': 'ₙ',
+                'o': 'ₒ',
+                'p': 'ₚ',
+                'r': 'ᵣ',
+                's': 'ₛ',
+                't': 'ₜ',
+                'u': 'ᵤ',
+                'v': 'ᵥ',
+                'x': 'ₓ'
+            };
+            const greekMap = {
+                alpha: 'α',
+                beta: 'β',
+                gamma: 'γ',
+                delta: 'δ',
+                Delta: 'Δ',
+                epsilon: 'ε',
+                varepsilon: 'ε',
+                vartheta: 'ϑ',
+                theta: 'θ',
+                Theta: 'Θ',
+                kappa: 'κ',
+                lambda: 'λ',
+                Lambda: 'Λ',
+                mu: 'μ',
+                nu: 'ν',
+                xi: 'ξ',
+                Xi: 'Ξ',
+                pi: 'π',
+                Pi: 'Π',
+                rho: 'ρ',
+                sigma: 'σ',
+                Sigma: 'Σ',
+                tau: 'τ',
+                upsilon: 'υ',
+                Upsilon: 'Υ',
+                phi: 'φ',
+                Phi: 'Φ',
+                varphi: 'ϕ',
+                chi: 'χ',
+                psi: 'ψ',
+                Psi: 'Ψ',
+                Gamma: 'Γ',
+                Beta: 'Β',
+                Alpha: 'Α',
+                Mu: 'Μ',
+                Rho: 'Ρ',
+                Tau: 'Τ',
+                omega: 'ω',
+                Omega: 'Ω',
+                zeta: 'ζ',
+                eta: 'η'
+            };
+            const doubleStruck = {
+                'A': '𝔸', 'B': '𝔹', 'C': 'ℂ', 'D': '𝔻', 'E': '𝔼', 'F': '𝔽', 'G': '𝔾',
+                'H': 'ℍ', 'I': '𝕀', 'J': '𝕁', 'K': '𝕂', 'L': '𝕃', 'M': '𝕄', 'N': 'ℕ',
+                'O': '𝕆', 'P': 'ℙ', 'Q': 'ℚ', 'R': 'ℝ', 'S': '𝕊', 'T': '𝕋', 'U': '𝕌',
+                'V': '𝕍', 'W': '𝕎', 'X': '𝕏', 'Y': '𝕐', 'Z': 'ℤ',
+                'a': '𝕒', 'b': '𝕓', 'c': '𝕔', 'd': '𝕕', 'e': '𝕖', 'f': '𝕗', 'g': '𝕘',
+                'h': '𝕙', 'i': '𝕚', 'j': '𝕛', 'k': '𝕜', 'l': '𝕝', 'm': '𝕞', 'n': '𝕟',
+                'o': '𝕠', 'p': '𝕡', 'q': '𝕢', 'r': '𝕣', 's': '𝕤', 't': '𝕥', 'u': '𝕦',
+                'v': '𝕧', 'w': '𝕨', 'x': '𝕩', 'y': '𝕪', 'z': '𝕫',
+                '0': '𝟘', '1': '𝟙', '2': '𝟚', '3': '𝟛', '4': '𝟜', '5': '𝟝',
+                '6': '𝟞', '7': '𝟟', '8': '𝟠', '9': '𝟡'
+            };
+            const scriptMap = {
+                'A': '𝒜', 'B': 'ℬ', 'C': '𝒞', 'D': '𝒟', 'E': 'ℰ', 'F': 'ℱ', 'G': '𝒢',
+                'H': 'ℋ', 'I': 'ℐ', 'J': '𝒥', 'K': '𝒦', 'L': 'ℒ', 'M': 'ℳ', 'N': '𝒩',
+                'O': '𝒪', 'P': '𝒫', 'Q': '𝒬', 'R': 'ℛ', 'S': '𝒮', 'T': '𝒯', 'U': '𝒰',
+                'V': '𝒱', 'W': '𝒲', 'X': '𝒳', 'Y': '𝒴', 'Z': '𝒵',
+                'a': '𝒶', 'b': '𝒷', 'c': '𝒸', 'd': '𝒹', 'e': 'ℯ', 'f': '𝒻', 'g': 'ℊ',
+                'h': '𝒽', 'i': '𝒾', 'j': '𝒿', 'k': '𝓀', 'l': '𝓁', 'm': '𝓂', 'n': '𝓃',
+                'o': 'ℴ', 'p': '𝓅', 'q': '𝓆', 'r': '𝓇', 's': '𝓈', 't': '𝓉', 'u': '𝓊',
+                'v': '𝓋', 'w': '𝓌', 'x': '𝓍', 'y': '𝓎', 'z': '𝓏'
+            };
+            const frakturMap = {
+                'A': '𝔄', 'B': '𝔅', 'C': 'ℭ', 'D': '𝔇', 'E': '𝔈', 'F': '𝔉', 'G': '𝔊',
+                'H': '𝔋', 'I': '𝔌', 'J': '𝔍', 'K': '𝔎', 'L': '𝔏', 'M': '𝔐', 'N': '𝔑',
+                'O': '𝔒', 'P': '𝔓', 'Q': '𝔔', 'R': 'ℜ', 'S': '𝔖', 'T': '𝔗', 'U': '𝔘',
+                'V': '𝔙', 'W': '𝔚', 'X': '𝔛', 'Y': '𝔜', 'Z': 'ℨ',
+                'a': '𝔞', 'b': '𝔟', 'c': '𝔠', 'd': '𝔡', 'e': '𝔢', 'f': '𝔣', 'g': '𝔤',
+                'h': '𝔥', 'i': '𝔦', 'j': '𝔧', 'k': '𝔨', 'l': '𝔩', 'm': '𝔪', 'n': '𝔫',
+                'o': '𝔬', 'p': '𝔭', 'q': '𝔮', 'r': '𝔯', 's': '𝔰', 't': '𝔱', 'u': '𝔲',
+                'v': '𝔳', 'w': '𝔴', 'x': '𝔵', 'y': '𝔶', 'z': '𝔷'
+            };
+            const commandReplacements = [
+                [/\\Longleftrightarrow/g, '⇔'],
+                [/\\longleftrightarrow/g, '⟷'],
+                [/\\leftrightarrow/g, '↔'],
+                [/\\Longrightarrow/g, '⇒'],
+                [/\\Rightarrow/g, '⇒'],
+                [/\\Longleftarrow/g, '⇐'],
+                [/\\Leftarrow/g, '⇐'],
+                [/\\longrightarrow/g, '→'],
+                [/\\rightarrow/g, '→'],
+                [/\\to\b/g, '→'],
+                [/\\longleftarrow/g, '←'],
+                [/\\leftarrow/g, '←'],
+                [/\\mapsto/g, '↦'],
+                [/\\implies/g, '⇒'],
+                [/\\iff/g, '⇔'],
+                [/\\uparrow/g, '↑'],
+                [/\\downarrow/g, '↓'],
+                [/\\updownarrow/g, '↕'],
+                [/\\rightleftharpoons/g, '⇌'],
+                [/\\leftharpoondown/g, '↽'],
+                [/\\rightharpoondown/g, '⇁'],
+                [/\\leftharpoonup/g, '↼'],
+                [/\\rightharpoonup/g, '⇀'],
+                [/\\pm/g, '±'],
+                [/\\mp/g, '∓'],
+                [/\\times/g, '×'],
+                [/\\cdot/g, '·'],
+                [/\\div/g, '÷'],
+                [/\\ast/g, '∗'],
+                [/\\star/g, '⋆'],
+                [/\\bullet/g, '•'],
+                [/\\circ/g, '∘'],
+                [/\\infty/g, '∞'],
+                [/\\partial/g, '∂'],
+                [/\\nabla/g, '∇'],
+                [/\\iiint/g, '∭'],
+                [/\\iint/g, '∬'],
+                [/\\int/g, '∫'],
+                [/\\sum/g, '∑'],
+                [/\\prod/g, '∏'],
+                [/\\oint/g, '∮'],
+                [/\\therefore/g, '∴'],
+                [/\\because/g, '∵'],
+                [/\\angle/g, '∠'],
+                [/\\approx/g, '≈'],
+                [/\\simeq/g, '≃'],
+                [/\\sim/g, '∼'],
+                [/\\cong/g, '≅'],
+                [/\\neq/g, '≠'],
+                [/\\leqslant/g, '≤'],
+                [/\\leq/g, '≤'],
+                [/\\geqslant/g, '≥'],
+                [/\\geq/g, '≥'],
+                [/\\propto/g, '∝'],
+                [/\\subseteq/g, '⊆'],
+                [/\\supseteq/g, '⊇'],
+                [/\\subset/g, '⊂'],
+                [/\\supset/g, '⊃'],
+                [/\\in/g, '∈'],
+                [/\\notin/g, '∉'],
+                [/\\ni/g, '∋'],
+                [/\\cup/g, '∪'],
+                [/\\cap/g, '∩'],
+                [/\\setminus/g, '∖'],
+                [/\\forall/g, '∀'],
+                [/\\exists/g, '∃'],
+                [/\\land/g, '∧'],
+                [/\\lor/g, '∨'],
+                [/\\neg/g, '¬'],
+                [/\\cdots/g, '⋯'],
+                [/\\ldots/g, '…'],
+                [/\\dotsc/g, '…'],
+                [/\\vdots/g, '⋮'],
+                [/\\ddots/g, '⋱'],
+                [/\\triangle/g, '△'],
+                [/\\bigtriangleup/g, '△'],
+                [/\\triangleleft/g, '◁'],
+                [/\\triangleright/g, '▷'],
+                [/\\langle/g, '⟨'],
+                [/\\rangle/g, '⟩'],
+                [/\\lfloor/g, '⌊'],
+                [/\\rfloor/g, '⌋'],
+                [/\\lceil/g, '⌈'],
+                [/\\rceil/g, '⌉'],
+                [/\\deg/g, '°'],
+                [/\\triangleq/g, '≜'],
+                [/\\equiv/g, '≡'],
+                [/\\perp/g, '⊥'],
+                [/\\parallel/g, '∥'],
+                [/\\prime/g, '′'],
+                [/\\emptyset/g, '∅'],
+                [/\\aleph/g, 'ℵ'],
+                [/\\Box/g, '□']
+            ];
 
-            // Arrow variants
-            w = w.replace(/\\xrightarrow\s*\{\s*([\\s\\S]*?)\s*\}/g, (match, rawLabel) => {
-                const label = (rawLabel || '').trim();
-                if (!label) {
-                    return '\\longrightarrow';
+            function mapToChars(value, table) {
+                return Array.from(value).map((char) => table[char] || char).join('');
+            }
+
+            function simplifyFunctions(value) {
+                return value.replace(/\\(sin|cos|tan|csc|sec|cot|log|ln|exp|max|min|mod)\b/g, (_, fn) => fn);
+            }
+
+            function cleanSegment(segment, depth = 0) {
+                if (depth > 5) {
+                    return segment ?? '';
                 }
-                const hasPlaceholder = /\\placeholder/.test(label);
-                const startsWithCommand = /^\\[A-Za-z]/.test(label);
-                if (hasPlaceholder || startsWithCommand) {
-                    return `\\buildrel${label}\\over\\longrightarrow`;
+                let text = String(segment ?? '');
+                if (!text) {
+                    return '';
                 }
-                return `\\buildrel\\ ${label}\\over\\longrightarrow`;
+
+                text = text.replace(/\r\n?/g, '\n');
+
+                text = text.replace(/\\xrightarrow\s*\{\s*([^}]*)\s*\}/g, (_, label) => {
+                    const cleanLabel = cleanSegment(label, depth + 1).trim();
+                    return cleanLabel ? `${cleanLabel} →` : '→';
+                });
+                text = text.replace(/\\xleftarrow\s*\{\s*([^}]*)\s*\}/g, (_, label) => {
+                    const cleanLabel = cleanSegment(label, depth + 1).trim();
+                    return cleanLabel ? `← ${cleanLabel}` : '←';
+                });
+                text = text.replace(/\\xleftrightarrow\s*\{\s*([^}]*)\s*\}/g, (_, label) => {
+                    const cleanLabel = cleanSegment(label, depth + 1).trim();
+                    return cleanLabel ? `${cleanLabel} ↔` : '↔';
+                });
+
+                text = text.replace(/\\underset\s*\{\s*\\\\sim\s*\}\s*\{\s*([^{}]*)\s*\}/g, (_, inner) => {
+                    const raw = String(inner ?? '');
+                    if (/\\\\placeholder/.test(raw) || !raw.trim()) {
+                        return '□┬∼';
+                    }
+                    const core = cleanSegment(raw, depth + 1).trim();
+                    return `${core || '□'}┬∼`;
+                });
+
+                text = text.replace(/\\frac\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, (_, num, den) => {
+                    const top = cleanSegment(num, depth + 1).trim();
+                    const bottom = cleanSegment(den, depth + 1).trim();
+                    if (!bottom) {
+                        return top;
+                    }
+                    return `${top}/${bottom}`;
+                });
+                text = text.replace(/\\sqrt\s*\[\s*([^\]]+)\s*\]\s*\{([^{}]+)\}/g, (_, degree, radicand) => {
+                    const n = mapToChars(cleanSegment(degree, depth + 1).trim(), supers);
+                    const inside = cleanSegment(radicand, depth + 1);
+                    return `${n}√(${inside})`;
+                });
+                text = text.replace(/\\sqrt\s*\{([^{}]+)\}/g, (_, radicand) => {
+                    const inside = cleanSegment(radicand, depth + 1);
+                    return `√(${inside})`;
+                });
+
+                text = text.replace(/\\overline\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̅`);
+                text = text.replace(/\\bar\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̄`);
+                text = text.replace(/\\hat\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̂`);
+                text = text.replace(/\\tilde\s*\{\s*\}/g, '□┬∼');
+                text = text.replace(/\\tilde\s*\{\s*i\s*\}/g, 'i┬∼');
+                text = text.replace(/\\tilde\s*\{\s*j\s*\}/g, 'j┬∼');
+                text = text.replace(/\\tilde\s*\{\s*k\s*\}/g, 'k┬∼');
+                text = text.replace(/\\tilde\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̃`);
+                text = text.replace(/\\dot\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̇`);
+                text = text.replace(/\\ddot\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̈`);
+                text = text.replace(/\\vec\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}⃗`);
+                text = text.replace(/\\overrightarrow\s*\{([^{}]+)\}/g, (_, inner) => {
+                    const base = cleanSegment(inner, depth + 1).trim();
+                    return `${base}⃗`;
+                });
+                text = text.replace(/\\underline\s*\{([^{}]+)\}/g, (_, inner) => `${cleanSegment(inner, depth + 1)}̲`);
+
+                // Column vectors / matrices: \begin{pmatrix} a \\ b \end{pmatrix} → (■(a@b))
+                text = text.replace(/\\begin\s*\{pmatrix\}([\s\S]*?)\\end\s*\{pmatrix\}/g, (_, body) => {
+                    const withMarkers = String(body).replace(/\\(?![A-Za-z])/g, '@');
+                    const normalized = cleanSegment(withMarkers, depth + 1);
+                    const rows = String(normalized)
+                        .split(/@+/g)
+                        .map((row) => row.trim())
+                        .filter((row) => row.length > 0);
+                    return rows.length ? `(■(${rows.join('@')}))` : `(■())`;
+                });
+                const projGap = '   ';
+                text = text.replace(/proj_([^\s┬]+)┬∼\s*([^\s┬]+)┬∼/g, (_, first, second) => `proj_${first}┬∼${projGap}${second}┬∼`);
+                text = text.replace(/\\lvert/g, '|');
+                text = text.replace(/\\rvert/g, '|');
+
+                // Normalize absolute value delimiters: placeholder → double bar, otherwise single bar
+                text = text.replace(/(?<!\|)\|([^|]+)\|(?!\|)/g, (_, inner) => {
+                    const core = cleanSegment(inner, depth + 1).trim();
+                    const normalized = core.replace(/\s+/g, '');
+                    if (!normalized || normalized === '□' || normalized.toLowerCase().includes('placeholder') || normalized === '□┬∼') {
+                        return `||${core || '□'}||`;
+                    }
+                    return `|${core}|`;
+                });
+
+                text = text.replace(/\\left|\\right|\\!/g, '');
+                text = text.replace(/\\quad|\\qquad/g, '    ');
+                text = text.replace(/\\,|\\;|\\:|\\thinspace/g, ' ');
+                text = text.replace(/~/g, ' ');
+                text = text.replace(/\\%/g, '%').replace(/\\#/g, '#').replace(/\\&/g, '&');
+                text = text.replace(/\\\{/g, '{').replace(/\\\}/g, '}');
+                text = text.replace(/\\_/g, '_');
+
+                text = text.replace(/\\text\s*\{([^}]*)\}/g, (_, value) => cleanSegment(value, depth + 1));
+                text = text.replace(/\\mathrm\s*\{([^}]*)\}/g, (_, value) => cleanSegment(value, depth + 1));
+                text = text.replace(/\\operatorname\s*\{([^}]*)\}/g, (_, value) => cleanSegment(value, depth + 1));
+
+                text = text.replace(/\\mathbb\s*\{([^{}]+)\}/g, (_, value) => mapToChars(cleanSegment(value, depth + 1), doubleStruck));
+                text = text.replace(/\\mathcal\s*\{([^{}]+)\}/g, (_, value) => mapToChars(cleanSegment(value, depth + 1), scriptMap));
+                text = text.replace(/\\mathscr\s*\{([^{}]+)\}/g, (_, value) => mapToChars(cleanSegment(value, depth + 1), scriptMap));
+                text = text.replace(/\\mathfrak\s*\{([^{}]+)\}/g, (_, value) => mapToChars(cleanSegment(value, depth + 1), frakturMap));
+                text = text.replace(/\\mathbf\s*\{([^{}]+)\}/g, (_, value) => cleanSegment(value, depth + 1));
+                text = text.replace(/\\mathit\s*\{([^{}]+)\}/g, (_, value) => cleanSegment(value, depth + 1));
+                text = text.replace(/\\mathsf\s*\{([^{}]+)\}/g, (_, value) => cleanSegment(value, depth + 1));
+                text = text.replace(/\\mathnormal\s*\{([^{}]+)\}/g, (_, value) => cleanSegment(value, depth + 1));
+                text = text.replace(/\\color\s*\{[^}]*\}/g, '');
+
+                text = text.replace(/\\binom\s*\{([^{}]+)\}\s*\{([^{}]+)\}/g, (_, top, bottom) => `(${cleanSegment(top, depth + 1)} choose ${cleanSegment(bottom, depth + 1)})`);
+                text = text.replace(/\\cfrac/g, '\\frac');
+                text = text.replace(/\\choose/g, ' choose ');
+                text = text.replace(/\\begin\s*\{[^}]*\}/g, '');
+                text = text.replace(/\\end\s*\{[^}]*\}/g, '');
+                text = text.replace(/&/g, ' ');
+
+                text = text.replace(/\\\\/g, '\n');
+
+                for (const [pattern, value] of commandReplacements) {
+                    text = text.replace(pattern, value);
+                }
+
+                text = simplifyFunctions(text);
+
+                text = text.replace(/\\([A-Za-z]+)/g, (match, name) => {
+                    if (Object.prototype.hasOwnProperty.call(greekMap, name)) {
+                        return greekMap[name];
+                    }
+                    return name;
+                });
+
+                text = text.replace(/\bplaceholder\b/gi, '□');
+                text = text.replace(/\\placeholder\{[^}]*\}/g, '□');
+                text = text.replace(/underset∼\s*□/g, '□┬∼');
+                text = text.replace(/underset∼\s*([A-Za-z])/g, (_, symbol) => `${symbol}┬∼`);
+                text = text.replace(/proj_□┬∼□┬∼/g, 'proj_p┬∼\u2003\u2003\u2003q┬∼');
+                text = text.replace(/proj_□┬∼([^\s┬]+)┬∼/g, (_, symbol) => `proj_p┬∼\u2003\u2003\u2003${symbol}┬∼`);
+                text = text.replace(/proj_p┬∼\s*([^\s┬]+)┬∼/g, (_, symbol) => `proj_p┬∼\u2003\u2003\u2003${symbol}┬∼`);
+
+                // Normalize superscripts/subscripts into Word UnicodeMath syntax
+                text = text.replace(/\^\{([^{}]+)\}/g, (_, content) => {
+                    const clean = cleanSegment(content, depth + 1).trim();
+                    if (!clean) return '^';
+                    return clean.length === 1 ? `^${clean}` : `^(${clean})`;
+                });
+                text = text.replace(/_\{([^{}]+)\}/g, (_, content) => {
+                    const clean = cleanSegment(content, depth + 1).trim();
+                    if (!clean) return '_';
+                    return clean.length === 1 ? `_${clean}` : `_(${clean})`;
+                });
+
+                text = text.replace(/[{}]/g, '');
+                text = text.replace(/\s+\n/g, '\n').replace(/\n\s+/g, '\n');
+                text = text.replace(/[ \t]+/g, ' ');
+                return text.trim();
+            }
+
+    function finalizeWordFormat(value) {
+        if (!value) return value;
+        let out = value;
+
+        const stripParens = (input = '') => {
+            const trimmed = input.trim();
+            if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+                return trimmed.slice(1, -1).trim();
+            }
+            return trimmed;
+        };
+
+        out = out.replace(/underset∼\s*placeholder/gi, '□┬∼');
+        out = out.replace(/underset∼\s*□/g, '□┬∼');
+        out = out.replace(/underset∼\s*([A-Za-z])/g, (_, symbol) => `${symbol}┬∼`);
+        out = out.replace(/\|\|□(?:┬∼)?\|\|/g, '||');
+
+        const normalizeBound = (token = '') => stripParens(token.replace(/^_+/, '').trim());
+        const stripBox = (segment = '') => segment.replace(/▒/g, '').replace(/[〖〗]/g, '').trim();
+        const wrapBox = (segment = '') => `〖${segment}〗`;
+        const ensureParens = (token = '') => {
+            const inner = stripParens(token);
+            return inner ? `(${inner})` : '()';
+        };
+
+        // Integrals → ∫_b^a▒〖f(x)〗 dx (limits + integrand wrapped)
+        const integralPattern = /∫([^d]+)d\s*([A-Za-z])(?![A-Za-z])/g;
+        out = out.replace(integralPattern, (match, bodySegment, variable) => {
+            const diff = variable.trim();
+            const segment = bodySegment.trim();
+            const limitsMatch = segment.match(/^_?\s*([^\s^]+)\s*\^\s*([^\s]+?)(?=(?:▒|〖|\s|$|[A-Za-z]))\s*(.*)$/);
+            if (!limitsMatch) {
+                const cleanedIntegrand = stripBox(segment);
+                return `∫▒${wrapBox(cleanedIntegrand)} d${diff}`;
+            }
+            const [, lowerToken, upperToken, integrandRaw] = limitsMatch;
+            const lower = normalizeBound(lowerToken);
+            const upper = normalizeBound(upperToken);
+            const integrand = stripBox(integrandRaw);
+            return `∫_${lower}^${upper}▒${wrapBox(integrand)} d${diff}`;
+        });
+
+        // Evaluation bar → ├ f(x)┤|b^a
+        const evalPattern = /([^|\n]+)\|\s*_?\s*([^\s^]+)\s*\^\s*([^\s]+)/g;
+        out = out.replace(evalPattern, (match, expr, lowerToken, upperToken) => {
+            if (expr.includes('├') || expr.includes('┤')) return match;
+            const body = expr.trim().replace(/^\.+/, '');
+            const lower = normalizeBound(lowerToken);
+            const upper = normalizeBound(upperToken);
+            return `├ ${body}┤|${lower}^${upper}`;
+        });
+
+        // Summation / Product → ∑_(n=3)^4▒n, ∏_(n=3)^5▒n
+        const normalizeSeries = (symbol) => {
+            // Match: symbol followed by subscript, superscript, and term
+            // Upper bound: either (parenthesized) or digits only, or a single letter
+            console.log('Before normalizeSeries for', symbol, ':', out);
+            out = out.replace(new RegExp(symbol + '_(\\([^)]+\\)|[^\\s^]+)\\^(\\([^)]+\\)|\\d+|[a-zA-Z])\\s*▒?\\s*([^∑∏]+?)(?=\\s*(?:[∑∏]|$))', 'g'), 
+                (match, lower, upper, term) => {
+                    console.log('Match:', match, '| lower:', lower, '| upper:', upper, '| term:', term);
+                    const lowerClean = ensureParens(stripParens(lower.trim()));
+                    const upperClean = stripParens(upper.trim());
+                    const termClean = term.trim().replace(/^▒+/, '').replace(/▒+$/, '');
+                    if (!termClean) return match; // Don't transform if no term
+                    const result = `${symbol}_${lowerClean}^${upperClean}▒${termClean}`;
+                    console.log('Result:', result);
+                    return result;
+                });
+            console.log('After normalizeSeries for', symbol, ':', out);
+        };
+
+        normalizeSeries('∑');
+        normalizeSeries('∏');
+
+        // Limits → lim_(x→0)⁡f(x)
+        out = out.replace(/lim_\(([^)]+)\)(?!⁡)/g, (match, condition) => `lim_(${stripParens(condition)})⁡`);
+        out = out.replace(/⁡\s+/g, '⁡');
+
+        // Derivative → d/dx (f(x))
+        out = out.replace(/d\s*\/\s*d\s*([A-Za-z])\s*\(([^)]*)\)/g, (match, variable, body) => `d/d${variable.trim()} (${body.trim()})`);
+
+        // Tilde stack over i
+        out = out.replace(/ĩ/g, 'i┬∼');
+
+        // Vector and conjugate forms
+        out = out.replace(/(\([^)]+\)|[A-Za-z0-9]+)⃗/g, (match, body) => {
+            const token = body.trim();
+            const alreadyWrapped = token.startsWith('(') && token.endsWith(')');
+            const base = token.length > 1 && !alreadyWrapped ? `(${token})` : token;
+            return `${base}⃗`;
+        });
+        const combiningDot = '\u0307';
+        const combiningDdot = '\u0308';
+        const normalizeAccent = (pattern, accent) => {
+            out = out.replace(pattern, (_, token) => {
+                const trimmed = token.trim();
+                const alreadyWrapped = trimmed.startsWith('(') && trimmed.endsWith(')');
+                const base = trimmed.length > 1 && !alreadyWrapped ? `(${trimmed})` : trimmed;
+                return `${base}${accent}`;
             });
-            w = w.replace(/\\\\buildrel/g, '\\buildrel');
-            w = w.replace(/\\implies/g, '\\Longrightarrow');
+        };
+        normalizeAccent(new RegExp(`(\\([^)]+\\)|[A-Za-z0-9]+)\\s?${combiningDot}`, 'gu'), combiningDot);
+        normalizeAccent(new RegExp(`(\\([^)]+\\)|[A-Za-z0-9]+)\\s?${combiningDdot}`, 'gu'), combiningDdot);
+        const projSeparator = '   '; // preserve spacing between stacked symbols
+        out = out.replace(/proj_([^\s┬]+)┬∼\s*([^\s┬]+)┬∼/g, (_, first, second) => `proj_${first}┬∼${projSeparator}${second}┬∼`);
+out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
 
-            // Spacing and differential clean-up
-            w = w.replace(/\\:/g, ' ');
-            w = w.replace(/\\differentialD\s?/g, 'd');
-            w = w.replace(/d\\theta/g, 'd{\\theta}');
-            w = w.replace(/d\\mu/g, 'd{\\mu}');
+        // Black-square matrices: normalise to (■(a@b)) style
+        out = out.replace(/\(\s*■\(([^)]*)\)\s*\)/g, (_, content) => `(■(${content.trim()}))`);
+        out = out.replace(/(?<!\()■\(([^)]*)\)(?!\))/g, (_, content) => `(■(${content.trim()}))`);
 
-            // Absolute value and matrix shaping for Word
-            w = w.replace(/\\lvert([\s\S]*?)\\rvert/g, '\\left|$1\\right|');
-            w = w.replace(/\\begin\{pmatrix\}([\s\S]*?)\\end\{pmatrix\}/g, (match, inside) => {
-                const content = inside.trim().replace(/\\*$/, '') + '\\\\';
-                return '\\left(\\begin{matrix}' + content + '\\end{matrix}\\right)';
-            });
+        // Z / Z ^+
+        out = out.replace(/\bZ\b/g, 'ℤ');
+        out = out.replace(/Z\^\+/g, 'ℤ⁺');
+        out = out.replace(/Z\^\(\+\)/g, 'ℤ⁺');
 
-            // Vector notation: underset tilde -> below tilde
-            w = w.replace(
-                /\\operatorname\{proj\}_\{\\underset\{\\sim\}\{([^}]*)\}\}\s*\\underset\{\\sim\}\{([^}]*)\}/g,
-                (match, u, v) => `proj_{${u}\\below\\sim}  ${v}\\below\\sim`
-            );
-            w = w.replace(/\\underset\{\\sim\}\{([^}]+)\}/g, '$1\\below\\sim');
-            w = w.replace(/\\underset\{([^}]+)\}\{([^}]+)\}/g, '$2\\below$1');
-            w = w.replace(/\\overrightarrow\s*\{([^}]*)\}/g, '\\vec{$1}');
-            w = w.replace(/\\overrightarrow\s*([A-Za-z]+)/g, (match, token) => `\\vec{${token}}`);
+        return out;
+    }
 
-            // Generic projection operator fallbacks to Roman text with spacing
-            w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-            w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-            w = w.replace(/\\operatorname\{proj\}_([A-Za-z])\\s*([A-Za-z])/g, '{\\rm proj}_$1\\ $2');
-            w = w.replace(/\\operatorname\{proj\}_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
-            w = w.replace(/\\operatorname\{proj\}\\s*_\{([^}]*)\}\\s*(?=\\)/g, '{\\rm proj}_$1\\ ');
-
-            // Remaining operatorname → roman text
-            w = w.replace(/\\operatorname\{([^}]+)\}/g, '{\\rm $1}');
-
-            return w;
+    return finalizeWordFormat(cleanSegment(latex));
         }
         
-        // Replace MathLive placeholders with visible boxes for MathJax preview
-        function latexForPreview(latex){
-            try{
-                const src = String(latex ?? '');
-                // Replace \placeholder{...} (usually empty) with a boxed space
-                // Using two medium spaces to create a reasonably sized box
-                const boxedGap = String.raw`\\boxed{\\;\\;}`;
-                return src.replace(/\\placeholder\{[^}]*\}/g, boxedGap);
-            }catch(e){ return String(latex ?? ''); }
+        // Normalize Word equation format input to clean UnicodeMath/LaTeX
+        function normalizeWordInput(text) {
+            let result = String(text ?? '');
+            
+            // 1. Replace lenticular brackets 〖〗 with parentheses ()
+            result = result.replace(/〖/g, '(');
+            result = result.replace(/〗/g, ')');
+            
+            // 2. Replace n-ary operator marker ▒ (U+2592) with space
+            result = result.replace(/▒/g, ' ');
+            
+            // 3. Remove function application character (U+2061)
+            result = result.replace(/\u2061/g, '');
+            
+            // 4. Clean up delimiter patterns ├ ┤ (often appear around integrals)
+            result = result.replace(/├/g, '');
+            result = result.replace(/┤/g, '');
+            
+            // 5. Normalize extra spaces
+            result = result.replace(/\s+/g, ' ').trim();
+            
+            return result;
+        }
+        
+        // Preview update functions
+        function updateLatexPreview() {
+            const latexPreview = document.getElementById('latexPreview');
+            const latex = ta.value.trim();
+            if (latex) {
+                latexPreview.innerHTML = '\\[' + latex + '\\]';
+                if (window.MathJax && window.MathJax.typesetPromise) {
+                    window.MathJax.typesetPromise([latexPreview]).catch(err => {
+                        console.warn('LaTeX preview typeset failed:', err);
+                        latexPreview.innerHTML = '<span style="color: #ef4444; font-size: 0.9rem;">Invalid LaTeX</span>';
+                    });
+                }
+            } else {
+                latexPreview.innerHTML = '';
+            }
+        }
+
+        function removeWordSpaces(latex) {
+            // Remove \: spacing that appears after \int, \sum, \prod
+            // This spacing is added by MathLive templates for Word compatibility
+            // but should not appear in standard LaTeX
+            
+            // Strategy: recursively remove \: until none remain
+            let result = latex;
+            let iterations = 0;
+            const maxIterations = 10;
+            
+            while (iterations < maxIterations && result.includes('\\:')) {
+                const before = result;
+                // Remove \: after integral/sum/product operators (with or without limits)
+                result = result
+                    .replace(/(\\int(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1')
+                    .replace(/(\\sum(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1')
+                    .replace(/(\\prod(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1');
+                
+                // If nothing changed, remove all remaining \: 
+                if (result === before) {
+                    result = result.replace(/\\:/g, '');
+                    break;
+                }
+                iterations++;
+            }
+            
+            return result;
         }
         
         function syncFromMathLive() {
             const rawLatex = mf2.getValue('latex');
+            // Replace differentialD with 'd'
             const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
-            if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
+            
+            // Create version without \: for display and copying (clean LaTeX)
+            const displayLatex = removeWordSpaces(cleanLatex);
+            
+            // Update Raw LaTeX Input with clean version (no \:)
+            if (ta.value !== displayLatex) { ta.value = displayLatex; }
+            
+            // Use version WITH \: for Word equation to maintain proper spacing
             wordOut.value = toWordEquation(cleanLatex);
-            preview.innerHTML = '$$' + latexForPreview(cleanLatex) + '$$';
-            mjxTypeset(preview);
+            updateLatexPreview();
         }
 
         function syncFromTextArea() {
-            const cleanLatex = ta.value;
+            let cleanLatex = ta.value;
+            // Normalize Word format input if detected
+            cleanLatex = normalizeWordInput(cleanLatex);
+            // Remove \: spacing if present in pasted content (keep textarea clean)
+            cleanLatex = removeWordSpaces(cleanLatex);
+            
+            if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
             if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
-            wordOut.value = toWordEquation(cleanLatex);
-            preview.innerHTML = '$$' + latexForPreview(cleanLatex) + '$$';
-            mjxTypeset(preview);
+            
+            // Get MathLive's processed version (which may add \: spacing from templates)
+            let wordLatex = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
+            
+            // Use version WITH \: for Word equation to maintain proper spacing
+            wordOut.value = toWordEquation(wordLatex);
+            
+            updateLatexPreview();
+            // Adjust math field height after content changes
+            if (typeof adjustMathFieldHeight === 'function') {
+                // Use requestAnimationFrame to ensure DOM has updated
+                requestAnimationFrame(() => {
+                    adjustMathFieldHeight();
+                    // Double-check after a short delay for complex formulas
+                    setTimeout(adjustMathFieldHeight, 50);
+                });
+            }
         }
         
         function render(){ syncFromMathLive(); }
@@ -909,15 +2521,222 @@ body {
         
         function configureMathLive() {
             if (!window.MathfieldElement || !mf2) return;
-            mf2.setOptions({
-                mathModeSpace: '\\:',
-                removeExtraneousParentheses: true,
-                virtualKeyboardMode: 'manual',
-                virtualKeyboards: '',
-                virtualKeyboardToggleEnabled: true,
-                inlineShortcutToolbar: false,
-                menus: []
-            });
+            // 直接设置属性而不是使用已弃用的 setOptions()
+            mf2.mathModeSpace = '\\:';
+            mf2.removeExtraneousParentheses = true;
+            mf2.mathVirtualKeyboardPolicy = 'manual'; // virtualKeyboardMode -> mathVirtualKeyboardPolicy
+            // virtualKeyboards 已弃用，使用 mathVirtualKeyboard.layouts 代替
+            // window.mathVirtualKeyboard.layouts = ''; // 如果需要的话
+            // mf2.virtualKeyboardToggleEnabled = true; // 此选项可能也需要更新
+            mf2.inlineShortcutToolbar = false;
+            // Disable context menu across MathLive versions
+            try { mf2.menuItems = []; } catch(_) {}
+            try { mf2.menus = []; } catch(_) {}
+
+            // ========== 基础配置 ==========
+            mf2.letterShapeStyle = 'tex';              // 变量斜体、运算符正体
+            mf2.smartMode = false;                     // Disabled to prevent auto \text{} insertion
+
+            // Disable text mode keybindings to prevent \text{} insertion
+            // Reference: https://mathlive.io/mathfield/reference/keybindings/
+            mf2.keybindings = [
+                ...mf2.keybindings.filter(kb => 
+                    kb.command !== 'applyTextMode' && 
+                    kb.command !== 'toggleMathTextMode'
+                )
+            ];
+            
+            // Complete inline shortcuts from MathLive documentation
+            // Reference: https://mathlive.io/mathfield/reference/keybindings/
+            mf2.inlineShortcuts = {
+                '∞': '\\infty',
+                'ii': '\\imaginaryI',
+                'jj': '\\imaginaryJ',
+                'ee': '\\exponentialE',
+                'NN': '\\mathbb{N}',
+                'ZZ': '\\mathbb{Z}',
+                'QQ': '\\mathbb{Q}',
+                'RR': '\\mathbb{R}',
+                'CC': '\\mathbb{C}',
+                'PP': '\\mathbb{P}',
+                'forall': '\\forall',
+                'exists': '\\exists',
+                '!exists': '\\nexists',
+                '$': '\\char"24',
+                '%': '\\%',
+                '#': '\\#',
+                '\\': '\\backslash',
+                'diamond': '\\diamond',
+                'square': '\\square',
+                'TT': '\\top',
+                'nabla': '\\nabla',
+                'grad': '\\nabla',
+                'del': '\\partial',
+                '∆': '\\differentialD',
+                'dx': '\\differentialD x',
+                'dy': '\\differentialD y',
+                'dt': '\\differentialD t',
+                'aleph': '\\aleph',
+                'arcsin': '\\arcsin',
+                'arccos': '\\arccos',
+                'arctan': '\\arctan',
+                'sin': '\\sin',
+                'sinh': '\\sinh',
+                'cos': '\\cos',
+                'cosh': '\\cosh',
+                'tan': '\\tan',
+                'tanh': '\\tanh',
+                'sec': '\\sec',
+                'csc': '\\csc',
+                'cot': '\\cot',
+                'log': '\\log',
+                'ln': '\\ln',
+                'exp': '\\exp',
+                'lim': '\\lim_{\\char"2B1A}',
+                'det': '\\det',
+                'mod': '\\mod',
+                'max': '\\max',
+                'min': '\\min',
+                'erf': '\\operatorname{erf}',
+                'erfc': '\\operatorname{erfc}',
+                'bessel': '\\operatorname{bessel}',
+                'mean': '\\operatorname{mean}',
+                'median': '\\operatorname{median}',
+                'fft': '\\operatorname{fft}',
+                'lcm': '\\operatorname{lcm}',
+                'gcd': '\\operatorname{gcd}',
+                'randomReal': '\\operatorname{randomReal}',
+                'randomInteger': '\\operatorname{randomInteger}',
+                'Re': '\\operatorname{Re}',
+                'Im': '\\operatorname{Im}',
+                '!=': '\\ne',
+                '>=': '\\ge',
+                '<=': '\\le',
+                '<<': '\\ll',
+                '>>': '\\gg',
+                '~~': '\\approx',
+                '?=': '\\questeq',
+                ':=': '\\coloneq',
+                '::': '\\Colon',
+                '-=': '\\equiv',
+                '~=': '\\cong',
+                'lt=': '\\leq',
+                'gt=': '\\geq',
+                '-lt': '\\prec',
+                '-<=': '\\preceq',
+                '->=': '\\succeq',
+                'prop': '\\propto',
+                '*': '\\cdot',
+                '**': '\\ast',
+                '***': '\\star',
+                '&&': '\\land',
+                'in': '\\in',
+                '!in': '\\notin',
+                'xx': '\\times',
+                '+-': '\\pm',
+                '÷': '\\div',
+                '(-)': '\\odot',
+                '(+)': '\\oplus',
+                '(/)': '\\oslash',
+                'ox': '\\otimes',
+                '@': '\\circ',
+                '><': '\\ltimes',
+                '^^': '\\wedge',
+                '^^^': '\\bigwedge',
+                'vv': '\\vee',
+                'vvv': '\\bigvee',
+                'nn': '\\cap',
+                'nnn': '\\bigcap',
+                'uu': '\\cup',
+                'uuu': '\\bigcup',
+                'setminus': '\\backslash',
+                'sub': '\\subset',
+                'sup': '\\supset',
+                'sube': '\\subseteq',
+                'supe': '\\supseteq',
+                'and': '\\land',
+                'or': '\\lor',
+                'not': '\\neg',
+                '__': '\\lfloor',
+                '~': '\\lceil',
+                '{': '\\{',
+                '}': '\\}',
+                '(:': '\\langle',
+                ':)': '\\rangle',
+                'mm': '\\operatorname{mm}',
+                'cm': '\\operatorname{cm}',
+                'km': '\\operatorname{km}',
+                'kg': '\\operatorname{kg}',
+                '>->': '\\rightarrowtail',
+                '->>': '\\twoheadrightarrow',
+                '>->>': '\\twoheadrightarrowtail',
+                '->': '\\to',
+                '->...': '\\to\\cdots',
+                '-->': '\\longrightarrow',
+                '<--': '\\longleftarrow',
+                '=>': '\\Rightarrow',
+                '==>': '\\Longrightarrow',
+                '<=>': '\\Leftrightarrow',
+                '<->': '\\leftrightarrow',
+                'uarr': '\\uparrow',
+                'darr': '\\downarrow',
+                'rarr': '\\rightarrow',
+                'rArr': '\\Rightarrow',
+                'larr': '\\leftarrow',
+                'lArr': '\\Leftarrow',
+                'harr': '\\leftrightarrow',
+                'hArr': '\\Leftrightarrow',
+                '--': '\\vdash',
+                '==': '\\models',
+                'alpha': '\\alpha',
+                'beta': '\\beta',
+                'gamma': '\\gamma',
+                'Gamma': '\\Gamma',
+                'delta': '\\delta',
+                'Delta': '\\Delta',
+                'epsilon': '\\epsilon',
+                'varepsilon': '\\varepsilon',
+                'zeta': '\\zeta',
+                'eta': '\\eta ',
+                'theta': '\\theta',
+                'vartheta': '\\vartheta',
+                'Theta': '\\Theta',
+                'iota': '\\iota',
+                'kappa': '\\kappa',
+                'lambda': '\\lambda',
+                'Lambda': '\\Lambda',
+                'mu': '\\mu',
+                'nu': '\\nu ',
+                'xi': '\\xi',
+                'Xi': '\\Xi',
+                'pi': '\\pi',
+                'Pi': '\\Pi',
+                'rho': '\\rho',
+                'sigma': '\\sigma',
+                'Sigma': '\\Sigma',
+                'tau': '\\tau',
+                'upsilon': '\\upsilon',
+                'phi': '\\phi',
+                'varphi': '\\varphi',
+                'Phi': '\\Phi',
+                'chi': '\\chi',
+                'psi': '\\psi',
+                'Psi': '\\Psi',
+                'Ω': '\\omega',
+                'Omega': '\\Omega',
+                '∑': '\\sum',
+                'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',
+                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx',
+                'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',
+                'sqrt': '\\sqrt{}',
+                'neg': '\\neg',
+                'liminf': '\\operatorname*{lim~inf}_{}',
+                'limsup': '\\operatorname*{lim~sup}_{}',
+                'argmin': '\\operatorname*{arg~min}_{}',
+                'argmax': '\\operatorname*{arg~max}_{}',
+                '...': '\\ldots',
+                ':.': '\\therefore'
+            };
 
             let isArmedForDeletion = false; // Tracks "armed" state for double-tap deletion
 
@@ -936,11 +2755,9 @@ body {
 
             mf2.addEventListener('focus', () => { isArmedForDeletion = false; });
             mf2.addEventListener('blur', () => {
-                cleanupEmptyStructures();
                 isArmedForDeletion = false;
             });
             mf2.addEventListener('move-out', () => {
-                cleanupEmptyStructures();
                 isArmedForDeletion = false;
             });
 
@@ -1127,11 +2944,11 @@ body {
 
         const layouts={
             calc:[
-                {display:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{} dx'},
+                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx'},
                 {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{} dx'},
                 {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
-                {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
-                {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}} \\placeholder{}'},
+                {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}'},
+                {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}'},
                 {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
                 {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
             ],
@@ -1251,7 +3068,7 @@ body {
         const curatedLayouts = {
             calc: [
                 { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{} dx' },
-                { display: '\\int_{\\placeholder{}}^{\\placeholder{}} \\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}} \\\nplaceholder{} dx' },
+                { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx' },
                 { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
             ],
             func: [
@@ -1719,6 +3536,9 @@ body {
                 js: ['https://unpkg.com/mathlive/dist/mathlive.min.js', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive.min.js']
             };
             let loaded = false;
+            let coreCssLoaded = false;
+            let cssLoaded = false;
+            let jsLoaded = false;
 
             // Load core CSS
             for (const url of sources.coreCss) {
@@ -1731,11 +3551,14 @@ body {
                         link.onerror = () => reject();
                         document.head.appendChild(link);
                     });
-                    loaded = true;
+                    coreCssLoaded = true;
                     break;
                 } catch (e) {
-                    console.warn('Failed to load core CSS from', url, e);
+                    // 静默重试下一个源，只在最后失败时才警告
                 }
+            }
+            if (!coreCssLoaded) {
+                console.warn('Failed to load core CSS from all sources');
             }
 
             // Load main CSS
@@ -1749,10 +3572,14 @@ body {
                         link.onerror = () => reject();
                         document.head.appendChild(link);
                     });
+                    cssLoaded = true;
                     break;
                 } catch (e) {
-                    console.warn('Failed to load CSS from', url, e);
+                    // 静默重试下一个源，只在最后失败时才警告
                 }
+            }
+            if (!cssLoaded) {
+                console.warn('Failed to load main CSS from all sources');
             }
 
             // Load JavaScript
@@ -1766,17 +3593,19 @@ body {
                         script.onerror = () => reject();
                         document.head.appendChild(script);
                     });
-                    status.textContent = 'MathLive loaded';
+                    jsLoaded = true;
                     loaded = true;
                     break;
                 } catch (e) {
-                    console.warn('Failed to load MathLive JS from', url, e);
+                    // 静默重试下一个源，只在最后失败时才警告
                 }
+            }
+            if (!jsLoaded) {
+                console.warn('Failed to load MathLive JS from all sources');
             }
 
             if (!loaded) {
-                console.warn('MathLive failed to load from all sources');
-                status.textContent = 'MathLive unavailable';
+                console.warn('MathLive failed to load completely');
             }
 
             return loaded;
@@ -1809,10 +3638,10 @@ body {
             
             if(loaded && window.MathfieldElement){
                 configureMathLive();
-                status.textContent='Ready';
+                // Safety: clear menus again post-init
+                try { mf2.menuItems = []; } catch(_) {}
+                try { mf2.menus = []; } catch(_) {}
                 try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){}
-            }else{
-                status.textContent='Fallback mode - MathLive not available';
             }
             
             // Ensure buttons are properly typeset after a short delay
@@ -1865,7 +3694,6 @@ body {
             }
           }
 
-          status.textContent = ok ? `Copied ${label} ✓` : `Copy ${label} failed`;
           showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
         }
         document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
@@ -1928,7 +3756,288 @@ body {
 
         // Apply after a short delay to ensure all styles are loaded
         setTimeout(setTextareaWidths, 100);
+
+        // ============================================
+        // 🎯 MathField 动态高度调整（固定宽度，自适应高度）
+        // ============================================
+        // 注意：mf2 已在文件开头声明，这里直接使用
         
+        function adjustMathFieldHeight() {
+            if (!mf2) return;
+            
+            // 获取 math-field 的实际内容高度
+            try {
+                const contentElement = mf2.shadowRoot?.querySelector('.ML__content');
+                if (contentElement) {
+                    const contentHeight = contentElement.scrollHeight;
+                    const minHeight = 60;
+                    const newHeight = Math.max(contentHeight + 24, minHeight); // 24px for padding
+                    mf2.style.height = newHeight + 'px';
+                }
+            } catch (e) {
+                // Fallback: use scrollHeight
+                const minHeight = 60;
+                const newHeight = Math.max(mf2.scrollHeight, minHeight);
+                mf2.style.height = newHeight + 'px';
+            }
+        }
+        
+        // 监听输入事件
+        if (mf2) {
+            mf2.addEventListener('input', adjustMathFieldHeight);
+            
+            // 初始化高度
+            adjustMathFieldHeight();
+            
+            // 延迟初始化（确保字体和内容加载完成）
+            setTimeout(adjustMathFieldHeight, 200);
+            setTimeout(adjustMathFieldHeight, 500);
+        }
+        
+    </script>
+
+    <!-- Shortcuts Popup Modal -->
+    <div class="shortcuts-modal" id="shortcutsModal">
+      <div class="shortcuts-content">
+        <div class="shortcuts-header">
+          <div class="shortcuts-header-left">
+            <h2>MathLive Inline Shortcuts</h2>
+            <a class="shortcuts-commands-btn" href="https://mathlive.io/mathfield/reference/commands/" target="_blank" rel="noopener noreferrer" title="View all MathLive LaTeX commands">
+              <i data-lucide="book-open"></i> All Commands
+            </a>
+          </div>
+          <button class="shortcuts-close" id="shortcutsClose" aria-label="Close">×</button>
+        </div>
+        <div class="shortcuts-body">
+          <input 
+            type="text" 
+            class="shortcuts-search" 
+            id="shortcutsSearch" 
+            placeholder="Search shortcuts... (e.g. 'int', 'sum', 'alpha')"
+            autocomplete="off"
+          />
+          <div class="shortcuts-grid" id="shortcutsGrid">
+            <!-- Shortcuts will be populated by JavaScript -->
+          </div>
+        </div>
+        <div class="shortcuts-footer">
+          Type the input text in the math field to get the corresponding symbol
+        </div>
+      </div>
+    </div>
+
+    <script>
+    // ========== Shortcuts Popup Logic ==========
+    (function() {
+      const modal = document.getElementById('shortcutsModal');
+      const btn = document.getElementById('shortcutsBtn');
+      const closeBtn = document.getElementById('shortcutsClose');
+      const searchInput = document.getElementById('shortcutsSearch');
+      const grid = document.getElementById('shortcutsGrid');
+
+      // Common MathLive inline shortcuts
+      const shortcuts = {
+        // Greek letters
+        'alpha': 'α',
+        'beta': 'β',
+        'gamma': 'γ',
+        'delta': 'δ',
+        'theta': 'θ',
+        'lambda': 'λ',
+        'mu': 'μ',
+        'pi': 'π',
+        'sigma': 'σ',
+        'omega': 'ω',
+        'Delta': 'Δ',
+        
+        // Operators
+        'int': '∫',
+        'sum': '∑',
+        'prod': '∏',
+        
+        // Relations
+        '>=': '≥',
+        '<=': '≤',
+        '!=': '≠',
+        'equiv': '≡',
+        'approx': '≈',
+        'propto': '∝',
+        'in': '∈',
+        'notin': '∉',
+        'subset': '⊂',
+        'subseteq': '⊆',
+        
+        // Arrows
+        '=> / ==> / implies': '⇒',
+        '<=>': '⇔',
+        
+        // Symbols
+        'infty': '∞',
+        '+- / pm': '±',
+        'mp': '∓',
+        'times': '×',
+        'div': '÷',
+        'cdot': '·',
+        'deg': '°',
+        'angle': '∠',
+        'perp': '⊥',
+        'parallel': '∥',
+        
+        // Sets
+        'NN': 'ℕ',
+        'ZZ': 'ℤ',
+        'QQ': 'ℚ',
+        'RR': 'ℝ',
+        'CC': 'ℂ',
+        'emptyset': '∅',
+        
+        // Logic
+        'forall': '∀',
+        'exists': '∃',
+        'land': '∧',
+        'lor': '∨',
+        'neg': '¬',
+        'iff': '⇔',
+        
+        // Misc
+        'sqrt': '√',
+      };
+
+      let allShortcuts = [];
+
+      // Populate shortcuts grid
+      function populateShortcuts(filter = '') {
+        grid.innerHTML = '';
+        const filtered = allShortcuts.filter(s => 
+          s.input.toLowerCase().includes(filter.toLowerCase()) ||
+          s.output.includes(filter)
+        );
+
+        if (filtered.length === 0) {
+          grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--muted); padding: 40px 20px;">No shortcuts found</p>';
+          return;
+        }
+
+        filtered.forEach(shortcut => {
+          const item = document.createElement('div');
+          item.className = 'shortcut-item';
+          item.innerHTML = `
+            <span class="shortcut-input">${shortcut.input}</span>
+            <span class="shortcut-output">${shortcut.output}</span>
+          `;
+          grid.appendChild(item);
+        });
+      }
+
+      // Initialize shortcuts list
+      function initShortcuts() {
+        allShortcuts = Object.entries(shortcuts).map(([input, output]) => ({
+          input,
+          output
+        }));
+        populateShortcuts();
+      }
+
+      // Open modal
+      function openModal() {
+        modal.classList.add('active');
+        searchInput.value = '';
+        searchInput.focus();
+        populateShortcuts();
+        // Initialize Lucide icons in modal
+        if (typeof lucide !== 'undefined' && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      }
+
+      // Close modal
+      function closeModal() {
+        modal.classList.remove('active');
+      }
+
+      // Event listeners
+      btn.addEventListener('click', openModal);
+      closeBtn.addEventListener('click', closeModal);
+      
+      // Close on backdrop click
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          closeModal();
+        }
+      });
+
+      // Close on Escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+          closeModal();
+        }
+      });
+
+      // Search functionality
+      searchInput.addEventListener('input', (e) => {
+        populateShortcuts(e.target.value);
+      });
+
+      // Initialize on page load
+      document.addEventListener('DOMContentLoaded', initShortcuts);
+    })();
+    </script>
+    
+    <!-- Hamburger Menu Toggle Script -->
+    <script>
+    (function() {
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const actionsMenu = document.querySelector('.h-actions');
+      
+      if (hamburgerBtn && actionsMenu) {
+        hamburgerBtn.addEventListener('click', function() {
+          const isOpen = actionsMenu.classList.toggle('menu-open');
+          hamburgerBtn.setAttribute('aria-expanded', isOpen);
+          
+          // Change icon
+          const icon = hamburgerBtn.querySelector('i');
+          if (icon) {
+            icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+              lucide.createIcons();
+            }
+          }
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!hamburgerBtn.contains(e.target) && !actionsMenu.contains(e.target)) {
+            actionsMenu.classList.remove('menu-open');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+            
+            const icon = hamburgerBtn.querySelector('i');
+            if (icon) {
+              icon.setAttribute('data-lucide', 'menu');
+              if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+              }
+            }
+          }
+        });
+        
+        // Close menu when any menu item is clicked
+        const menuButtons = actionsMenu.querySelectorAll('.header-copy');
+        menuButtons.forEach(btn => {
+          btn.addEventListener('click', function() {
+            actionsMenu.classList.remove('menu-open');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+            
+            const icon = hamburgerBtn.querySelector('i');
+            if (icon) {
+              icon.setAttribute('data-lucide', 'menu');
+              if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+              }
+            }
+          });
+        });
+      }
+    })();
     </script>
 </body>
 </html>
