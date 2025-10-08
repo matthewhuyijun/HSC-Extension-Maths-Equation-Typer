@@ -13,14 +13,22 @@ Designed to help **students and teachers** seamlessly work with equations in **M
 
   * Visual editor powered by MathLive
   * Raw LaTeX editor for advanced users
+
 * **Export Anywhere**
 
   * Copy as **LaTeX** → paste directly into Notion or Overleaf
   * Copy as **Word Equation** → paste directly into Microsoft Word
+
+* **Unicode Support (New!)**
+
+  * Use the **Unicode-Linear** mode for compatibility with Word’s equation system.
+  * After pasting into Word, simply select the equation and choose **Convert → Professional** to render it properly.
+
 * **Built-in Maths Keyboard** with tabs for:
 
   * Calculus, Functions, Vectors
   * Greek symbols, Complex numbers, Sets, and more
+
 * **Instant Preview** — equations rendered live with MathJax
 
 ---
@@ -29,7 +37,11 @@ Designed to help **students and teachers** seamlessly work with equations in **M
 
 1. Visit the [live site](https://matthewhuyijun.github.io/HSC-Maths-Extension-1-2-Word-and-Notion-Latex-Equation-Tool/).
 2. Enter equations in either the **visual editor** or the **raw LaTeX box**.
-3. Use **Copy LaTeX** (for Notion, Overleaf, TeX editors) or **Copy Word Equation** (for Microsoft Word).
+3. Choose your export format:
+
+   * **Copy LaTeX** — for Notion, Overleaf, or any TeX editor.
+   * **Copy Word Equation** — for direct pasting into Microsoft Word.
+   * **Unicode-Linear Mode (New)** — for pasting into Word when normal MathML doesn’t render correctly. After pasting, select the equation and use **Convert → Professional**.
 4. Paste into assignments, notes, or teaching materials.
 
 ---
