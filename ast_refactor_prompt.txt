@@ -1,0 +1,136 @@
+
+You are an expert JavaScript engineer and math typesetting specialist. Your task is to refactor ONLY the LaTeX → Word UnicodeMath conversion logic in my project to use an AST (Abstract Syntax Tree). **Do not modify any design, layout, styles, tabs, buttons, icons, HTML structure, or existing UI behavior.** Keep every visual and UX element EXACTLY as is.
+
+====================================================================
+PROJECT CONTEXT
+====================================================================
+- The project is a single-page web app that lets users type LaTeX and get Word UnicodeMath output. 
+- The original UI is ~4,000 lines of HTML/CSS/JS in `index.html`.
+- The UI (toolbars, preset buttons, tabs, MathLive field, MathJax preview, copy buttons, theming, spacing, colors) is already correct.
+- Only the **conversion** from LaTeX → Word UnicodeMath had correctness issues (e.g., sqrt and fraction grouping).
+
+====================================================================
+NON-NEGOTIABLE CONSTRAINTS
+====================================================================
+1) **DO NOT change any UI or design**:
+   - No changes to HTML structure, CSS, classes, colors, spacing, layout, tabs, toolbar buttons, labels, or icons.
+   - No removal or repositioning of existing elements.
+   - No new UI components.
+2) **Keep all event wiring intact** (e.g., button handlers, copy actions, theme toggles).
+3) **Public function name must remain callable as `toWordEquation(latex)`** to preserve compatibility.
+4) **No new external dependencies** (no build steps, bundlers, or frameworks).
+5) **All changes must be minimal and localized** to the conversion logic.
+
+====================================================================
+SCOPE OF WORK (WHAT TO CHANGE)
+====================================================================
+- Replace the current string/regex-based converter with an **AST-based converter** that parses LaTeX and prints Word UnicodeMath.
+- Implement a small, self-contained parser within `toWordEquation(latex)` (or import from `js/converter.js` if the project is split) that supports:
+  - `\frac{...}{...}` → `(num)/(den)` with appropriate parentheses
+  - `\sqrt{b}` → `√(b)`
+  - `\sqrt[a]{b}` → `√(a&b)`
+  - `\sum_{n=1}^3 ...` → `∑_(n=1)^(3) ...`
+  - `\prod_{n=2}^3 ...` → `∏_(n=2)^(3) ...`
+  - `\int_{b}^{a} ... dx` → `∫_b^a 〖...〗 dx`
+  - `\left. f(x) \right|_{b}^{a}` → `├ f(x)┤|b^a`
+  - `\operatorname{proj}_{\underset{\sim}{A}}\underset{\sim}{B}` → `proj_A┬∼   B┬∼` (EXACTLY three spaces between the two vector terms)
+  - `\overrightarrow{AB}` → `(AB)⃗`
+  - `\begin{pmatrix}a\\ b\end{pmatrix}` → `(■(a@b))` and 3-row variant `(■(a@b@c))`
+  - Basic Greek and symbols mapping: `\mu → μ`, `\alpha → α`, `\infty → ∞`, `\geq → ≥`, `\leq → ≤`, `\to → →`, `\pm → ±`
+- Preserve subscript/superscript handling: attach trailing `_` and `^` to the immediately preceding base (group with parentheses in UnicodeMath as needed).
+
+====================================================================
+SCOPE OF WORK (WHAT NOT TO CHANGE)
+====================================================================
+- Do not alter ANY CSS variables or style blocks.
+- Do not alter ANY HTML markup, IDs, classes, aria attributes, or structure.
+- Do not alter button sets, labels, tab order, or on-screen text.
+- Do not alter MathLive or MathJax configuration.
+- Do not alter copy-to-clipboard behavior.
+- Do not change the location of script tags beyond adding a single module import if needed.
+- Do not change function names used elsewhere in the UI code.
+
+====================================================================
+TECHNICAL REQUIREMENTS
+====================================================================
+A) Parser (AST builder)
+- Implement a minimal parser that handles commands listed in scope, braces `{}`, brackets `[]`, and subscript/superscript tokens.
+- Support sequence parsing and then attach `_` and `^` nodes to the prior core node (sum/prod/int/identifiers).
+- For environments: support `\begin{pmatrix} ... \\ ... \end{pmatrix}` by capturing the body and splitting rows on `\\`.
+
+B) Printer (AST → UnicodeMath)
+- `\frac{A}{B}` → **always** emit `(A)/(B)` with parentheses even when A or B are composite.
+- `\sqrt[b]{a}` → `√(b&a)` where **index (b)** precedes an ampersand, then radicand (a).
+- Subscripts/superscripts → `base_(...)^(...)`; always parenthesize single tokens after `^` to avoid ambiguity (`x^n → x^(n)`).
+- Sums/products/integrals → `∑_(low)^(up)`, `∏_(low)^(up)`, `∫_low^up` with spacing preserved.
+- Evaluation bars → If input matches `\left. ... \right|_{b}^{a}`, output `├ ...┤|b^a`.
+- `\operatorname{proj}_{\underset{\sim}{A}}\underset{\sim}{B}` → `proj_A┬∼   B┬∼` with exactly **three** spaces between terms; underscore after `proj` must be tight (no spaces).
+- Vectors → `\overrightarrow{AB}` → `(AB)⃗`.
+- Matrices → `pmatrix` rows mapped to `(■(row1@row2@...))`.
+
+C) Post-processing rules (polish)
+- Enforce exactly three spaces in `proj_A┬∼   B┬∼`.
+- Group standalone powers into parentheses: `([A-Za-z0-9\)\]])\^([A-Za-z0-9]) → ^($2)`.
+- Optional readability for integrand: add `〖...〗` around integrand immediately following `∫_b^a`.
+
+====================================================================
+SUCCESS CRITERIA (must pass all)
+====================================================================
+Input → Output (exact):
+1) `\sqrt{x}` → `√(x)`
+2) `\sqrt[a]{b}` → `√(a&b)`
+3) `\frac{e^{\mu x}+x^2}{e^{-\mu x}-x^2}` → `(e^(μ x)+x^2)/(e^(-μ x)-x^2)`
+4) `\sum_{n=1}^3 n` → `∑_(n=1)^(3) n`
+5) `\prod_{n=2}^3 n` → `∏_(n=2)^(3) n`
+6) `\int_{b}^{a} f(x) dx` → `∫_b^a 〖f(x)〗 dx`
+7) `\left.f(x)\right|_{b}^{a}` → `├ f(x)┤|b^a`
+8) `\operatorname{proj}_{\underset{\sim}{A}}\underset{\sim}{B}` → `proj_A┬∼   B┬∼` (exactly 3 spaces)
+9) `\overrightarrow{AB}` → `(AB)⃗`
+10) `\begin{pmatrix}a\\ b\end{pmatrix}` → `(■(a@b))`
+11) `\begin{pmatrix}a\\ b\\ c\end{pmatrix}` → `(■(a@b@c))`
+
+====================================================================
+TESTING CHECKLIST
+====================================================================
+- Paste the above 11 cases into the Raw LaTeX box and verify Word Equation matches exactly.
+- Try nested combos:
+  a) `\sqrt{\frac{a}{b+c}}` → `√((a)/(b+c))`
+  b) `\frac{\sqrt[a]{b}}{c^2}` → `(√(a&b))/(c^(2))`
+  c) `\sum_{n=1}^3 \frac{1}{\sqrt{x}}` → `∑_(n=1)^(3) (1)/(√(x))` (parentheses around the fraction are OK)
+
+====================================================================
+FILE & INTEGRATION RULES
+====================================================================
+- If the project is single-file: replace ONLY the body of `function toWordEquation(latex){...}`.
+- If the project is split:
+  - Create `js/converter.js` containing `export function toWordEquation(latex){ ... }`
+  - Create `js/main.js` with:
+      import { toWordEquation } from './converter.js';
+      window.toWordEquation = toWordEquation;
+  - In `index.html`, add:
+      <script type="module" src="js/main.js"></script>
+- Do not modify any other code or styling.
+
+====================================================================
+DELIVERABLES
+====================================================================
+- Updated converter using AST (either inline within the existing function or as `js/converter.js` module).
+- No visual regressions. No UI changes.
+- All success criteria pass exactly as written.
+- Clear comments only inside the converter function. No TODOs left behind.
+
+====================================================================
+STYLE & READABILITY
+====================================================================
+- Keep the converter self-contained: helper functions nested inside `toWordEquation` if inline, or colocated in `js/converter.js` if modular.
+- Small, descriptive function names: `makeParser`, `show`, `needsWrap`, etc.
+
+- Unicode literals for symbols (`μ`, `√`, `∑`, etc.) to avoid post replace bugs.
+
+====================================================================
+RISKS TO AVOID
+====================================================================
+- Accidental UI changes (layout shift, missing buttons, broken icons).
+- Over-aggressive regex that breaks nested structures.
+- Adding dependencies or changing script order.
+- Changing global function names used by the UI.
