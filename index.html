@@ -16,6 +16,17 @@
 </script>
 <!-- Lucide Icons CDN -->
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- Rounded, friendly UI font -->
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
+<!-- Inter (UI font used by MathLive site) -->
+<link rel="preconnect" href="https://rsms.me/">
+<link rel="stylesheet" href="https://rsms.me/inter/inter.css">
+<!-- KaTeX fonts (for crisp LaTeX-looking symbols) -->
+<link rel="preload" as="font" type="font/woff2" href="https://cdn.jsdelivr.net/npm/mathlive/fonts/KaTeX_Main-Regular.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="https://cdn.jsdelivr.net/npm/mathlive/fonts/KaTeX_Math-Italic.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="https://cdn.jsdelivr.net/npm/mathlive/fonts/KaTeX_AMS-Regular.woff2" crossorigin>
+<!-- LaTeX-style math font -->
+<link href="https://cdn.jsdelivr.net/npm/lmwebfont@latest/lmroman.css" rel="stylesheet">
 <style>
         /* ============================================
            🎨 MATHLIVE DEMO COLOR SCHEME 🎨
@@ -415,7 +426,6 @@
             width: 100%;
         }
 
-        /* 主内容区域 */
         #mainContent {
             margin: 0 5%; 
             padding: 12px 24px 48px 24px; 
@@ -800,7 +810,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     </script>
      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
     
-    <!-- ===== 蓝色渐变导航条样式 ===== -->
     <style>
     :root{
       /* ============================================
@@ -873,7 +882,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       grid-area: title;
     }
     
-    /* 汉堡菜单按钮 - 默认隐藏 */
     .hamburger-btn {
       display: none;
       appearance: none;
@@ -984,9 +992,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       background: rgba(255, 255, 255, 0.25);
     }
 
-    /* 🗑️ 已合并到最后的统一响应式规则中（见文件末尾） */
-    
-    /* 内容包装器：占据剩余空间并可滚动 */
     .content-wrapper {
       flex: 1;
       overflow-y: auto;
@@ -1005,7 +1010,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       background: #3b6dd9;
     }
 
-    /* 主题切换：按钮样式（已在上方定义，此处移除重复） */
 
     /* Theme toggle icon styling */
     .theme-opt svg {
@@ -1022,25 +1026,18 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       transform: scale(1.1);
     }
 
-    /* 🗑️ 已合并到下方统一的响应式规则中 */
-
-    /* ============================================
-       🎯 统一三块区域的宽度与内边距
-       ============================================ */
     :root {
-      --content-max: var(--page-max-width);   /* 🔄 复用全局最大宽度 */
-      --content-pad-x: var(--page-pad-x);     /* 🔄 复用全局 padding */
+      --content-max: var(--page-max-width);
+      --content-pad-x: var(--page-pad-x);
     }
 
-    /* 全局边框计算一致，避免 padding/边框把宽度撑超或看起来变窄 */
     *, *::before, *::after { 
       box-sizing: border-box; 
     }
 
-    /* 统一三块区域的宽度：红框（tabs）、绿框（expanded-area）、蓝框（mainContent）*/
-    #tabs_wrapper,        /* 红框：工具区 */
-    #expanded-area,       /* 绿框：符号面板 */
-    #mainContent {        /* 蓝框：主内容区 */
+    #tabs_wrapper,
+    #expanded-area,
+    #mainContent {
       width: 100%;
       max-width: var(--content-max);
       margin-left: auto !important;
@@ -1049,7 +1046,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       padding-right: var(--content-pad-x) !important;
     }
 
-    /* 保持原有的上下边距，只统一左右 */
     #tabs_wrapper {
       margin-top: 16px !important;
       margin-bottom: 0 !important;
@@ -1069,28 +1065,22 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       padding-bottom: 48px !important;
     }
 
-    /* ============================================
-       📱 响应式：小屏统一样式（合并所有 640px 断点）
-       ============================================ */
     @media (max-width: 640px) {
       :root {
-        --page-pad-x: 16px;                  /* 🔄 统一小屏 padding */
-        --content-pad-x: var(--page-pad-x);  /* 自动继承 */
-        --bar-pad-x: var(--page-pad-x);      /* 自动继承 */
+        --page-pad-x: 16px;
+        --content-pad-x: var(--page-pad-x);
+        --bar-pad-x: var(--page-pad-x);
       }
       
-      /* Header 小屏调整 - 汉堡菜单 */
       .header-row {
         grid-template-columns: 1fr auto;
         grid-template-areas: "title right";
       }
       
-      /* 显示汉堡菜单按钮 */
       .hamburger-btn {
         display: block;
       }
       
-      /* 隐藏操作按钮区域，变成下拉菜单 */
       .h-actions {
         display: none;
         position: absolute;
@@ -1107,7 +1097,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         z-index: 50;
       }
       
-      /* 菜单打开状态 */
       .h-actions.menu-open {
         display: flex;
       }
@@ -1152,38 +1141,30 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         font-size: 18px;
       }
       
-      /* 隐藏状态文本在小屏 */
       .h-status {
         display: none;
       }
 
-      /* 🎯 MathField 小屏调整 */
       #mf2 {
-        font-size: 1.1rem;     /* 字体略小 */
-        --padding: 10px 14px;  /* padding 减小 */
+        font-size: 1.1rem;
+        --padding: 10px 14px;
       }
 
-      /* 小屏下的容器 padding 减小 */
       .editor:has(#mf2) {
         padding: 12px;
       }
     }
 
-    /* ============================================
-       🎨 与符号键盘一致的胶囊皮肤
-       ============================================ */
     :root{
-      /* 若你已经定义过这些变量，可忽略或微调 */
-      --pill-bg-top: #1c2740;         /* 上半部深蓝 */
-      --pill-bg-btm: #152034;         /* 下半部深蓝 */
-      --pill-stroke: #6aa2ff;         /* 描边/光晕主色 */
-      --pill-ink: #e6eefc;            /* 文本颜色 */
+      --pill-bg-top: #1c2740;
+      --pill-bg-btm: #152034;
+      --pill-stroke: #6aa2ff;
+      --pill-ink: #e6eefc;
       --pill-shadow: 0 10px 24px rgba(3,12,30,.45);
       --pill-inner: 0 1px 0 rgba(255,255,255,.06) inset;
       --pill-stroke-soft: rgba(106,162,255,.36);
     }
 
-    /* 皮肤类：把按钮做成与符号 key 一样的深色胶囊 */
     .btn--symbol-skin{
       appearance:none;
       display:inline-flex; align-items:center; justify-content:center;
@@ -1197,7 +1178,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease, background .18s ease;
     }
 
-    /* 与图2一致的外环光晕 + 轻上浮 */
     .btn--symbol-skin:hover{
       transform: translateY(-2px);
       border-color: var(--pill-stroke);
@@ -1207,10 +1187,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 14px 32px rgba(3,12,30,.58);
     }
 
-    /* 点击回落 */
     .btn--symbol-skin:active{ transform: translateY(0) }
 
-    /* 如现有按钮样式会"顶掉"背景/阴影，先清理一下（可选） */
     .copyBtn.btn--symbol-skin,
     .chip-btn.btn--symbol-skin{
       background: linear-gradient(180deg,var(--pill-bg-top),var(--pill-bg-btm)) !important;
@@ -1273,7 +1251,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       flex-shrink: 0;
     }
 
-    /* ——— 全站字体：与 sample html 一致的系统无衬线栈 ——— */
     html, body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
                    "Helvetica Neue", Arial, "Apple Color Emoji",
@@ -1288,22 +1265,20 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tab-active-bg) 10%, transparent);
     }
 
-    /* ——— 小标题：加粗、加大，与右侧按钮横向对齐 ——— */
-    .io-labelbar {            /* 标题 + 复制按钮在同一行 */
+    .io-labelbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
     }
     .io-label {
-      font-weight: 800;       /* 加粗 */
-      font-size: 1.05rem;     /* 比正文略大 */
+      font-weight: 800;
+      font-size: 1.05rem;
       letter-spacing: -0.01em;
       color: var(--ink);
       margin: 0 0 0 2px;    /* No bottom margin - gap handled by .io-section */
     }
 
-    /* Rendered 那块也统一小标题风格 */
     .io-rendered > .io-label {
       display: block;
       margin: 0 0 0 2px;
@@ -1316,8 +1291,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       margin-top: 6px;
     }
 
-    /* ——— 输入/输出区的栅格布局 ——— */
-    /* 大屏：Rendered 独占一行；下面两栏并排等宽 */
     .io-grid {
       display: grid;
       gap: 12px;
@@ -1325,20 +1298,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       align-items: start;
     }
 
-    /* 三块的"占位" */
-    .io-rendered { grid-column: 1 / -1; }        /* 顶部整行 */
-    .io-raw      { grid-column: 1 / 7;  }        /* 左半 */
-    .io-word     { grid-column: 7 / -1; }        /* 右半 */
-    .io-preview  { grid-column: 1 / -1; }        /* LaTeX Preview 整行，与 Rendered 同宽 */
+    .io-rendered { grid-column: 1 / -1; }
+    .io-raw      { grid-column: 1 / 7;  }
+    .io-word     { grid-column: 7 / -1; }
+    .io-preview  { grid-column: 1 / -1; }
 
-    /* 统一每块的内部间距与宽度 */
     .io-section {
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
 
-    /* 文字区基础样式（textarea only, mathfield styled separately） */
     .io-grid textarea {
       width: 100%;
       padding: 12px 14px;
@@ -1354,7 +1324,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       width: 100%;
     }
 
-    /* 小屏：三块垂直排列，间距更紧凑 */
     @media (max-width: 960px) {
       .io-raw  { grid-column: 1 / -1; }
       .io-word { grid-column: 1 / -1; }
@@ -1367,10 +1336,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       /* MathField mobile padding handled in #mf2 section */
     }
 
-    /* 让 math-field 高度随内容增长（不换行可去掉） */
     #mf2::part(content){ white-space: normal; }
 
-    /* 暗色模式下的 textarea 样式 (mathfield dark mode handled separately) */
     [data-theme="dark"] .io-grid textarea {
       background: var(--color-surface) !important;
       color: var(--color-text) !important;
@@ -1489,31 +1456,58 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       flex: 1;
     }
     
-    .shortcuts-commands-btn {
+    /* Shared pill button style (match top "Shortcuts" button) */
+    .pill-btn {
+      appearance: none;
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 10px 20px;
-      background: white;
-      border: none;
-      border-radius: 12px;
-      color: #1a1a1a;
-      text-decoration: none;
-      font-size: 15px;
+      gap: 10px;
+      padding: 10px 22px;
+      border-radius: 9999px;
+      border: 1px solid var(--key-border);
+      background: var(--key-surface);
+      color: var(--color-text);
+      font-family: 'Rubik', sans-serif;
       font-weight: 600;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      text-decoration: none;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .12s ease, border-color .18s ease;
     }
     
-    .shortcuts-commands-btn:hover {
-      background: #f8f8f8;
+    .pill-btn:hover,
+    .pill-btn:focus-visible {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface));
+      border-color: var(--color-tab-active-bg);
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
     }
     
-    .shortcuts-commands-btn i {
+    .pill-btn:active {
+      transform: translateY(0);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    }
+    
+    /* Icon sizing + color transitions */
+    .pill-btn i,
+    .pill-btn svg {
       width: 18px;
       height: 18px;
+      stroke-width: 2;
+      flex: 0 0 18px;
+      transition: color .18s ease, stroke .18s ease;
+    }
+    
+    /* Dark mode keeps the same behavior via CSS variables */
+    [data-theme="dark"] .pill-btn { 
+      background: var(--key-surface);
+      color: var(--color-text);
+    }
+    
+    [data-theme="dark"] .pill-btn:hover {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface));
     }
 
     .shortcuts-close {
@@ -1547,43 +1541,79 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       flex: 1;
     }
 
+    /* Global font consistency for shortcuts modal */
+    .shortcuts-modal,
+    .shortcuts-modal * {
+      font-family: 'Inter', sans-serif !important;
+      letter-spacing: 0.2px;
+    }
+
     .shortcuts-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 12px;
     }
 
+    /* Card container tone to pair with the lighter chips */
     .shortcut-item {
-      background: var(--color-surface-alt);
-      border: 1px solid var(--color-border);
-      border-radius: 8px;
-      padding: 12px 14px;
+      background: #f6f7fb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: all 0.2s ease;
+      transition: box-shadow .2s ease, border-color .2s ease;
     }
 
     .shortcut-item:hover {
-      background: var(--color-surface);
-      border-color: var(--color-tab-active-bg);
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.1);
+      border-color: #c7d2fe;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
     }
 
+    /* Dark mode */
+    [data-theme="dark"] .shortcut-item {
+      background: #1f2937;
+      border-color: #334155;
+    }
+    
+    [data-theme="dark"] .shortcut-item:hover {
+      border-color: #4f70f5;
+      box-shadow: 0 0 0 3px rgba(79,112,245,0.18);
+    }
+
+    /* Label chip: same font & feel as MathLive */
     .shortcut-input {
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
       font-weight: 600;
-      color: var(--color-tab-active-bg);
-      background: rgba(37, 99, 235, 0.1);
-      padding: 4px 8px;
-      border-radius: 4px;
+      font-size: 14px;
+      line-height: 1;
+      color: #3b82f6;            /* blue text */
+      background: #e8efff;       /* light indigo/blue background (readable) */
+      padding: 6px 10px;
+      border-radius: 8px;
+      letter-spacing: 0.1px;
     }
 
+    /* Dark mode version of the chip (keeps good contrast) */
+    [data-theme="dark"] .shortcut-input {
+      color: #cfe1ff;
+      background: #2b3b56;
+    }
+
+    /* Symbol cell: use KaTeX/LaTeX-typeface */
     .shortcut-output {
-      font-size: 18px;
-      color: var(--color-text);
+      font-family: "KaTeX_Main", "KaTeX_Math", "Cambria Math", "STIX Two Math", serif;
+      font-size: 20px;
+      font-weight: 400;
+      color: var(--color-text, #111827);
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Dark mode color for symbols */
+    [data-theme="dark"] .shortcut-output {
+      color: #f9fafb;
     }
 
     .shortcuts-search {
@@ -1606,6 +1636,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
     .shortcuts-search::placeholder {
       color: var(--muted);
+    }
+    
+    /* Light mode search bar */
+    [data-theme="light"] .shortcuts-search {
+      background: #f9fafb;
+      color: #1f2937;
+      border-color: #e5e7eb;
+    }
+    
+    [data-theme="light"] .shortcuts-search::placeholder {
+      color: #9ca3af;
     }
 
     .shortcuts-footer {
@@ -1681,17 +1722,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     </style>
 </head>
 <body>
-    <!-- ===== 蓝色渐变导航条 ===== -->
     <header class="header-bar" role="banner">
       <div class="header-row">
-        <!-- 左：标题（可作为首页链接） -->
 
-        <!-- 汉堡菜单按钮（仅小屏显示） -->
         <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
           <i data-lucide="menu"></i>
         </button>
 
-        <!-- 中：操作按钮（保留原有 ID 以兼容现有 JS） -->
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
           <button class="header-copy" id="headerCopyLatex">
             <i data-lucide="copy"></i> Copy LaTeX
@@ -1704,7 +1741,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           </button>
             </div>
 
-        <!-- 右：主题切换 -->
         <div class="h-right">
           <div class="theme-switch" role="group" aria-label="Theme">
             <button class="theme-opt" data-theme="light" title="Light" aria-label="Switch to light theme">
@@ -1722,7 +1758,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     </header>
 
     <script>
-    /* 蓝色导航条的主题切换逻辑 */
     (function(){
       const html = document.documentElement;
       const opts = document.querySelectorAll('.theme-opt');
@@ -1737,14 +1772,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         localStorage.setItem(THEME_STORAGE_KEY, mode); 
       };
       
-      // 初始化 - 默认使用 system
       const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
       apply(saved);
       
-      // 绑定
       opts.forEach(btn => btn.addEventListener('click', ()=> apply(btn.dataset.theme)));
       
-      // 监听系统主题变化
       const handleSystemChange = () => {
         const current = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
         if(current === 'system'){ apply('system'); }
@@ -1756,13 +1788,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       }
     })();
 
-    /* 初始化 Lucide 图标 */
     document.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
     });
     </script>
 
-    <!-- 可滚动的内容容器 -->
     <div class="content-wrapper">
     <div id="tabs_wrapper">
         <div class="tabs" id="tabs"></div>
@@ -1774,7 +1804,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 <div id="mainContent">
         <div class="section-card card">
             <div class="card-body body stack" id="editorWrap">
-      <!-- 在三块编辑区的外面加一层容器 -->
       <div class="io-grid">
         <!-- 1. Rendered -->
         <div class="io-section io-rendered">
@@ -1984,7 +2013,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 [/\\Leftarrow/g, '⇐'],
                 [/\\longrightarrow/g, '→'],
                 [/\\rightarrow/g, '→'],
-                [/\\to\b/g, '→'],
+                [/\\to(?![a-zA-Z])/g, '→'],
                 [/\\longleftarrow/g, '←'],
                 [/\\leftarrow/g, '←'],
                 [/\\mapsto/g, '↦'],
@@ -2001,15 +2030,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 [/\\pm/g, '±'],
                 [/\\mp/g, '∓'],
                 [/\\times/g, '×'],
-                [/\\cdot/g, '·'],
                 [/\\div/g, '÷'],
                 [/\\ast/g, '∗'],
                 [/\\star/g, '⋆'],
                 [/\\bullet/g, '•'],
                 [/\\circ/g, '∘'],
                 [/\\infty/g, '∞'],
-                [/\\partial/g, '∂'],
-                [/\\nabla/g, '∇'],
                 [/\\iiint/g, '∭'],
                 [/\\iint/g, '∬'],
                 [/\\int/g, '∫'],
@@ -2205,6 +2231,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 for (const [pattern, value] of commandReplacements) {
                     text = text.replace(pattern, value);
                 }
+                
+                // Extra pass to ensure \to is converted in subscripts/superscripts
+                text = text.replace(/\\to(?![a-zA-Z])/g, '→');
 
                 text = simplifyFunctions(text);
 
@@ -2523,24 +2552,17 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
         
         function configureMathLive() {
             if (!window.MathfieldElement || !mf2) return;
-            // 直接设置属性而不是使用已弃用的 setOptions()
             mf2.mathModeSpace = '\\:';
             mf2.removeExtraneousParentheses = true;
-            mf2.mathVirtualKeyboardPolicy = 'manual'; // virtualKeyboardMode -> mathVirtualKeyboardPolicy
-            // virtualKeyboards 已弃用，使用 mathVirtualKeyboard.layouts 代替
-            // window.mathVirtualKeyboard.layouts = ''; // 如果需要的话
-            // mf2.virtualKeyboardToggleEnabled = true; // 此选项可能也需要更新
+            mf2.mathVirtualKeyboardPolicy = 'manual';
             mf2.inlineShortcutToolbar = false;
             // Disable context menu across MathLive versions
             try { mf2.menuItems = []; } catch(_) {}
             try { mf2.menus = []; } catch(_) {}
 
-            // ========== 基础配置 ==========
-            mf2.letterShapeStyle = 'tex';              // 变量斜体、运算符正体
-            mf2.smartMode = false;                     // Disabled to prevent auto \text{} insertion
+            mf2.letterShapeStyle = 'tex';
+            mf2.smartMode = false;
 
-            // Disable text mode keybindings to prevent \text{} insertion
-            // Reference: https://mathlive.io/mathfield/reference/keybindings/
             mf2.keybindings = [
                 ...mf2.keybindings.filter(kb => 
                     kb.command !== 'applyTextMode' && 
@@ -2551,10 +2573,9 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
             // Complete inline shortcuts from MathLive documentation
             // Reference: https://mathlive.io/mathfield/reference/keybindings/
             mf2.inlineShortcuts = {
+                'infty': '\\infty',
+                'infin': '\\infty',
                 '∞': '\\infty',
-                'ii': '\\imaginaryI',
-                'jj': '\\imaginaryJ',
-                'ee': '\\exponentialE',
                 'NN': '\\mathbb{N}',
                 'ZZ': '\\mathbb{Z}',
                 'QQ': '\\mathbb{Q}',
@@ -2574,6 +2595,7 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                 'nabla': '\\nabla',
                 'grad': '\\nabla',
                 'del': '\\partial',
+                'partial': '\\partial',
                 '∆': '\\differentialD',
                 'dx': '\\differentialD x',
                 'dy': '\\differentialD y',
@@ -2594,7 +2616,7 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                 'log': '\\log',
                 'ln': '\\ln',
                 'exp': '\\exp',
-                'lim': '\\lim_{\\char"2B1A}',
+                'lim': '\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}',
                 'det': '\\det',
                 'mod': '\\mod',
                 'max': '\\max',
@@ -2659,6 +2681,8 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                 'and': '\\land',
                 'or': '\\lor',
                 'not': '\\neg',
+                'implies': '\\Rightarrow',
+                'iff': '\\Leftrightarrow',
                 '__': '\\lfloor',
                 '~': '\\lceil',
                 '{': '\\{',
@@ -2930,14 +2954,11 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
         const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
         function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
         
-        // 按钮同步系统
         const buttonSyncGroups = {
-            // 导数组：dot 和 ddot 按钮
             derivatives: {
                 groupId: 'derivatives',
                 buttons: []
             },
-            // 复数组：modulus, arg, conjugate, real, imaginary 按钮
             complex: {
                 groupId: 'complex',
                 buttons: []
@@ -2949,9 +2970,9 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                 {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx'},
                 {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{} dx'},
                 {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
+                {display:'\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}'},
                 {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}'},
                 {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}'},
-                {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
                 {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
             ],
             func:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\placeholder{}}(\\placeholder{})',insert:'\\log_{\\placeholder{}}(\\placeholder{})'},{display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},{display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}', hint: 'root'},{display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}', hint: 'root'}],
@@ -3280,19 +3301,15 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
             return String(value);
         }
 
-        // 同步按钮组功能
         function syncButtonGroup(groupId, newValue, sourceButton) {
             const group = buttonSyncGroups[groupId];
             if (!group) return;
             
-            // 同步同组所有按钮
             group.buttons.forEach(buttonData => {
-                if (buttonData === sourceButton) return; // 跳过源按钮
+                if (buttonData === sourceButton) return;
                 
-                // 更新按钮数据
                 buttonData.currentVar = newValue;
                 
-                // 重新计算显示和插入内容
                 if (buttonData.keyType === 'modulus') {
                     buttonData.insert = `|${newValue}|`;
                     buttonData.display = `|${newValue}|`;
@@ -3314,7 +3331,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                     buttonData.display = `${buttonData.base}{${newValue}}`;
                 }
                 
-                // 更新对应的DOM元素
                 const buttonElement = buttonData.element;
                 if (buttonElement) {
                     const selector = buttonElement.querySelector('.selector');
@@ -3332,10 +3348,9 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
             });
         }
         
-        // 注册按钮到同步组
         function registerButtonToSyncGroup(buttonData, element) {
             if (buttonData.syncGroup) {
-                buttonData.element = element; // 保存DOM元素引用
+                buttonData.element = element;
                 buttonSyncGroups[buttonData.syncGroup].buttons.push(buttonData);
             }
         }
@@ -3412,7 +3427,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                         mathContent.dataset.renderMode = 'math';
                     }
                     
-                    // 同步到同组其他按钮
                     if(d.syncGroup) {
                         syncButtonGroup(d.syncGroup, currentVal, d);
                     }
@@ -3439,7 +3453,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                 key.appendChild(selector);
                 renderMathInPlace(mathContent);
                 
-                // 注册到同步组
                 registerButtonToSyncGroup(d, key);
                 
                 return key;
@@ -3556,7 +3569,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                     coreCssLoaded = true;
                     break;
                 } catch (e) {
-                    // 静默重试下一个源，只在最后失败时才警告
                 }
             }
             if (!coreCssLoaded) {
@@ -3577,7 +3589,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                     cssLoaded = true;
                     break;
                 } catch (e) {
-                    // 静默重试下一个源，只在最后失败时才警告
                 }
             }
             if (!cssLoaded) {
@@ -3599,7 +3610,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
                     loaded = true;
                     break;
                 } catch (e) {
-                    // 静默重试下一个源，只在最后失败时才警告
                 }
             }
             if (!jsLoaded) {
@@ -3759,15 +3769,9 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
         // Apply after a short delay to ensure all styles are loaded
         setTimeout(setTextareaWidths, 100);
 
-        // ============================================
-        // 🎯 MathField 动态高度调整（固定宽度，自适应高度）
-        // ============================================
-        // 注意：mf2 已在文件开头声明，这里直接使用
-        
         function adjustMathFieldHeight() {
             if (!mf2) return;
             
-            // 获取 math-field 的实际内容高度
             try {
                 const contentElement = mf2.shadowRoot?.querySelector('.ML__content');
                 if (contentElement) {
@@ -3784,14 +3788,11 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
             }
         }
         
-        // 监听输入事件
         if (mf2) {
             mf2.addEventListener('input', adjustMathFieldHeight);
             
-            // 初始化高度
             adjustMathFieldHeight();
             
-            // 延迟初始化（确保字体和内容加载完成）
             setTimeout(adjustMathFieldHeight, 200);
             setTimeout(adjustMathFieldHeight, 500);
         }
@@ -3804,8 +3805,9 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
         <div class="shortcuts-header">
           <div class="shortcuts-header-left">
             <h2>MathLive Inline Shortcuts</h2>
-            <a class="shortcuts-commands-btn" href="https://mathlive.io/mathfield/reference/commands/" target="_blank" rel="noopener noreferrer" title="View all MathLive LaTeX commands">
-              <i data-lucide="book-open"></i> All Commands
+            <a href="https://mathlive.io/mathfield/reference/commands/" target="_blank" rel="noopener noreferrer" class="pill-btn allcmd-btn" aria-label="Open MathLive commands in a new tab">
+              <i data-lucide="book-open"></i>
+              <span>All Commands</span>
             </a>
           </div>
           <button class="shortcuts-close" id="shortcutsClose" aria-label="Close">×</button>
@@ -3869,22 +3871,6 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
         'subset': '⊂',
         'subseteq': '⊆',
         
-        // Arrows
-        '=> / ==> / implies': '⇒',
-        '<=>': '⇔',
-        
-        // Symbols
-        'infty': '∞',
-        '+- / pm': '±',
-        'mp': '∓',
-        'times': '×',
-        'div': '÷',
-        'cdot': '·',
-        'deg': '°',
-        'angle': '∠',
-        'perp': '⊥',
-        'parallel': '∥',
-        
         // Sets
         'NN': 'ℕ',
         'ZZ': 'ℤ',
@@ -3893,13 +3879,23 @@ out = out.replace(/([A-Za-z])̄/g, (_, letter) => `¯${letter}`);
         'CC': 'ℂ',
         'emptyset': '∅',
         
-        // Logic
+        // Logic & Arrows
         'forall': '∀',
         'exists': '∃',
         'land': '∧',
         'lor': '∨',
         'neg': '¬',
+        'implies': '⇒',
         'iff': '⇔',
+        
+        // Symbols
+        'infty / infin': '∞',
+        '+- / pm': '±',
+        'mp': '∓',
+        'times': '×',
+        'div': '÷',
+        
+        // Calculus & Advanced
         
         // Misc
         'sqrt': '√',
