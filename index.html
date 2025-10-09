@@ -1455,7 +1455,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       max-width: 800px;
       width: 90%;
       max-height: 85vh;
-      box-shadow: 0 24px 48px rgba(15, 23, 42, 0.3);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25), 0 24px 48px rgba(15, 23, 42, 0.3);
       display: flex;
       flex-direction: column;
       animation: slideUp 0.3s ease;
@@ -1463,21 +1463,23 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     .shortcuts-header {
-      padding: 24px 28px;
-      background: var(--color-header-bg);
-      color: var(--color-header-text);
+      padding: 20px 28px;
+      background: linear-gradient(135deg, #2563eb, #3b82f6 60%, #6366f1);
+      color: #ffffff;
       border-radius: 12px 12px 0 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 4px 12px rgba(2, 6, 23, 0.15);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .shortcuts-header h2 {
       margin: 0;
-      font-size: 1.5rem;
-      font-weight: 600;
-      color: var(--color-header-text);
+      font-size: 20px;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
     }
     
     .shortcuts-header-left {
