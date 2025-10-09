@@ -11,12 +11,13 @@ import { greekMap, symbolMap, standardFunctions } from './symbol-maps.js';
  * Print script argument (subscript or superscript)
  * @param {Object} arg - The AST node for the script
  * @param {boolean} isSup - Whether this is a superscript (affects parenthesization)
+ * @param {boolean} forceParens - Force parentheses even for single characters
  * @returns {string} Formatted script string
  */
-function printScriptArg(arg, isSup = false) {
+function printScriptArg(arg, isSup = false, forceParens = false) {
     if (!arg) return '';
     const content = print(arg).trim();
-    if (isSup) {
+    if (isSup || forceParens) {
         return `(${content})`;
     }
     if (content.includes('┬∼')) return content;
@@ -122,8 +123,9 @@ export function print(ast, context = {}) {
     if (type === 'sum' || type === 'prod' || type === 'int') {
         const sym = type === 'sum' ? '∑' : type === 'prod' ? '∏' : '∫';
         let result = sym;
-        if (ast.sub) result += '_' + printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, type !== 'int');
+        // For integrals, always use parentheses for both sub and sup
+        if (ast.sub) result += '_' + printScriptArg(ast.sub, false, true);
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true, true);
         return result;
     }
 

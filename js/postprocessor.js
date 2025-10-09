@@ -15,13 +15,17 @@ const rules = [
         name: 'integral-formatting',
         description: 'Format integrals with proper spacing and lenticular brackets',
         // Match: ∫ (optional subscript) ^ (superscript) integrand d(variable)
-        // More robust pattern that handles various spacing scenarios
-        pattern: /∫(_\([^)]+\)|\w+)?\^(\([^)]+\)|\w+)\s*([^d]+?)\s*d([a-zA-Z])/gi,
+        // Handles both parenthesized and non-parenthesized subscripts/superscripts
+        pattern: /∫(_(?:\([^)]+\)|[^\s^]+))?\^((?:\([^)]+\)|[^\s]+))\s*([^d]*?)\s*d([a-zA-Z])/gi,
         replace: (match, sub, sup, integrand, variable) => {
             const lower = sub || '';
             integrand = integrand.trim();
-            // Ensure integrand is wrapped in lenticular brackets
-            return `∫${lower}^${sup} 〖${integrand}〗 d${variable}`;
+            // Only wrap non-empty integrands
+            if (integrand) {
+                return `∫${lower}^${sup} 〖${integrand}〗 d${variable}`;
+            } else {
+                return `∫${lower}^${sup} d${variable}`;
+            }
         }
     },
     {
