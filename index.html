@@ -984,17 +984,18 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
     .theme-opt.is-active {
       background: #eef3ff;
-      box-shadow: inset 0 0 0 2px #3b82f6;
+      box-shadow: 0 1px 0 rgba(15,23,42,.04) inset, inset 0 0 0 2px #3b82f6, 0 0 0 3px rgba(99,102,241,.22);
     }
     .theme-opt:hover {
+      background: rgba(238, 243, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.15);
       transform: translateY(-1px);
-      background: rgba(238, 243, 255, 0.5);
     }
 
     /* Dark theme adjustments */
     [data-theme="dark"] .theme-switch {
-      background: rgba(255, 255, 255, 0.1);
-      box-shadow: none;
+      background: linear-gradient(180deg, #1e1e1e 0%, #1a1a1a 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 8px 22px rgba(0,0,0,.4);
     }
 
     [data-theme="dark"] .theme-opt {
@@ -1002,14 +1003,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     [data-theme="dark"] .theme-opt:hover {
-      background: transparent;
+      background: rgba(59, 130, 246, 0.15);
       transform: translateY(-1px);
     }
 
     [data-theme="dark"] .theme-opt.is-active {
-      background: transparent;
-      box-shadow: none;
-      opacity: 1;
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow: 0 1px 0 rgba(255,255,255,.02) inset, inset 0 0 0 2px #60a5fa, 0 0 0 3px rgba(96, 165, 250, .15);
     }
     
     [data-theme="dark"] .theme-opt:not(.is-active) {
