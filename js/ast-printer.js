@@ -63,7 +63,7 @@ export function print(ast, context = {}) {
 
     if (type === 'space') {
         // Convert LaTeX space commands to regular space for Word
-        return ast.value || ' ';
+        return ast.value || '\u0020';
     }
 
     if (type === 'command') {

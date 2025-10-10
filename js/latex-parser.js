@@ -132,7 +132,7 @@ export function parse(latex) {
             if (cmdName === 'int') return { type: 'int' };
             
             // Handle \: as a space command (medium math space)
-            if (cmdName === ':') return { type: 'space', value: ' ' };
+            if (cmdName === ':') return { type: 'space', value: '\u0020' };
             
             if (cmdName === 'left') {
                 skipWhitespace();
