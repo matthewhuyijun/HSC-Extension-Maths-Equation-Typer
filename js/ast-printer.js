@@ -92,8 +92,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
 
     if (type === 'text') {
         let result = ast.value || '';
-        if (ast.sub) result += '_' + printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
     }
 
@@ -123,22 +123,22 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         
         if (greekMap[cmdName]) {
             let result = greekMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub);
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
         }
         
         if (symbolMap[cmdName]) {
             let result = symbolMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub);
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
         }
         
         if (standardFunctions.includes(cmdName)) {
             let result = cmdName;
-            if (ast.sub) result += '_' + printScriptArg(ast.sub);
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
         }
         
@@ -149,8 +149,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         if (cmdName === ':') return ' ';
         
         let result = cmdName;
-        if (ast.sub) result += '_' + printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
     }
 
