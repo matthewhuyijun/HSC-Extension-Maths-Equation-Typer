@@ -2201,7 +2201,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 '∑': '\\sum',
                 '∏': '\\prod',
                 'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
-                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx',
+                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\,\\placeholder{} dx',
                 'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
                 'sqrt': '\\sqrt{\\placeholder{}}',
                 'neg': '\\neg',
@@ -2417,7 +2417,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         const layouts={
             calc:[
-                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx'},
+                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\,\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\,\\placeholder{} dx'},
                 {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{} dx'},
                 {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
                 {display:'\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}'},
@@ -2551,7 +2551,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const curatedLayouts = {
             calc: [
                 { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{} dx' },
-                { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx' },
+                { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\,\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\,\\placeholder{} dx' },
                 { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
             ],
             powers: [
