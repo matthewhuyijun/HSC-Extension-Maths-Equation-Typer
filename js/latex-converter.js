@@ -3,18 +3,24 @@
  * 
  * Main module that orchestrates the conversion from LaTeX to UnicodeMath
  * format suitable for Microsoft Word equations.
+ * 
+ * Refactored for file:// protocol compatibility (no ES6 modules)
  */
 
-import { parse } from './latex-parser.js';
-import { print } from './ast-printer.js';
-import { postProcess } from './postprocessor.js';
-
-/**
- * Convert LaTeX expression to Word equation format (UnicodeMath)
- * @param {string} latex - The LaTeX expression to convert
- * @returns {string} UnicodeMath representation
- */
-export function toWordEquation(latex) {
+(function() {
+    'use strict';
+    
+    // Get dependencies from global scope
+    const { parse } = window.LatexParser;
+    const { print } = window.ASTPrinter;
+    const { postProcess } = window.PostProcessor;
+    
+    /**
+     * Convert LaTeX expression to Word equation format (UnicodeMath)
+     * @param {string} latex - The LaTeX expression to convert
+     * @returns {string} UnicodeMath representation
+     */
+    function toWordEquation(latex) {
     try {
         // Step 1: Parse LaTeX to AST
         const ast = parse(latex);
@@ -35,13 +41,13 @@ export function toWordEquation(latex) {
     }
 }
 
-/**
- * Normalize Word equation format input to clean UnicodeMath/LaTeX
- * Useful for handling pasted Word equation content
- * @param {string} text - Text that may contain Word equation formatting
- * @returns {string} Normalized text
- */
-export function normalizeWordInput(text) {
+    /**
+     * Normalize Word equation format input to clean UnicodeMath/LaTeX
+     * Useful for handling pasted Word equation content
+     * @param {string} text - Text that may contain Word equation formatting
+     * @returns {string} Normalized text
+     */
+    function normalizeWordInput(text) {
     let result = String(text ?? '');
     
     // 1. Replace lenticular brackets 〖〗 with parentheses ()
@@ -64,22 +70,30 @@ export function normalizeWordInput(text) {
     return result;
 }
 
-/**
- * Remove \: spacing that MathLive adds from templates (integral, sum, product)
- * But preserve user-typed \: spaces
- * @param {string} latex - LaTeX string that may contain \: spacing
- * @returns {string} LaTeX with template \: spacing removed
- */
-export function removeWordSpaces(latex) {
-    let result = latex;
+    /**
+     * Remove \: spacing that MathLive adds from templates (integral, sum, product)
+     * But preserve user-typed \: spaces
+     * @param {string} latex - LaTeX string that may contain \: spacing
+     * @returns {string} LaTeX with template \: spacing removed
+     */
+    function removeWordSpaces(latex) {
+        let result = latex;
+        
+        // Only remove \: that appears directly after integral/sum/product operators
+        // This preserves user-typed spaces while removing template-generated ones
+        result = result
+            .replace(/(\\int(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ')
+            .replace(/(\\sum(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ')
+            .replace(/(\\prod(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ');
+        
+        return result;
+    }
     
-    // Only remove \: that appears directly after integral/sum/product operators
-    // This preserves user-typed spaces while removing template-generated ones
-    result = result
-        .replace(/(\\int(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ')
-        .replace(/(\\sum(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ')
-        .replace(/(\\prod(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ');
-    
-    return result;
-}
+    // Expose to global scope
+    window.LatexConverter = {
+        toWordEquation,
+        normalizeWordInput,
+        removeWordSpaces
+    };
+})();
 

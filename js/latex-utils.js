@@ -2,15 +2,20 @@
  * LaTeX Utility Functions
  * 
  * Helper functions for LaTeX manipulation and cleanup
+ * 
+ * Refactored for file:// protocol compatibility (no ES6 modules)
  */
 
-/**
- * Normalize LaTeX string by removing empty structures
- * This helps clean up the editor when users delete content
- * @param {string} latex - The LaTeX string to normalize
- * @returns {string} Normalized LaTeX
- */
-export function normalizeLatexStr(latex) {
+(function() {
+    'use strict';
+    
+    /**
+     * Normalize LaTeX string by removing empty structures
+     * This helps clean up the editor when users delete content
+     * @param {string} latex - The LaTeX string to normalize
+     * @returns {string} Normalized LaTeX
+     */
+    function normalizeLatexStr(latex) {
     let L = latex;
     
     try {
@@ -57,36 +62,44 @@ export function normalizeLatexStr(latex) {
     return L;
 }
 
-/**
- * Check if a LaTeX string is effectively empty
- * @param {string} latex - The LaTeX string to check
- * @returns {boolean} True if the string is empty or contains only whitespace/placeholders
- */
-export function isEmptyLatex(latex) {
-    if (!latex) return true;
-    const normalized = normalizeLatexStr(latex);
-    return normalized.trim().length === 0;
-}
+    /**
+     * Check if a LaTeX string is effectively empty
+     * @param {string} latex - The LaTeX string to check
+     * @returns {boolean} True if the string is empty or contains only whitespace/placeholders
+     */
+    function isEmptyLatex(latex) {
+        if (!latex) return true;
+        const normalized = normalizeLatexStr(latex);
+        return normalized.trim().length === 0;
+    }
 
-/**
- * Extract the main content from a LaTeX expression
- * Removes outer delimiters if they wrap the entire expression
- * @param {string} latex - The LaTeX expression
- * @returns {string} Content without outer delimiters
- */
-export function extractContent(latex) {
-    let result = latex.trim();
-    
-    // Remove outer \left( ... \right) if present
-    if (result.startsWith('\\left(') && result.endsWith('\\right)')) {
-        result = result.slice(6, -7).trim();
+    /**
+     * Extract the main content from a LaTeX expression
+     * Removes outer delimiters if they wrap the entire expression
+     * @param {string} latex - The LaTeX expression
+     * @returns {string} Content without outer delimiters
+     */
+    function extractContent(latex) {
+        let result = latex.trim();
+        
+        // Remove outer \left( ... \right) if present
+        if (result.startsWith('\\left(') && result.endsWith('\\right)')) {
+            result = result.slice(6, -7).trim();
+        }
+        
+        // Remove outer \left[ ... \right] if present
+        if (result.startsWith('\\left[') && result.endsWith('\\right]')) {
+            result = result.slice(6, -7).trim();
+        }
+        
+        return result;
     }
     
-    // Remove outer \left[ ... \right] if present
-    if (result.startsWith('\\left[') && result.endsWith('\\right]')) {
-        result = result.slice(6, -7).trim();
-    }
-    
-    return result;
-}
+    // Expose to global scope
+    window.LatexUtils = {
+        normalizeLatexStr,
+        isEmptyLatex,
+        extractContent
+    };
+})();
 

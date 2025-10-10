@@ -3,14 +3,19 @@
  * 
  * This module implements a recursive descent parser that converts LaTeX
  * mathematical expressions into an AST representation for further processing.
+ * 
+ * Refactored for file:// protocol compatibility (no ES6 modules)
  */
 
-/**
- * Parse LaTeX string into an Abstract Syntax Tree
- * @param {string} latex - The LaTeX string to parse
- * @returns {Array} AST representation of the LaTeX expression
- */
-export function parse(latex) {
+(function() {
+    'use strict';
+    
+    /**
+     * Parse LaTeX string into an Abstract Syntax Tree
+     * @param {string} latex - The LaTeX string to parse
+     * @returns {Array} AST representation of the LaTeX expression
+     */
+    function parse(latex) {
     let pos = 0;
     const str = latex;
 
@@ -131,8 +136,14 @@ export function parse(latex) {
             if (cmdName === 'prod') return { type: 'prod' };
             if (cmdName === 'int') return { type: 'int' };
             
-            // Handle \: as a space command (medium math space)
-            if (cmdName === ':') return { type: 'space', value: '\u0020' };
+            // Handle LaTeX spacing commands
+            // In Word equations, we generally ignore fine-tuned spacing
+            if (cmdName === '!') return { type: 'space', value: '' }; // negative thin space - ignore
+            if (cmdName === ',') return { type: 'space', value: '' }; // thin space - ignore
+            if (cmdName === ':') return { type: 'space', value: ' ' }; // medium space
+            if (cmdName === ';') return { type: 'space', value: ' ' }; // thick space
+            if (cmdName === 'quad') return { type: 'space', value: ' ' }; // quad space
+            if (cmdName === 'qquad') return { type: 'space', value: ' ' }; // double quad space
             
             if (cmdName === 'left') {
                 skipWhitespace();
@@ -202,7 +213,7 @@ export function parse(latex) {
                 return { type: 'mathbb', content };
             }
             
-            // Handle trigonometric functions with arguments
+            // Handle trigonometric functions with explicit brace arguments only
             const trigFunctions = [
                 'sin', 'cos', 'tan', 'csc', 'sec', 'cot',
                 'sinh', 'cosh', 'tanh', 'csch', 'sech', 'coth',
@@ -211,55 +222,13 @@ export function parse(latex) {
             if (trigFunctions.includes(cmdName)) {
                 skipWhitespace();
                 
-                // Special handling for inverse trig functions (e.g., \sin^{-1}{x})
-                if (peek() === '^') {
-                    pos++; // consume ^
-                    skipWhitespace();
-                    const superscript = parseGroup(); // parse the exponent (e.g., {-1})
-                    skipWhitespace();
-                    
-                    // Now get the argument that follows
-                    let arg = null;
-                    if (peek() === '{') {
-                        arg = parseGroup();
-                    } else if (pos < str.length) {
-                        const savedPos = pos;
-                        const nextNode = parseNode();
-                        if (nextNode && (nextNode.type === 'text' || nextNode.type === 'command' || 
-                            nextNode.type === 'group' || nextNode.type === 'Greek')) {
-                            arg = nextNode;
-                        } else {
-                            pos = savedPos;
-                        }
-                    }
-                    
-                    return { 
-                        type: 'trigfunc', 
-                        name: cmdName, 
-                        inverse: true,
-                        exponent: superscript,
-                        arg 
-                    };
-                }
-                
-                // Regular trig functions
-                // Check if next character is { (argument group)
+                // Only capture arguments if they're in braces {}
                 if (peek() === '{') {
                     const arg = parseGroup();
                     return { type: 'trigfunc', name: cmdName, arg };
                 }
-                // Also capture next single token as argument (for cases like \sin x)
-                if (pos < str.length && peek() !== '_') {
-                    const savedPos = pos;
-                    const nextNode = parseNode();
-                    // Only treat as argument if it's a simple token (not another command with args, etc)
-                    if (nextNode && (nextNode.type === 'text' || nextNode.type === 'command' || 
-                        nextNode.type === 'group' || nextNode.type === 'Greek')) {
-                        return { type: 'trigfunc', name: cmdName, arg: nextNode };
-                    }
-                    // Otherwise, restore position and return just the command
-                    pos = savedPos;
-                }
+                
+                // Otherwise return standard command (will be handled by standard function logic)
                 return cmd;
             }
             
@@ -351,5 +320,11 @@ export function parse(latex) {
     }
 
     return parseSequence();
-}
+    }
+    
+    // Expose to global scope
+    window.LatexParser = {
+        parse
+    };
+})();
 

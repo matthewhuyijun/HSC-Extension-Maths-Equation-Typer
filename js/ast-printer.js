@@ -3,16 +3,22 @@
  * 
  * This module traverses an AST and converts it to UnicodeMath format
  * suitable for Microsoft Word equations.
+ * 
+ * Refactored for file:// protocol compatibility (no ES6 modules)
  */
 
-import { greekMap, symbolMap, standardFunctions } from './symbol-maps.js';
-
-/**
- * Check if a command is a trigonometric function
- * @param {string} cmdName - The command name (without backslash)
- * @returns {boolean} True if it's a trig function
- */
-function isTrigFunction(cmdName) {
+(function() {
+    'use strict';
+    
+    // Get dependencies from global scope
+    const { greekMap, symbolMap, standardFunctions } = window.SymbolMaps;
+    
+    /**
+     * Check if a command is a trigonometric function
+     * @param {string} cmdName - The command name (without backslash)
+     * @returns {boolean} True if it's a trig function
+     */
+    function isTrigFunction(cmdName) {
     const trigFunctions = [
         'sin', 'cos', 'tan', 'csc', 'sec', 'cot',
         'sinh', 'cosh', 'tanh', 'csch', 'sech', 'coth',
@@ -39,13 +45,13 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     return `(${content})`;
 }
 
-/**
- * Convert AST to UnicodeMath string
- * @param {Object|Array} ast - The AST node or array of nodes
- * @param {Object} context - Contextual information for printing
- * @returns {string} UnicodeMath representation
- */
-export function print(ast, context = {}) {
+    /**
+     * Convert AST to UnicodeMath string
+     * @param {Object|Array} ast - The AST node or array of nodes
+     * @param {Object} context - Contextual information for printing
+     * @returns {string} UnicodeMath representation
+     */
+    function print(ast, context = {}) {
     if (Array.isArray(ast)) {
         const result = [];
         for (let i = 0; i < ast.length; i++) {
@@ -92,7 +98,8 @@ export function print(ast, context = {}) {
 
     if (type === 'space') {
         // Convert LaTeX space commands to regular space for Word
-        return ast.value || '\u0020';
+        // Use ?? instead of || to preserve empty strings from \!
+        return ast.value ?? '\u0020';
     }
 
     if (type === 'command') {
@@ -259,18 +266,9 @@ export function print(ast, context = {}) {
 
     if (type === 'trigfunc') {
         const funcName = ast.name;
-        
-        // Handle inverse trig functions (e.g., sin^(-1))
-        if (ast.inverse && ast.exponent) {
-            const expContent = print(ast.exponent);
-            const argContent = ast.arg ? print(ast.arg) : '';
-            let result = `${funcName}^${expContent} ${argContent}`;
-            return result;
-        }
-        
-        // Regular trig functions
         const argContent = ast.arg ? print(ast.arg) : '';
-        let result = `${funcName} ${argContent}`;
+        // Convert braces to lenticular brackets for Word
+        let result = argContent ? `${funcName}〖${argContent}〗` : funcName;
         if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
         if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
@@ -365,5 +363,11 @@ export function print(ast, context = {}) {
     }
 
     return '';
-}
+    }
+    
+    // Expose to global scope
+    window.ASTPrinter = {
+        print
+    };
+})();
 

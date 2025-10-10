@@ -5,12 +5,16 @@
  * quality and correctness of the generated UnicodeMath expressions.
  * 
  * REFACTORED (Issue #6): More reliable handling of integrals and other expressions
+ * Refactored for file:// protocol compatibility (no ES6 modules)
  */
 
-/**
- * Helper function to strip parentheses from bounds
- */
-function stripParens(input = '') {
+(function() {
+    'use strict';
+    
+    /**
+     * Helper function to strip parentheses from bounds
+     */
+    function stripParens(input = '') {
     const trimmed = input.trim();
     if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
         return trimmed.slice(1, -1).trim();
@@ -40,10 +44,10 @@ function wrapBox(segment = '') {
     return `〖${segment}〗`;
 }
 
-/**
- * Post-processing rules for specific expression patterns
- */
-const rules = [
+    /**
+     * Post-processing rules for specific expression patterns
+     */
+    const rules = [
     {
         name: 'remove-commas-in-brackets',
         description: 'Remove commas inside square brackets (LaTeX optional parameter artifacts)',
@@ -204,57 +208,66 @@ const rules = [
     }
 ];
 
-/**
- * Apply all post-processing rules to the text
- * @param {string} text - The UnicodeMath text to process
- * @returns {string} Processed text
- */
-export function postProcess(text) {
-    let result = text;
-    
-    // Apply each rule in sequence
-    for (const rule of rules) {
-        try {
-            result = result.replace(rule.pattern, rule.replace);
-        } catch (error) {
-            console.warn(`Post-processing rule '${rule.name}' failed:`, error);
-            // Continue with other rules even if one fails
+    /**
+     * Apply all post-processing rules to the text
+     * @param {string} text - The UnicodeMath text to process
+     * @returns {string} Processed text
+     */
+    function postProcess(text) {
+        let result = text;
+        
+        // Apply each rule in sequence
+        for (const rule of rules) {
+            try {
+                result = result.replace(rule.pattern, rule.replace);
+            } catch (error) {
+                console.warn(`Post-processing rule '${rule.name}' failed:`, error);
+                // Continue with other rules even if one fails
+            }
         }
+        
+        return result;
+    }
+
+    /**
+     * Add a custom post-processing rule
+     * @param {Object} rule - Rule object with name, description, pattern, and replace
+     */
+    function addRule(rule) {
+        if (!rule.name || !rule.pattern || !rule.replace) {
+            throw new Error('Rule must have name, pattern, and replace properties');
+        }
+        rules.push(rule);
+    }
+
+    /**
+     * Get all registered rules (for debugging/inspection)
+     * @returns {Array} Array of rule objects
+     */
+    function getRules() {
+        return [...rules]; // Return a copy to prevent external modification
+    }
+
+    /**
+     * Remove a rule by name
+     * @param {string} name - Name of the rule to remove
+     * @returns {boolean} True if rule was found and removed
+     */
+    function removeRule(name) {
+        const index = rules.findIndex(r => r.name === name);
+        if (index !== -1) {
+            rules.splice(index, 1);
+            return true;
+        }
+        return false;
     }
     
-    return result;
-}
-
-/**
- * Add a custom post-processing rule
- * @param {Object} rule - Rule object with name, description, pattern, and replace
- */
-export function addRule(rule) {
-    if (!rule.name || !rule.pattern || !rule.replace) {
-        throw new Error('Rule must have name, pattern, and replace properties');
-    }
-    rules.push(rule);
-}
-
-/**
- * Get all registered rules (for debugging/inspection)
- * @returns {Array} Array of rule objects
- */
-export function getRules() {
-    return [...rules]; // Return a copy to prevent external modification
-}
-
-/**
- * Remove a rule by name
- * @param {string} name - Name of the rule to remove
- * @returns {boolean} True if rule was found and removed
- */
-export function removeRule(name) {
-    const index = rules.findIndex(r => r.name === name);
-    if (index !== -1) {
-        rules.splice(index, 1);
-        return true;
-    }
-    return false;
-}
+    // Expose to global scope
+    window.PostProcessor = {
+        postProcess,
+        addRule,
+        getRules,
+        removeRule
+    };
+})();
 

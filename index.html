@@ -1932,57 +1932,83 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         }
         
+        // Flag to prevent infinite sync loops
+        let isSyncing = false;
+        
         function syncFromMathLive() {
-            const rawLatex = mf2.getValue('latex');
-            // Replace differentialD with 'd'
-            const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
+            if (isSyncing) return;
+            isSyncing = true;
             
-            // Create version without \: for display and copying (clean LaTeX)
-            const displayLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
-            
-            // Update Raw LaTeX Input with clean version (no \:)
-            if (ta.value !== displayLatex) { ta.value = displayLatex; }
-            
-            // Use version WITH \: for Word equation to maintain proper spacing
-            if (typeof toWordEquation === 'function') {
-                wordOut.value = toWordEquation(cleanLatex);
-            } else {
-                // Show loading message if module not ready yet
-                wordOut.value = '(Loading converter...)';
+            try {
+                const rawLatex = mf2.getValue('latex');
+                // Replace differentialD with 'd'
+                const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
+                
+                // Create version without \: for display and copying (clean LaTeX)
+                const displayLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
+                
+                // Update Raw LaTeX Input with clean version (no \:)
+                if (ta.value !== displayLatex) { ta.value = displayLatex; }
+                
+                // Use version WITH \: for Word equation to maintain proper spacing
+                if (typeof toWordEquation === 'function') {
+                    wordOut.value = toWordEquation(cleanLatex);
+                } else {
+                    // Show loading message if module not ready yet
+                    wordOut.value = '(Loading converter...)';
+                }
+                updateLatexPreview();
+            } catch (error) {
+                console.error('Error in syncFromMathLive:', error);
+                // Don't crash - just log the error
+            } finally {
+                isSyncing = false;
             }
-            updateLatexPreview();
         }
 
         function syncFromTextArea() {
-            let cleanLatex = ta.value;
-            // Normalize Word format input if detected
-            cleanLatex = typeof normalizeWordInput === 'function' ? normalizeWordInput(cleanLatex) : cleanLatex;
-            // Remove \: spacing if present in pasted content (keep textarea clean)
-            cleanLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
+            if (isSyncing) return;
+            isSyncing = true;
             
-            if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
-            if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
-            
-            // Get MathLive's processed version (which may add \: spacing from templates)
-            let wordLatex = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
-            
-            // Use version WITH \: for Word equation to maintain proper spacing
-            if (typeof toWordEquation === 'function') {
-                wordOut.value = toWordEquation(wordLatex);
-            } else {
-                // Show loading message if module not ready yet
-                wordOut.value = '(Loading converter...)';
-            }
-            
-            updateLatexPreview();
-            // Adjust math field height after content changes
-            if (typeof adjustMathFieldHeight === 'function') {
-                // Use requestAnimationFrame to ensure DOM has updated
-                requestAnimationFrame(() => {
-                    adjustMathFieldHeight();
-                    // Double-check after a short delay for complex formulas
-                    setTimeout(adjustMathFieldHeight, 50);
-                });
+            try {
+                let cleanLatex = ta.value;
+                // Normalize Word format input if detected
+                cleanLatex = typeof normalizeWordInput === 'function' ? normalizeWordInput(cleanLatex) : cleanLatex;
+                // Remove \: spacing if present in pasted content (keep textarea clean)
+                cleanLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
+                
+                if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
+                if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
+                
+                // Get MathLive's processed version (which may add \: spacing from templates)
+                let wordLatex = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
+                
+                // Use version WITH \: for Word equation to maintain proper spacing
+                if (typeof toWordEquation === 'function') {
+                    wordOut.value = toWordEquation(wordLatex);
+                } else {
+                    // Show loading message if module not ready yet
+                    wordOut.value = '(Loading converter...)';
+                }
+                
+                updateLatexPreview();
+                // Adjust math field height after content changes
+                if (typeof adjustMathFieldHeight === 'function') {
+                    // Use requestAnimationFrame to ensure DOM has updated
+                    requestAnimationFrame(() => {
+                        adjustMathFieldHeight();
+                        // Double-check after a short delay for complex formulas
+                        setTimeout(adjustMathFieldHeight, 50);
+                    });
+                }
+            } catch (error) {
+                console.error('Error in syncFromTextArea:', error);
+                // Try to show error in Word output so user knows something went wrong
+                if (wordOut) {
+                    wordOut.value = '⚠️ Error processing LaTeX: ' + error.message;
+                }
+            } finally {
+                isSyncing = false;
             }
         }
         
@@ -3575,7 +3601,67 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     })();
     </script>
 
-    <!-- Load modular converter (ES6 modules) -->
-    <script type="module" src="js/app-bridge.js"></script>
+    <!-- Load converter modules in dependency order (no ES6 modules for file:// compatibility) -->
+    <script src="js/symbol-maps.js"></script>
+    <script src="js/latex-utils.js"></script>
+    <script src="js/ast-printer.js"></script>
+    <script src="js/postprocessor.js"></script>
+    <script src="js/latex-parser.js"></script>
+    <script src="js/latex-converter.js"></script>
+    
+    <!-- Expose main functions for backward compatibility -->
+    <script>
+    (function() {
+        // Debug: Check what modules are available
+        console.log('🔍 Module check:');
+        console.log('  LatexParser:', typeof window.LatexParser, window.LatexParser);
+        console.log('  ASTPrinter:', typeof window.ASTPrinter, window.ASTPrinter);
+        console.log('  PostProcessor:', typeof window.PostProcessor, window.PostProcessor);
+        console.log('  LatexConverter:', typeof window.LatexConverter, window.LatexConverter);
+        console.log('  LatexUtils:', typeof window.LatexUtils, window.LatexUtils);
+        
+        // Check if all required modules are loaded
+        if (!window.LatexConverter) {
+            console.error('❌ LatexConverter module not loaded!');
+            return;
+        }
+        if (!window.LatexUtils) {
+            console.error('❌ LatexUtils module not loaded!');
+            return;
+        }
+        
+        // Extract functions from namespaced modules
+        window.toWordEquation = window.LatexConverter.toWordEquation;
+        window.normalizeWordInput = window.LatexConverter.normalizeWordInput;
+        window.removeWordSpaces = window.LatexConverter.removeWordSpaces;
+        window.normalizeLatexStr = window.LatexUtils.normalizeLatexStr;
+        
+        // Create convenience function for test suite
+        window.convertLatexToUnicodeMath = function(latex) {
+            return window.LatexConverter.toWordEquation(latex);
+        };
+        
+        // Mark modules as loaded
+        window.e2ModulesLoaded = true;
+        
+        // Dispatch event to notify that modules are ready
+        window.dispatchEvent(new Event('e2ModulesReady'));
+        
+        // Log successful module loading
+        console.log('✅ E2 MathsTyper modules loaded successfully');
+        console.log('📦 Available functions: toWordEquation, normalizeWordInput, removeWordSpaces, normalizeLatexStr');
+        
+        // Trigger initial sync if math field has content
+        setTimeout(() => {
+            const mf2 = document.getElementById('mf2');
+            if (mf2 && mf2.getValue && mf2.getValue()) {
+                console.log('🔄 Triggering initial sync with content:', mf2.getValue());
+                if (typeof syncFromMathLive === 'function') {
+                    syncFromMathLive();
+                }
+            }
+        }, 100);
+    })();
+    </script>
 </body>
 </html>
