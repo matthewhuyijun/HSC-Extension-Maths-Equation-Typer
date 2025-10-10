@@ -171,6 +171,36 @@ const rules = [
         description: 'Simplify unnecessary nested parentheses in simple cases',
         pattern: /\(\(([a-zA-Z0-9])\)\)/g,
         replace: '($1)'
+    },
+    {
+        name: 'limit-formatting',
+        description: 'Format limit expressions: lim┬(h→0) expression',
+        // Match: lim with subscript/superscript followed by ▒ and the expression up to = or end
+        pattern: /lim(_\([^)]+\)|_[^\s^]+)?(\^\([^)]+\)|\^[^\s]+)?\s*▒?\s*(.+?)(?=\s*=|$)/g,
+        replace: (match, sub, sup, expression) => {
+            const subPart = sub || '';
+            const supPart = sup || '';
+            
+            // Extract the subscript content (remove _ and outer parentheses if present)
+            let subscript = '';
+            if (subPart) {
+                subscript = subPart.replace(/^_\(/, '').replace(/\)$/, '').replace(/^_/, '');
+            }
+            
+            const exprClean = expression.trim()
+                .replace(/^▒+/, '')
+                .replace(/▒+$/, '')
+                .replace(/^〖/, '')
+                .replace(/〗$/, '');
+            
+            if (!exprClean) return match; // Don't transform if no expression
+            
+            // Use ┬ format with space and bracket: lim┬(subscript) 〖expression〗
+            if (subscript) {
+                return `lim┬(${subscript}) 〖${exprClean}〗`;
+            }
+            return `lim 〖${exprClean}〗`; // No subscript case
+        }
     }
 ];
 
