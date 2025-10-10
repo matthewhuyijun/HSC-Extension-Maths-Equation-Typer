@@ -1,0 +1,165 @@
+# 🤖 AI Prompt: Rewrite LaTeX-to-Word Conversion Logic Using AST (for Chemistry Equations)
+
+## 🎯 Objective
+Revise the existing chemical equation conversion project so that it **uses AST (Abstract Syntax Tree)** instead of Regex-based parsing, while **preserving all visual design, layout, and UI elements**.  
+Only the logic related to **Word UnicodeMath conversion** should be rewritten. All other interface features, buttons, and layout must remain *exactly the same* as in the original project.
+
+---
+
+## 🧠 Project Context
+This project converts mathematical and chemical equations into **Word UnicodeMath format**, so the output can be directly pasted into Microsoft Word Equation Editor and remain fully editable.
+
+Previously, conversion logic relied on **Regex** for token matching. However, this approach caused errors in complex nested expressions like:
+```
+Fe(OH)3, Ca3(PO4)2, CuSO4·5H2O, or →_(Pt)^(Δ)
+```
+and often required **extra spaces** to prevent Word mis-parsing subscripts/superscripts.
+
+The new version must instead build an **AST** (Abstract Syntax Tree) representing structural elements (ions, groups, coefficients, states, arrows, etc.), and then convert the AST into Word UnicodeMath using well-defined conversion rules.
+
+---
+
+## 🌳 Key Requirements
+
+### 1️⃣ AST Parser
+- Build a simple tokenizer to identify:
+  - Elements (e.g., Na, Fe, Cu)
+  - Numbers (for subscripts)
+  - Parentheses `()`
+  - Superscripts `^()`
+  - Subscripts `_()`
+  - Arrows `→`, `⇌`, etc.
+  - States `(s)`, `(l)`, `(g)`, `(aq)`
+  - Labels above/below arrows (e.g. `→^(heat)`, `→_(Pt)`)
+- Construct an AST that represents the structure of the full equation.
+
+Example AST structure:
+```
+Reaction
+ ├── Reactants
+ │   ├── Species: Na2SO4(aq)
+ │   └── Species: BaCl2(aq)
+ ├── Arrow: →
+ └── Products
+     ├── Species: BaSO4(s)
+     └── Species: 2NaCl(aq)
+```
+
+---
+
+### 2️⃣ Conversion Rules for Word UnicodeMath
+
+| Type | Syntax | Example |
+|------|--------|----------|
+| Subscript | `_()` + space | `H_2O ` |
+| Superscript | `^()` + space | `SO_4^(2-) ` |
+| Arrow | `→`, `⇌`, `←`, `↔` | `A + B → C` |
+| Arrow label (top) | `→^(heat)` | heating condition |
+| Arrow label (bottom) | `→_(Pt)` | catalyst |
+| State symbols | base line (no `_()`) | `(s)`, `(l)`, `(aq)` |
+| Grouped ions | `( )` preserved | `Fe(OH)_3` |
+| Space rule | one space after each `_()` or `^()` | prevents mis-parsing |
+
+---
+
+### 3️⃣ Auto Replacement for Common Ions and Compounds
+
+| Input | Output |
+|--------|---------|
+| SO4 | `SO_4` |
+| CO3 | `CO_3` |
+| NO3 | `NO_3` |
+| PO4 | `PO_4` |
+| OH- | `OH^(-)` |
+| Na+ | `Na^(+)` |
+| H2O | `H_2O` |
+| Fe(OH)3 | `Fe(OH)_3` |
+| CuSO4 | `CuSO_4` |
+
+Implement as a mapping dictionary (can be `.json` or `.js`) applied before AST parsing.
+
+---
+
+### 4️⃣ Spacing Rules
+After every `_()` or `^()`, always insert **one space** to clearly terminate the group.  
+Example:
+```
+Fe(OH)_3 (s)
+NaCl (aq)
+SO_4^(2-)  (aq)
+```
+This ensures Word doesn’t merge `(s)` or `(aq)` into subscripts.
+
+---
+
+### 5️⃣ Arrow Label Normalization
+Retain Word-compatible top/bottom syntax:
+```
+→^(Δ)
+→_(Pt)
+→_(Ni)^(Δ)
+⇌^(UV)
+```
+For custom arrow text:
+```
+\xrightarrow{heat} → □(→┴heat )
+```
+and double-labeled arrows:
+```
+→_(Pt)^(heat)
+```
+
+---
+
+### 6️⃣ Chemical State Symbols
+Keep `(s)`, `(l)`, `(g)`, `(aq)` **on the baseline**.  
+Do **not** include them inside `_()` or `^()`.
+
+Example:
+```
+Fe(OH)_3 (s)
+H_2O (l)
+NaCl (aq)
+```
+
+---
+
+### 7️⃣ Example Input & Output
+
+Input:
+```
+Fe(OH)3(s) + 3HCl(aq) -> FeCl3(aq) + 3H2O(l)
+```
+
+Output (Word UnicodeMath):
+```
+Fe(OH)_3 (s) + 3HCl (aq) → FeCl_3 (aq) + 3H_2O (l)
+```
+
+✅ Works directly in Word Equation Editor  
+✅ Fully editable  
+✅ All subscripts/superscripts correct  
+✅ No extra spaces needed  
+
+---
+
+## 💡 Summary
+Replace the old regex conversion logic with an AST-based generator that:
+1. Parses tokens and builds a tree of species, groups, states, and arrows.
+2. Outputs valid Word UnicodeMath expressions using `_()` and `^()`.
+3. Adds post-processing replacement for common ions/compounds.
+4. Keeps design, layout, and UI fully unchanged.
+
+---
+
+### ⚙️ Deliverable
+Produce a **single rewritten JavaScript file** (or module) that handles conversion using the AST logic.  
+Do not modify any HTML, CSS, or UI behavior.
+
+---
+
+### 📄 Notes
+- Maintain all current buttons and input fields.
+- Add a small “calculation” bar with `\placeholder{}^\placeholder{}`, `\placeholder{}^2`, and `(a&b)` buttons.
+- Keep spacing and brackets identical to original version.
+- Test all features including rendering and button click logic.

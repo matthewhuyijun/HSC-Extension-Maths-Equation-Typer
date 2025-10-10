@@ -213,6 +213,13 @@
                 return { type: 'mathbb', content };
             }
             
+            // 添加 \text{} 命令的处理
+            if (cmdName === 'text') {
+                skipWhitespace();
+                const content = parseGroup();
+                return { type: 'text_command', content };
+            }
+            
             // Handle trigonometric functions with explicit brace arguments only
             const trigFunctions = [
                 'sin', 'cos', 'tan', 'csc', 'sec', 'cot',

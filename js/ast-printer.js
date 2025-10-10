@@ -103,6 +103,13 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         return ast.value ?? '\u0020';
     }
 
+    // 添加 \text{} 命令的打印处理
+    if (type === 'text_command') {
+        // 提取文本内容并在两侧添加单空格（LaTeX中）
+        const content = print(ast.content);
+        return ' ' + content + ' ';
+    }
+
     if (type === 'command') {
         const cmd = ast.value;
         const cmdName = cmd.slice(1);

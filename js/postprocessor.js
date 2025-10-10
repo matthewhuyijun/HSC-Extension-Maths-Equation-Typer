@@ -49,10 +49,16 @@ function wrapBox(segment = '') {
      */
     const rules = [
     {
-        name: 'remove-double-spaces',
-        description: 'Remove double spaces that may appear from various formatting operations',
-        pattern: /  +/g,
-        replace: ' '
+        name: 'double-space-around-text-words',
+        description: 'Add double spaces around text words for better Word spacing',
+        pattern: / ([a-zA-Z]{2,}) /g,
+        replace: '  $1  '
+    },
+    {
+        name: 'remove-other-double-spaces',
+        description: 'Remove double spaces except around text words',
+        pattern: /([^a-zA-Z]) {2,}([^a-zA-Z])/g,
+        replace: '$1 $2'
     },
     {
         name: 'remove-commas-in-brackets',
