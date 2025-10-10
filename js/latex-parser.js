@@ -172,6 +172,36 @@ export function parse(latex) {
                 return { type: 'overrightarrow', content };
             }
             
+            if (cmdName === 'vec') {
+                skipWhitespace();
+                const content = parseGroup();
+                return { type: 'vec', content };
+            }
+            
+            if (cmdName === 'dot') {
+                skipWhitespace();
+                const content = parseGroup();
+                return { type: 'dotaccent', content };
+            }
+            
+            if (cmdName === 'ddot') {
+                skipWhitespace();
+                const content = parseGroup();
+                return { type: 'ddotaccent', content };
+            }
+            
+            if (cmdName === 'overline') {
+                skipWhitespace();
+                const content = parseGroup();
+                return { type: 'overline', content };
+            }
+            
+            if (cmdName === 'mathbb') {
+                skipWhitespace();
+                const content = parseGroup();
+                return { type: 'mathbb', content };
+            }
+            
             if (cmdName === 'begin') {
                 skipWhitespace();
                 const env = parseGroup();
@@ -241,7 +271,7 @@ export function parse(latex) {
         const ch = peek();
         if (ch === '\\') {
             return parseCommand();
-        } else if (/[a-zA-Z0-9]/.test(ch)) {
+        } else if (/[a-zA-Z0-9+\-*/=<>!]/.test(ch)) {
             return { type: 'text', value: consume() };
         }
         return { type: 'text', value: '' };

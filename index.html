@@ -962,32 +962,52 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       display: flex;
       align-items: center;
       gap: 4px;
+      height: 40px;
     }
-    .theme-opt{
+    .theme-opt {
       appearance: none;
-      min-height: 36px;
-      min-width: 36px;
-      padding: 6px;
-      border-radius: 8px;
-      display: inline-flex;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      margin: 0;
+      border-radius: 50%;
+      display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 16px;
       background: transparent;
       border: none;
-      color: rgba(255, 255, 255, 0.85);
       cursor: pointer;
-      transition: all 0.2s ease;
+      flex-shrink: 0;
+      transition: background .15s ease, box-shadow .15s ease, transform .08s ease;
     }
-    .theme-opt.is-active{
-      background: rgba(255, 255, 255, 0.2);
-      color: rgba(255, 255, 255, 1);
+    .theme-opt.is-active {
+      background: #eef3ff;
+      box-shadow:
+        0 1px 0 rgba(15,23,42,.04) inset,
+        inset 0 0 0 2px #3b82f6,
+        0 0 0 3px rgba(99,102,241,.22);
     }
-    .theme-opt:hover{ 
-      background: rgba(255, 255, 255, 0.15);
-      color: rgba(255, 255, 255, 1);
+    .theme-opt:hover {
+      transform: translateY(-1px);
+      background: rgba(238, 243, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.15);
     }
     .theme-opt:active {
-      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(0);
+    }
+
+    /* Dark theme adjustments */
+    [data-theme="dark"] .theme-opt:hover {
+      background: rgba(59, 130, 246, 0.15);
+    }
+
+    [data-theme="dark"] .theme-opt.is-active {
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow:
+        0 1px 0 rgba(255,255,255,.02) inset,
+        inset 0 0 0 2px #60a5fa,
+        0 0 0 3px rgba(96, 165, 250, .15);
     }
 
     .content-wrapper {
@@ -1011,17 +1031,30 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
     /* Theme toggle icon styling */
     .theme-opt svg {
-      width: 18px;
-      height: 18px;
+      width: 20px;
+      height: 20px;
       display: block;
-      stroke: currentColor;
+      stroke: #64748b;
       stroke-width: 2;
       fill: none;
-      transition: transform 0.2s ease;
+      transition: stroke .15s ease, transform .12s ease;
     }
 
     .theme-opt:hover svg {
-      transform: scale(1.1);
+      stroke: #3b82f6;
+      transform: scale(1.08);
+    }
+
+    .theme-opt.is-active svg {
+      stroke: #3b82f6;
+    }
+
+    [data-theme="dark"] .theme-opt svg {
+      stroke: #cbd5e1;
+    }
+
+    [data-theme="dark"] .theme-opt.is-active svg {
+      stroke: #60a5fa;
     }
 
     :root {
@@ -2201,7 +2234,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 '∑': '\\sum',
                 '∏': '\\prod',
                 'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
-                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx',
+                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx',
                 'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
                 'sqrt': '\\sqrt{\\placeholder{}}',
                 'neg': '\\neg',
@@ -2417,8 +2450,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         const layouts={
             calc:[
-                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx'},
-                {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{} dx'},
+                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx'},
+                {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{}\\: dx'},
                 {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
                 {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
                 {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
@@ -2550,8 +2583,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         // Curated layouts for toolbar
         const curatedLayouts = {
             calc: [
-                { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{} dx' },
-                { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx' },
+                { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{}\\: dx' },
+                { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx' },
                 { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
             ],
             powers: [

@@ -178,6 +178,56 @@ export function print(ast, context = {}) {
         return `(${content})⃗`;
     }
 
+    if (type === 'vec') {
+        const content = print(ast.content);
+        let result = `${content}\u20D7`;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
+    if (type === 'dotaccent') {
+        const content = print(ast.content);
+        let result = `${content}\u0307`;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
+    if (type === 'ddotaccent') {
+        const content = print(ast.content);
+        let result = `${content}\u0308`;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
+    if (type === 'overline') {
+        const content = print(ast.content);
+        let result = `${content}\u0305`;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
+    if (type === 'mathbb') {
+        const content = print(ast.content).trim();
+        // Map common blackboard bold letters to Unicode
+        const mathbbMap = {
+            'C': '\u2102', // ℂ Complex numbers
+            'N': '\u2115', // ℕ Natural numbers
+            'Q': '\u211A', // ℚ Rational numbers
+            'R': '\u211D', // ℝ Real numbers
+            'Z': '\u2124', // ℤ Integers
+            'P': '\u2119', // ℙ Projective space / Primes
+            'H': '\u210D', // ℍ Quaternions
+        };
+        let result = mathbbMap[content] || content;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
     if (type === 'pmatrix') {
         const rows = [];
         let currentRow = '';
