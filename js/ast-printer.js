@@ -61,6 +61,11 @@ export function print(ast, context = {}) {
         return result;
     }
 
+    if (type === 'space') {
+        // Convert LaTeX space commands to regular space for Word
+        return ast.value || ' ';
+    }
+
     if (type === 'command') {
         const cmd = ast.value;
         const cmdName = cmd.slice(1);

@@ -131,6 +131,9 @@ export function parse(latex) {
             if (cmdName === 'prod') return { type: 'prod' };
             if (cmdName === 'int') return { type: 'int' };
             
+            // Handle \: as a space command (medium math space)
+            if (cmdName === ':') return { type: 'space', value: ' ' };
+            
             if (cmdName === 'left') {
                 skipWhitespace();
                 if (peek() === '.') {

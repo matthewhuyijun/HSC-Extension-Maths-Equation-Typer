@@ -65,31 +65,20 @@ export function normalizeWordInput(text) {
 }
 
 /**
- * Remove \: spacing that MathLive adds for Word compatibility
- * This spacing should not appear in standard LaTeX
+ * Remove \: spacing that MathLive adds from templates (integral, sum, product)
+ * But preserve user-typed \: spaces
  * @param {string} latex - LaTeX string that may contain \: spacing
- * @returns {string} LaTeX with \: spacing removed
+ * @returns {string} LaTeX with template \: spacing removed
  */
 export function removeWordSpaces(latex) {
     let result = latex;
-    let iterations = 0;
-    const maxIterations = 10;
     
-    while (iterations < maxIterations && result.includes('\\:')) {
-        const before = result;
-        // Remove \: after integral/sum/product operators (with or without limits)
-        result = result
-            .replace(/(\\int(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1')
-            .replace(/(\\sum(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1')
-            .replace(/(\\prod(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1');
-        
-        // If nothing changed, remove all remaining \: 
-        if (result === before) {
-            result = result.replace(/\\:/g, '');
-            break;
-        }
-        iterations++;
-    }
+    // Only remove \: that appears directly after integral/sum/product operators
+    // This preserves user-typed spaces while removing template-generated ones
+    result = result
+        .replace(/(\\int(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ')
+        .replace(/(\\sum(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ')
+        .replace(/(\\prod(?:[_^]\{[^}]*\})*)\s*\\:/g, '$1 ');
     
     return result;
 }
