@@ -108,6 +108,9 @@ export function print(ast, context = {}) {
         if (cmdName === 'left' || cmdName === 'right') return '';
         if (cmdName === '\\') return '';
         
+        // Handle \: as a space command (medium math space)
+        if (cmdName === ':') return ' ';
+        
         let result = cmdName;
         if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
         if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
