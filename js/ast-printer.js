@@ -165,7 +165,7 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     if (type === 'frac') {
         const num = print(ast.num);
         const den = print(ast.den);
-        return `(${num})/(${den})`;
+        return `(${num})/(${den}) `;
     }
 
     if (type === 'sqrt') {
