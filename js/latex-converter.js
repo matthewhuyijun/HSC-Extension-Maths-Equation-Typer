@@ -27,11 +27,9 @@
         
         // Step 2: Print AST to UnicodeMath
         let result = print(ast);
-        console.log('Before postprocess:', result);
         
         // Step 3: Apply post-processing refinements
         result = postProcess(result);
-        console.log('After postprocess:', result);
         
         return result;
     } catch (e) {

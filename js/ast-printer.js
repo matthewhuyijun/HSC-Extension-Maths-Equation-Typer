@@ -62,9 +62,10 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
             if (prevNode && prevNode.type === 'command' && 
                 isTrigFunction(prevNode.value.slice(1)) && 
                 node.type === 'group') {
-                // Convert group content to lenticular brackets for trig functions
+                // Add function application character before the argument
                 const content = print(node.children, context);
-                result.push(`〖${content}〗`);
+                // Use function application character (U+2061) for proper rendering
+                result.push('\u2061' + content);
                 continue;
             }
             
@@ -91,8 +92,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
 
     if (type === 'text') {
         let result = ast.value || '';
-        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        if (ast.sub) result += '_' + printScriptArg(ast.sub);
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
         return result;
     }
 
@@ -122,22 +123,22 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         
         if (greekMap[cmdName]) {
             let result = greekMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+            if (ast.sub) result += '_' + printScriptArg(ast.sub);
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
             return result;
         }
         
         if (symbolMap[cmdName]) {
             let result = symbolMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+            if (ast.sub) result += '_' + printScriptArg(ast.sub);
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
             return result;
         }
         
         if (standardFunctions.includes(cmdName)) {
             let result = cmdName;
-            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+            if (ast.sub) result += '_' + printScriptArg(ast.sub);
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
             return result;
         }
         
@@ -148,8 +149,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         if (cmdName === ':') return ' ';
         
         let result = cmdName;
-        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        if (ast.sub) result += '_' + printScriptArg(ast.sub);
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
         return result;
     }
 
@@ -164,7 +165,7 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     if (type === 'frac') {
         const num = print(ast.num);
         const den = print(ast.den);
-        return `(${num})/(${den}) `;
+        return `(${num})/(${den})`;
     }
 
     if (type === 'sqrt') {

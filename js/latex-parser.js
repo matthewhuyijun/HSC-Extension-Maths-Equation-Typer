@@ -290,6 +290,16 @@
             return { type: 'text', value: '' };
         }
         
+        if (ch === '[') {
+            consume();
+            return { type: 'text', value: '[' };
+        }
+        
+        if (ch === ']') {
+            consume();
+            return { type: 'text', value: ']' };
+        }
+        
         let text = '';
         while (pos < str.length && !/[\\{}\[\]_^|\s]/.test(peek())) {
             text += consume();

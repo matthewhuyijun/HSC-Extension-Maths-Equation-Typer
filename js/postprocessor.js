@@ -49,6 +49,12 @@ function wrapBox(segment = '') {
      */
     const rules = [
     {
+        name: 'remove-double-spaces',
+        description: 'Remove double spaces that may appear from various formatting operations',
+        pattern: /  +/g,
+        replace: ' '
+    },
+    {
         name: 'remove-commas-in-brackets',
         description: 'Remove commas inside square brackets (LaTeX optional parameter artifacts)',
         pattern: /\[([^\]]+?),\s*\]/g,
