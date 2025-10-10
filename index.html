@@ -3303,6 +3303,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       const grid = document.getElementById('shortcutsGrid');
 
       // Common MathLive inline shortcuts
+      // NOTE: Unicode math symbols below are correctly encoded (UTF-8).
+      // If they appear as ▒ or � in your editor, it's a font display issue.
+      // They will render correctly in the browser.
       const shortcuts = {
         // Greek letters
         'alpha': 'α',
