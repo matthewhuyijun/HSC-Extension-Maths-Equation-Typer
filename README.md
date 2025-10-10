@@ -51,4 +51,37 @@ Designed to help **students and teachers** seamlessly work with equations in **M
 
 * [MathLive](https://cortexjs.io/mathlive/) — interactive math editor
 * [MathJax](https://www.mathjax.org/) — LaTeX rendering engine
+* Modular JavaScript with ES6 imports for LaTeX to UnicodeMath conversion
 * Hosted on **GitHub Pages**
+
+---
+
+## 🔧 Running Locally
+
+**⚠️ Important:** This app uses ES6 modules which **do not work** with the `file://` protocol. You **must** serve it through an HTTP server.
+
+### Quick Start:
+
+1. Clone or download this repository
+2. Open a terminal in the project folder
+3. Start a local web server:
+
+   ```bash
+   # Using Python 3 (recommended)
+   python3 -m http.server 8000
+
+   # Or using Node.js
+   npx serve
+
+   # Or using PHP
+   php -S localhost:8000
+   ```
+
+4. Open your browser to: `http://localhost:8000/index.html`
+
+### Troubleshooting:
+
+If you see "LaTeX code not converting" or equations appear as raw LaTeX:
+- Check browser console (F12) for module loading errors
+- Ensure you're accessing via `http://` not `file://`
+- The app will show an alert if modules fail to load

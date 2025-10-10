@@ -649,7 +649,6 @@ textarea:focus {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-
 /* Theme toggle chip: crisper */
 .theme-segmented {
   border-radius: 14px;
@@ -1945,7 +1944,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (ta.value !== displayLatex) { ta.value = displayLatex; }
             
             // Use version WITH \: for Word equation to maintain proper spacing
-            wordOut.value = typeof toWordEquation === 'function' ? toWordEquation(cleanLatex) : cleanLatex;
+            if (typeof toWordEquation === 'function') {
+                wordOut.value = toWordEquation(cleanLatex);
+            } else {
+                // Show loading message if module not ready yet
+                wordOut.value = '(Loading converter...)';
+            }
             updateLatexPreview();
         }
 
@@ -1963,7 +1967,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             let wordLatex = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
             
             // Use version WITH \: for Word equation to maintain proper spacing
-            wordOut.value = typeof toWordEquation === 'function' ? toWordEquation(wordLatex) : wordLatex;
+            if (typeof toWordEquation === 'function') {
+                wordOut.value = toWordEquation(wordLatex);
+            } else {
+                // Show loading message if module not ready yet
+                wordOut.value = '(Loading converter...)';
+            }
             
             updateLatexPreview();
             // Adjust math field height after content changes
@@ -2087,18 +2096,21 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 'dy': '\\differentialD y',
                 'dt': '\\differentialD t',
                 'aleph': '\\aleph',
-                'arcsin': '\\arcsin',
-                'arccos': '\\arccos',
-                'arctan': '\\arctan',
-                'sin': '\\sin',
-                'sinh': '\\sinh',
-                'cos': '\\cos',
-                'cosh': '\\cosh',
-                'tan': '\\tan',
-                'tanh': '\\tanh',
-                'sec': '\\sec',
-                'csc': '\\csc',
-                'cot': '\\cot',
+                'arcsin': '\\sin^{-1}\\placeholder{}',
+                'arccos': '\\cos^{-1}\\placeholder{}',
+                'arctan': '\\tan^{-1}\\placeholder{}',
+                'arccot': '\\cot^{-1}\\placeholder{}',
+                'arcsec': '\\sec^{-1}\\placeholder{}',
+                'arccsc': '\\csc^{-1}\\placeholder{}',
+                'sin': '\\sin\\placeholder{}',
+                'sinh': '\\sinh\\placeholder{}',
+                'cos': '\\cos\\placeholder{}',
+                'cosh': '\\cosh\\placeholder{}',
+                'tan': '\\tan\\placeholder{}',
+                'tanh': '\\tanh\\placeholder{}',
+                'sec': '\\sec\\placeholder{}',
+                'csc': '\\csc\\placeholder{}',
+                'cot': '\\cot\\placeholder{}',
                 'log': '\\log_{\\placeholder{}}\\placeholder{}',
                 'ln': '\\ln',
                 'exp': '\\exp',
@@ -2462,7 +2474,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
                 {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
                 {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
-                {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
+                {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'},
+                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}'},
+                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}'}
             ],
             powers:[
                 {display:'{\\placeholder{}}^{\\placeholder{}}',insert:'{\\placeholder{}}^{\\placeholder{}}'},
@@ -2474,7 +2488,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 {display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},
                 {display:'\\log_{\\placeholder{}}\\placeholder{}',insert:'\\log_{\\placeholder{}}\\placeholder{}'}
             ],
-            trigs:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'}],
+            trigs:[{display:'\\sin\\placeholder{}',insert:'\\sin\\placeholder{}'},{display:'\\cos\\placeholder{}',insert:'\\cos\\placeholder{}'},{display:'\\tan\\placeholder{}',insert:'\\tan\\placeholder{}'},{display:'\\cot\\placeholder{}',insert:'\\cot\\placeholder{}'},{display:'\\sec\\placeholder{}',insert:'\\sec\\placeholder{}'},{display:'\\csc\\placeholder{}',insert:'\\csc\\placeholder{}'},{display:'\\sin^{-1}\\placeholder{}',insert:'\\sin^{-1}\\placeholder{}'},{display:'\\cos^{-1}\\placeholder{}',insert:'\\cos^{-1}\\placeholder{}'},{display:'\\tan^{-1}\\placeholder{}',insert:'\\tan^{-1}\\placeholder{}'},{display:'\\arcsin\\placeholder{}',insert:'\\arcsin\\placeholder{}'},{display:'\\arccos\\placeholder{}',insert:'\\arccos\\placeholder{}'},{display:'\\arctan\\placeholder{}',insert:'\\arctan\\placeholder{}'}],
             sym:[
                 {display:'\\geq',insert:'\\geq'},
                 {display:'\\leq',insert:'\\leq'},
@@ -2525,15 +2539,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     keyType: 'cis',
                     currentVar: '\\theta',
                     display: '\\operatorname{cis}(\\theta)',
-                    insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                    insert: '\\cos{\\theta}+i\\sin{\\theta}',
                     options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
                 },
                 {
                     isSelectable: true,
                     keyType: 'cos-isin',
                     currentVar: '\\theta',
-                    display: '\\cos(\\theta)+i\\sin(\\theta)',
-                    insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                    display: '\\cos{\\theta}+i\\sin{\\theta}',
+                    insert: '\\cos{\\theta}+i\\sin{\\theta}',
                     options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
                 },
                 {
@@ -2591,7 +2605,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             calc: [
                 { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{}\\: dx' },
                 { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx' },
-                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
+                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' },
+                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}' },
+                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}' }
             ],
             powers: [
                 { display: '{\\placeholder{}}^{\\placeholder{}}', insert: '{\\placeholder{}}^{\\placeholder{}}' },
@@ -2600,8 +2616,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 { display: '\\lvert \\placeholder{} \\rvert', insert: '\\lvert \\placeholder{} \\rvert' },
                 { display: '\\sqrt{\\placeholder{}}', insert: '\\sqrt{\\placeholder{}}' },
                 { display: '\\sqrt[\\placeholder{}]{\\placeholder{}}', insert: '\\sqrt[\\placeholder{}]{\\placeholder{}}' }
-            ],
-            func: [
             ],
             sym: [
                 { display: '\\geq', insert: '\\geq' },
@@ -2643,8 +2657,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     isSelectable: true,
                     keyType: 'cos-isin',
                     currentVar: '\\theta',
-                    display: '\\cos(\\theta)+i\\sin(\\theta)',
-                    insert: '\\cos(\\theta)+i\\sin(\\theta)',
+                    display: '\\cos{\\theta}+i\\sin{\\theta}',
+                    insert: '\\cos{\\theta}+i\\sin{\\theta}',
                     options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
                 },
                 {
@@ -3178,6 +3192,21 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           toast.classList.add('show');
           clearTimeout(showToast._t);
           showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+        }
+
+        /* ---------------- Insert Word equation helper ---------------- */
+        function insertWordEquation(wordEquation) {
+          const wordOutput = document.getElementById('wordOut');
+          const cursorPos = wordOutput.selectionStart || wordOutput.value.length;
+          const textBefore = wordOutput.value.substring(0, cursorPos);
+          const textAfter = wordOutput.value.substring(cursorPos);
+          
+          wordOutput.value = textBefore + wordEquation + textAfter;
+          
+          // Set cursor after inserted text
+          const newCursorPos = cursorPos + wordEquation.length;
+          wordOutput.setSelectionRange(newCursorPos, newCursorPos);
+          wordOutput.focus();
         }
 
         /* ---------------- Copy buttons ---------------- */

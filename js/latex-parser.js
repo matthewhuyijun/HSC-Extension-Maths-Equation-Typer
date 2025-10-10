@@ -202,10 +202,72 @@ export function parse(latex) {
                 return { type: 'mathbb', content };
             }
             
+            // Handle trigonometric functions with arguments
+            const trigFunctions = [
+                'sin', 'cos', 'tan', 'csc', 'sec', 'cot',
+                'sinh', 'cosh', 'tanh', 'csch', 'sech', 'coth',
+                'arcsin', 'arccos', 'arctan', 'arccsc', 'arcsec', 'arccot'
+            ];
+            if (trigFunctions.includes(cmdName)) {
+                skipWhitespace();
+                
+                // Special handling for inverse trig functions (e.g., \sin^{-1}{x})
+                if (peek() === '^') {
+                    pos++; // consume ^
+                    skipWhitespace();
+                    const superscript = parseGroup(); // parse the exponent (e.g., {-1})
+                    skipWhitespace();
+                    
+                    // Now get the argument that follows
+                    let arg = null;
+                    if (peek() === '{') {
+                        arg = parseGroup();
+                    } else if (pos < str.length) {
+                        const savedPos = pos;
+                        const nextNode = parseNode();
+                        if (nextNode && (nextNode.type === 'text' || nextNode.type === 'command' || 
+                            nextNode.type === 'group' || nextNode.type === 'Greek')) {
+                            arg = nextNode;
+                        } else {
+                            pos = savedPos;
+                        }
+                    }
+                    
+                    return { 
+                        type: 'trigfunc', 
+                        name: cmdName, 
+                        inverse: true,
+                        exponent: superscript,
+                        arg 
+                    };
+                }
+                
+                // Regular trig functions
+                // Check if next character is { (argument group)
+                if (peek() === '{') {
+                    const arg = parseGroup();
+                    return { type: 'trigfunc', name: cmdName, arg };
+                }
+                // Also capture next single token as argument (for cases like \sin x)
+                if (pos < str.length && peek() !== '_') {
+                    const savedPos = pos;
+                    const nextNode = parseNode();
+                    // Only treat as argument if it's a simple token (not another command with args, etc)
+                    if (nextNode && (nextNode.type === 'text' || nextNode.type === 'command' || 
+                        nextNode.type === 'group' || nextNode.type === 'Greek')) {
+                        return { type: 'trigfunc', name: cmdName, arg: nextNode };
+                    }
+                    // Otherwise, restore position and return just the command
+                    pos = savedPos;
+                }
+                return cmd;
+            }
+            
             if (cmdName === 'begin') {
                 skipWhitespace();
                 const env = parseGroup();
-                if (env && env.children && env.children[0] && env.children[0].value === 'pmatrix') {
+                const envName = env && env.children && env.children[0] && env.children[0].value;
+                if (envName === 'pmatrix' || envName === 'cases') {
                     const bodyNodes = [];
                     while (pos < str.length) {
                         skipWhitespace();
@@ -219,7 +281,7 @@ export function parse(latex) {
                         skipWhitespace();
                         parseGroup();
                     }
-                    return { type: 'pmatrix', children: bodyNodes };
+                    return { type: envName, children: bodyNodes };
                 }
             }
             

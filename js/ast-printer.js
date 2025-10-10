@@ -8,6 +8,20 @@
 import { greekMap, symbolMap, standardFunctions } from './symbol-maps.js';
 
 /**
+ * Check if a command is a trigonometric function
+ * @param {string} cmdName - The command name (without backslash)
+ * @returns {boolean} True if it's a trig function
+ */
+function isTrigFunction(cmdName) {
+    const trigFunctions = [
+        'sin', 'cos', 'tan', 'csc', 'sec', 'cot',
+        'sinh', 'cosh', 'tanh', 'csch', 'sech', 'coth',
+        'arcsin', 'arccos', 'arctan', 'arccsc', 'arcsec', 'arccot'
+    ];
+    return trigFunctions.includes(cmdName);
+}
+
+/**
  * Print script argument (subscript or superscript)
  * @param {Object} arg - The AST node for the script
  * @param {boolean} isSup - Whether this is a superscript (affects parenthesization)
@@ -33,19 +47,34 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
  */
 export function print(ast, context = {}) {
     if (Array.isArray(ast)) {
-        const parts = ast.map(node => print(node, context));
         const result = [];
-        for (let i = 0; i < parts.length; i++) {
-            if (i > 0 && parts[i] && parts[i-1]) {
-                const prev = parts[i-1];
-                const curr = parts[i];
+        for (let i = 0; i < ast.length; i++) {
+            const node = ast[i];
+            const prevNode = i > 0 ? ast[i-1] : null;
+            
+            // Check if previous node is a trig function and current is a group
+            if (prevNode && prevNode.type === 'command' && 
+                isTrigFunction(prevNode.value.slice(1)) && 
+                node.type === 'group') {
+                // Convert group content to lenticular brackets for trig functions
+                const content = print(node.children, context);
+                result.push(`〖${content}〗`);
+                continue;
+            }
+            
+            const printed = print(node, context);
+            
+            // Add space between adjacent letters (unless handled by trig function above)
+            if (i > 0 && printed && result.length > 0) {
+                const prev = result[result.length - 1];
+                const curr = printed;
                 const prevEndsWithLetter = /[a-zA-Zα-ω]$/.test(prev);
                 const currStartsWithLetter = /^[a-zA-Z]/.test(curr);
                 if (prevEndsWithLetter && currStartsWithLetter) {
                     result.push(' ');
                 }
             }
-            result.push(parts[i]);
+            result.push(printed);
         }
         return result.join('');
     }
@@ -228,6 +257,25 @@ export function print(ast, context = {}) {
         return result;
     }
 
+    if (type === 'trigfunc') {
+        const funcName = ast.name;
+        
+        // Handle inverse trig functions (e.g., sin^(-1))
+        if (ast.inverse && ast.exponent) {
+            const expContent = print(ast.exponent);
+            const argContent = ast.arg ? print(ast.arg) : '';
+            let result = `${funcName}^${expContent} ${argContent}`;
+            return result;
+        }
+        
+        // Regular trig functions
+        const argContent = ast.arg ? print(ast.arg) : '';
+        let result = `${funcName} ${argContent}`;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
     if (type === 'pmatrix') {
         const rows = [];
         let currentRow = '';
@@ -241,6 +289,56 @@ export function print(ast, context = {}) {
         }
         if (currentRow.trim()) rows.push(currentRow.trim());
         return rows.length ? `(■(${rows.join('@')}))` : '(■())';
+    }
+
+    if (type === 'cases') {
+        const rows = [];
+        for (const child of ast.children) {
+            if (child.type === 'command' && child.value === '\\\\') {
+                // Row separator - do nothing, we handle in else
+            } else if (child.type === 'text' && child.value === '&') {
+                // Column separator - do nothing for cases (we handle differently)
+            } else {
+                // For cases environment, we need to process each row
+                // The format is: value & condition
+                let rowContent = '';
+                let parts = [];
+                let currentPart = '';
+                
+                // We need to look at the full row structure
+                // This is tricky because the AST is flattened
+                // Let's build the row content and then split by &
+            }
+        }
+        
+        // Process children to build rows properly
+        let currentRow = [];
+        let currentPart = '';
+        
+        for (const child of ast.children) {
+            if (child.type === 'command' && child.value === '\\\\') {
+                if (currentPart) currentRow.push(currentPart.trim());
+                if (currentRow.length > 0) {
+                    // Format: value, &condition becomes: value&condition
+                    rows.push(currentRow.join('&'));
+                }
+                currentRow = [];
+                currentPart = '';
+            } else if (child.type === 'text' && child.value === '&') {
+                if (currentPart) currentRow.push(currentPart.trim());
+                currentPart = '';
+            } else {
+                currentPart += print(child);
+            }
+        }
+        // Handle last row
+        if (currentPart) currentRow.push(currentPart.trim());
+        if (currentRow.length > 0) {
+            rows.push(currentRow.join('&'));
+        }
+        
+        // UnicodeMath format for piecewise: {█(row1@row2@row3)┤
+        return rows.length ? `{█(${rows.join('@')})┤` : '{█()┤';
     }
 
     if (type === 'leftdelim' || type === 'rightdelim') {
