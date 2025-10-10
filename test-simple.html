@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Simple Module Test</title>
+</head>
+<body>
+    <h1>Module Loading Test</h1>
+    <div id="status">Loading...</div>
+    <div id="result"></div>
+
+    <script type="module">
+        console.log('Script started');
+        
+        try {
+            console.log('Importing toWordEquation...');
+            const module = await import('./js/latex-converter.js');
+            console.log('Module imported:', module);
+            
+            const { toWordEquation } = module;
+            console.log('toWordEquation function:', toWordEquation);
+            
+            document.getElementById('status').textContent = 'Module loaded successfully!';
+            
+            // Test it
+            const result = toWordEquation('a+b');
+            console.log('Result:', result);
+            document.getElementById('result').textContent = 'a+b → ' + result;
+            
+        } catch (error) {
+            console.error('Error loading module:', error);
+            document.getElementById('status').textContent = 'ERROR: ' + error.message;
+            document.getElementById('status').style.color = 'red';
+        }
+    </script>
+</body>
+</html>
+

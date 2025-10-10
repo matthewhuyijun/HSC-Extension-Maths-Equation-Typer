@@ -8,37 +8,144 @@
  */
 
 /**
+ * Helper function to strip parentheses from bounds
+ */
+function stripParens(input = '') {
+    const trimmed = input.trim();
+    if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
+        return trimmed.slice(1, -1).trim();
+    }
+    return trimmed;
+}
+
+/**
+ * Helper function to ensure parentheses around bounds
+ */
+function ensureParens(token = '') {
+    const inner = stripParens(token);
+    return inner ? `(${inner})` : '()';
+}
+
+/**
+ * Helper function to strip box markers
+ */
+function stripBox(segment = '') {
+    return segment.replace(/▒/g, '').replace(/[〖〗]/g, '').trim();
+}
+
+/**
+ * Helper function to wrap content in lenticular brackets
+ */
+function wrapBox(segment = '') {
+    return `〖${segment}〗`;
+}
+
+/**
  * Post-processing rules for specific expression patterns
  */
 const rules = [
     {
-        name: 'integral-formatting',
-        description: 'Format integrals with proper spacing and lenticular brackets',
-        // Match: ∫ (optional subscript) ^ (superscript) integrand d(variable)
-        // Handles both parenthesized and non-parenthesized subscripts/superscripts
-        pattern: /∫(_(?:\([^)]+\)|[^\s^]+))?\^((?:\([^)]+\)|[^\s]+))\s*([^d]*?)\s*d([a-zA-Z])/gi,
-        replace: (match, sub, sup, integrand, variable) => {
-            const lower = sub || '';
-            integrand = integrand.trim();
-            // Only wrap non-empty integrands
-            if (integrand) {
-                return `∫${lower}^${sup} 〖${integrand}〗 d${variable}`;
-            } else {
-                return `∫${lower}^${sup} d${variable}`;
-            }
+        name: 'remove-commas-in-brackets',
+        description: 'Remove commas inside square brackets (LaTeX optional parameter artifacts)',
+        pattern: /\[([^\]]+?),\s*\]/g,
+        replace: '[$1]'
+    },
+    {
+        name: 'remove-brackets-after-integral-symbol',
+        description: 'Remove square brackets after integral symbol',
+        pattern: /▒\s*\[([^\]]+?)\]/g,
+        replace: '▒$1'
+    },
+    {
+        name: 'remove-brackets-before-differential',
+        description: 'Remove square brackets before differential',
+        pattern: /\[([^\]]+?)\]\s+(d[a-zA-Z])/g,
+        replace: '$1 $2'
+    },
+    {
+        name: 'clean-trailing-commas',
+        description: 'Remove trailing commas before spaces or differentials',
+        pattern: /,\s*(d[a-zA-Z])/g,
+        replace: ' $1'
+    },
+    {
+        name: 'integral-with-limits-formatting',
+        description: 'Format definite integrals with ▒ and lenticular brackets: ∫_(b)^(a)▒〖f(x)〗 dx',
+        // Match: ∫ with limits followed by integrand and differential
+        // Use greedy match and look for differential at the END (with optional whitespace before it)
+        pattern: /∫_(\([^)]+\)|[^\s^]+)\^(\([^)]+\)|[^\s]+?)\s*▒?\s*:?\s*(.+?)\s+d([a-zA-Z])(?=\s|$)/g,
+        replace: (match, lower, upper, integrand, variable) => {
+            const lowerClean = stripParens(lower.trim());
+            const upperClean = stripParens(upper.trim());
+            let integrandClean = integrand.trim()
+                .replace(/^▒+/, '')
+                .replace(/▒+$/, '')
+                .replace(/^:+/, '')
+                .replace(/^〖/, '')
+                .replace(/〗$/, '')
+                .replace(/^\[+/, '')  // Remove all leading brackets
+                .replace(/\]+$/, '')  // Remove all trailing brackets
+                .replace(/,+\s*$/, '') // Remove trailing commas
+                .replace(/\[([^\]]+),\]/g, '$1'); // Remove [content,] patterns
+            const diff = variable.trim();
+            
+            if (!integrandClean) return match; // Don't transform if no integrand
+            
+            // Wrap bounds in parentheses like sum/prod
+            return `∫_(${lowerClean})^(${upperClean})▒〖${integrandClean}〗 d${diff}`;
         }
     },
     {
-        name: 'integral-no-limits',
-        description: 'Format indefinite integrals (no limits)',
-        pattern: /∫\s+([^d]+?)\s*d([a-zA-Z])/gi,
+        name: 'integral-indefinite-formatting',
+        description: 'Format indefinite integrals: ∫▒〖f(x)〗 dx',
+        // Match: ∫ without limits (no _ after ∫) followed by integrand and differential
+        pattern: /∫(?!_)\s*▒?\s*:?\s*(.+?)\s*d\s*([a-zA-Z])/g,
         replace: (match, integrand, variable) => {
-            integrand = integrand.trim();
-            // Only wrap if not already wrapped
-            if (!integrand.startsWith('〖')) {
-                return `∫ 〖${integrand}〗 d${variable}`;
-            }
-            return match;
+            let integrandClean = integrand.trim()
+                .replace(/^▒+/, '')
+                .replace(/▒+$/, '')
+                .replace(/^:+/, '')
+                .replace(/^〖/, '')
+                .replace(/〗$/, '')
+                .replace(/^\[+/, '')  // Remove all leading brackets
+                .replace(/\]+$/, '')  // Remove all trailing brackets
+                .replace(/,+\s*$/, '') // Remove trailing commas
+                .replace(/\[([^\]]+),\]/g, '$1'); // Remove [content,] patterns
+            const diff = variable.trim();
+            
+            if (!integrandClean) return match; // Don't transform if no integrand
+            
+            return `∫▒〖${integrandClean}〗 d${diff}`;
+        }
+    },
+    {
+        name: 'sum-formatting',
+        description: 'Format summation with ▒: ∑_(n=3)^4▒n',
+        // Match: ∑ followed by subscript, superscript, and term
+        pattern: /∑_(\([^)]+\)|[^\s^]+)\^(\([^)]+\)|\d+|[a-zA-Z])\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
+        replace: (match, lower, upper, term) => {
+            const lowerClean = ensureParens(stripParens(lower.trim()));
+            const upperClean = stripParens(upper.trim());
+            const termClean = term.trim().replace(/^▒+/, '').replace(/▒+$/, '').replace(/^:+/, '');
+            
+            if (!termClean) return match; // Don't transform if no term
+            
+            return `∑_${lowerClean}^${upperClean}▒${termClean}`;
+        }
+    },
+    {
+        name: 'product-formatting',
+        description: 'Format product with ▒: ∏_(n=3)^5▒n',
+        // Match: ∏ followed by subscript, superscript, and term
+        pattern: /∏_(\([^)]+\)|[^\s^]+)\^(\([^)]+\)|\d+|[a-zA-Z])\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
+        replace: (match, lower, upper, term) => {
+            const lowerClean = ensureParens(stripParens(lower.trim()));
+            const upperClean = stripParens(upper.trim());
+            const termClean = term.trim().replace(/^▒+/, '').replace(/▒+$/, '').replace(/^:+/, '');
+            
+            if (!termClean) return match; // Don't transform if no term
+            
+            return `∏_${lowerClean}^${upperClean}▒${termClean}`;
         }
     },
     {
@@ -52,18 +159,6 @@ const rules = [
         description: 'Remove extra spacing before right pipe delimiter',
         pattern: /\s*┤\|/g,
         replace: '┤|'
-    },
-    {
-        name: 'sum-spacing',
-        description: 'Add space after summation with limits',
-        pattern: /(∑_\([^)]+\)\^(\([^)]+\)|\d+))([a-zA-Z])/gi,
-        replace: '$1 $3'
-    },
-    {
-        name: 'product-spacing',
-        description: 'Add space after product with limits',
-        pattern: /(∏_\([^)]+\)\^(\([^)]+\)|\d+))([a-zA-Z])/gi,
-        replace: '$1 $3'
     },
     {
         name: 'projection-spacing',

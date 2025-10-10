@@ -56,8 +56,8 @@ export function print(ast, context = {}) {
 
     if (type === 'text') {
         let result = ast.value || '';
-        if (ast.sub) result += '_' + printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
     }
 
@@ -67,22 +67,22 @@ export function print(ast, context = {}) {
         
         if (greekMap[cmdName]) {
             let result = greekMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub);
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
         }
         
         if (symbolMap[cmdName]) {
             let result = symbolMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub);
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
         }
         
         if (standardFunctions.includes(cmdName)) {
             let result = cmdName;
-            if (ast.sub) result += '_' + printScriptArg(ast.sub);
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
         }
         
@@ -90,8 +90,8 @@ export function print(ast, context = {}) {
         if (cmdName === '\\') return '';
         
         let result = cmdName;
-        if (ast.sub) result += '_' + printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
     }
 
@@ -123,9 +123,9 @@ export function print(ast, context = {}) {
     if (type === 'sum' || type === 'prod' || type === 'int') {
         const sym = type === 'sum' ? '∑' : type === 'prod' ? '∏' : '∫';
         let result = sym;
-        // For integrals, always use parentheses for both sub and sup
+        // Always use parentheses for both sub and sup in sum/prod/int
         if (ast.sub) result += '_' + printScriptArg(ast.sub, false, true);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true, true);
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, false, true);
         return result;
     }
 
@@ -133,10 +133,10 @@ export function print(ast, context = {}) {
         let result = print(ast.name);
         if (ast.sub) {
             const subContent = print(ast.sub);
-            result += '_' + (subContent.includes('┬∼') ? subContent : printScriptArg(ast.sub));
+            result += '_' + (subContent.includes('┬∼') ? subContent : printScriptArg(ast.sub)) + ' ';
         }
         if (ast.sup) {
-            result += '^' + printScriptArg(ast.sup, true);
+            result += '^' + printScriptArg(ast.sup, true) + ' ';
         }
         return result;
     }
@@ -180,8 +180,8 @@ export function print(ast, context = {}) {
 
     if (type === 'rightpipe') {
         let result = '┤|';
-        if (ast.sub) result += printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, false);
+        if (ast.sub) result += printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, false) + ' ';
         return result;
     }
 

@@ -1,0 +1,1 @@
+\int_{-\infty}^{\infty} \frac{e^{-x^2/2}}{\sqrt{2\pi}} \left(\frac{d^n}{dx^n} e^{-x^2/2}\right) x^m \, dx

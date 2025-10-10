@@ -21,10 +21,6 @@
 <!-- Inter (UI font used by MathLive site) -->
 <link rel="preconnect" href="https://rsms.me/">
 <link rel="stylesheet" href="https://rsms.me/inter/inter.css">
-<!-- KaTeX fonts (for crisp LaTeX-looking symbols) -->
-<link rel="preload" as="font" type="font/woff2" href="https://cdn.jsdelivr.net/npm/mathlive/fonts/KaTeX_Main-Regular.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="https://cdn.jsdelivr.net/npm/mathlive/fonts/KaTeX_Math-Italic.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="https://cdn.jsdelivr.net/npm/mathlive/fonts/KaTeX_AMS-Regular.woff2" crossorigin>
 <!-- LaTeX-style math font -->
 <link href="https://cdn.jsdelivr.net/npm/lmwebfont@latest/lmroman.css" rel="stylesheet">
 <style>
@@ -1880,7 +1876,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         // See js/latex-converter.js, js/latex-parser.js, js/ast-printer.js, js/postprocessor.js
         // The functions toWordEquation, normalizeWordInput, removeWordSpaces, normalizeLatexStr
         // are imported via js/app-bridge.js module (loaded at the end of this file)
-
+        
         // Preview update functions
         function updateLatexPreview() {
             const latexPreview = document.getElementById('latexPreview');
@@ -1897,29 +1893,29 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 latexPreview.innerHTML = '';
             }
         }
-
+        
         function syncFromMathLive() {
             const rawLatex = mf2.getValue('latex');
             // Replace differentialD with 'd'
             const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
             
             // Create version without \: for display and copying (clean LaTeX)
-            const displayLatex = removeWordSpaces(cleanLatex);
+            const displayLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
             
             // Update Raw LaTeX Input with clean version (no \:)
             if (ta.value !== displayLatex) { ta.value = displayLatex; }
             
             // Use version WITH \: for Word equation to maintain proper spacing
-            wordOut.value = toWordEquation(cleanLatex);
+            wordOut.value = typeof toWordEquation === 'function' ? toWordEquation(cleanLatex) : cleanLatex;
             updateLatexPreview();
         }
 
         function syncFromTextArea() {
             let cleanLatex = ta.value;
             // Normalize Word format input if detected
-            cleanLatex = normalizeWordInput(cleanLatex);
+            cleanLatex = typeof normalizeWordInput === 'function' ? normalizeWordInput(cleanLatex) : cleanLatex;
             // Remove \: spacing if present in pasted content (keep textarea clean)
-            cleanLatex = removeWordSpaces(cleanLatex);
+            cleanLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
             
             if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
             if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
@@ -1928,7 +1924,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             let wordLatex = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
             
             // Use version WITH \: for Word equation to maintain proper spacing
-            wordOut.value = toWordEquation(wordLatex);
+            wordOut.value = typeof toWordEquation === 'function' ? toWordEquation(wordLatex) : wordLatex;
             
             updateLatexPreview();
             // Adjust math field height after content changes
@@ -1956,6 +1952,21 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         
         mf2.addEventListener('input', syncFromMathLive);
         ta.addEventListener('input', syncFromTextArea);
+        
+        // Listen for module loading completion and trigger initial sync
+        window.addEventListener('e2ModulesReady', () => {
+            console.log('🔄 Modules ready, performing initial sync');
+            if (mf2 && typeof mf2.getValue === 'function' && mf2.getValue()) {
+                syncFromMathLive();
+            }
+        });
+        
+        // Also try initial sync after a delay (in case modules are already loaded)
+        setTimeout(() => {
+            if (window.e2ModulesLoaded && mf2 && typeof mf2.getValue === 'function' && mf2.getValue()) {
+                syncFromMathLive();
+            }
+        }, 500);
 
         /* ---------- Cleanup: delete object when all boxes emptied ---------- */
         function normalizeLatexStr(L) {
@@ -1984,7 +1995,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             return L;
         }
 
-        function cleanupEmptyStructures(){ try{ const b=mf2.getValue('latex')||'',a=normalizeLatexStr(b); if(a!==b){ mf2.setValue(a); syncFromMathLive(); } }catch(e){console.warn('cleanup failed',e)} }
+        function cleanupEmptyStructures(){ try{ const b=mf2.getValue('latex')||''; if(typeof normalizeLatexStr === 'function'){ const a=normalizeLatexStr(b); if(a!==b){ mf2.setValue(a); syncFromMathLive(); } } }catch(e){console.warn('cleanup failed',e)} }
         
         function configureMathLive() {
             if (!window.MathfieldElement || !mf2) return;
@@ -2187,9 +2198,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 'Ω': '\\omega',
                 'Omega': '\\Omega',
                 '∑': '\\sum',
-                'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',
-                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx',
-                'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',
+                'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
+                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx',
+                'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
                 'sqrt': '\\sqrt{\\placeholder{}}',
                 'neg': '\\neg',
                 'liminf': '\\operatorname*{lim~inf}_{}',
@@ -2291,6 +2302,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) return;
 
                 const position = mf2.position;
+                if (!mf2.model || typeof mf2.model.getPath !== 'function') return;
                 const path = mf2.model.getPath(position);
                 if (path.length < 2) return;
 
@@ -2385,7 +2397,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }
         
         /* ---------------- Toolbar and Tabs ---------------- */
-        const tabs=[{id:'calc',label:'Calculus'},{id:'func',label:'Functions'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
+        const tabs=[{id:'calc',label:'Calculus'},{id:'powers',label:'Powers'},{id:'trigs',label:'Trigs'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
         const tabRowConfig={};
         const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
         function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
@@ -2403,15 +2415,25 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         const layouts={
             calc:[
-                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx'},
+                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{} dx'},
                 {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{} dx'},
                 {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
                 {display:'\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}}\\:\\placeholder{}'},
-                {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}'},
-                {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}'},
+                {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
+                {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
                 {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
             ],
-            func:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'},{display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},{display:'\\log_{\\placeholder{}}\\placeholder{}',insert:'\\log_{\\placeholder{}}\\placeholder{}'},{display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},{display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},{display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}', hint: 'root'},{display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}', hint: 'root'}],
+            powers:[
+                {display:'{\\placeholder{}}^{\\placeholder{}}',insert:'{\\placeholder{}}^{\\placeholder{}}'},
+                {display:'{\\placeholder{}}^2',insert:'{\\placeholder{}}^2'},
+                {display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},
+                {display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},
+                {display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}', hint: 'root'},
+                {display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}', hint: 'root'},
+                {display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},
+                {display:'\\log_{\\placeholder{}}\\placeholder{}',insert:'\\log_{\\placeholder{}}\\placeholder{}'}
+            ],
+            trigs:[{display:'\\sin(\\placeholder{})',insert:'\\sin(\\placeholder{})'},{display:'\\cos(\\placeholder{})',insert:'\\cos(\\placeholder{})'},{display:'\\tan(\\placeholder{})',insert:'\\tan(\\placeholder{})'},{display:'\\sin^{-1}(\\placeholder{})',insert:'\\sin^{-1}(\\placeholder{})'},{display:'\\cos^{-1}(\\placeholder{})',insert:'\\cos^{-1}(\\placeholder{})'},{display:'\\tan^{-1}(\\placeholder{})',insert:'\\tan^{-1}(\\placeholder{})'}],
             sym:[
                 {display:'\\geq',insert:'\\geq'},
                 {display:'\\leq',insert:'\\leq'},
@@ -2530,9 +2552,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\:\\placeholder{} dx' },
                 { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
             ],
-            func: [
+            powers: [
+                { display: '{\\placeholder{}}^{\\placeholder{}}', insert: '{\\placeholder{}}^{\\placeholder{}}' },
+                { display: '{\\placeholder{}}^2', insert: '{\\placeholder{}}^2' },
+                { display: 'e^{\\placeholder{}}', insert: 'e^{\\placeholder{}}' },
+                { display: '\\lvert \\placeholder{} \\rvert', insert: '\\lvert \\placeholder{} \\rvert' },
                 { display: '\\sqrt{\\placeholder{}}', insert: '\\sqrt{\\placeholder{}}' },
                 { display: '\\sqrt[\\placeholder{}]{\\placeholder{}}', insert: '\\sqrt[\\placeholder{}]{\\placeholder{}}' }
+            ],
+            func: [
             ],
             sym: [
                 { display: '\\geq', insert: '\\geq' },

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug LaTeX to Word Conversion</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .test { margin: 20px 0; padding: 10px; border: 1px solid #ccc; }
+        .label { font-weight: bold; color: #333; }
+        .input { color: blue; }
+        .output { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>LaTeX to Word Equation Conversion Test</h1>
+    <div id="status">Loading modules...</div>
+    <div id="tests"></div>
+    
+    <script type="module">
+        import { toWordEquation } from './js/latex-converter.js';
+        import { parse } from './js/latex-parser.js';
+        import { print } from './js/ast-printer.js';
+        
+        const status = document.getElementById('status');
+        const tests = document.getElementById('tests');
+        
+        // Test cases
+        const testCases = [
+            'x^2',
+            'x^2 + y^2',
+            '\\frac{1}{2}',
+            '\\sqrt{x}',
+            'x^{2}+y^{2}=z^{2}',
+            '\\int x dx',
+            '\\sum_{i=1}^{n} i'
+        ];
+        
+        status.textContent = '✅ Modules loaded';
+        status.style.color = 'green';
+        
+        testCases.forEach(latex => {
+            const div = document.createElement('div');
+            div.className = 'test';
+            
+            try {
+                // Parse to AST
+                const ast = parse(latex);
+                const astStr = JSON.stringify(ast, null, 2);
+                
+                // Convert to Word
+                const word = toWordEquation(latex);
+                
+                // Print AST
+                const printed = print(ast);
+                
+                div.innerHTML = `
+                    <div class="label">Input LaTeX:</div>
+                    <div class="input">${latex}</div>
+                    <div class="label">AST:</div>
+                    <pre class="output">${astStr}</pre>
+                    <div class="label">Printed from AST:</div>
+                    <div class="output">${printed}</div>
+                    <div class="label">After Post-processing (Word Output):</div>
+                    <div class="output">${word}</div>
+                    <div class="label">Are they same?</div>
+                    <div class="${latex === word ? 'error' : 'output'}">
+                        ${latex === word ? '❌ YES (PROBLEM!)' : '✅ NO (Good!)'}
+                    </div>
+                `;
+            } catch (e) {
+                div.innerHTML = `
+                    <div class="label">Input LaTeX:</div>
+                    <div class="input">${latex}</div>
+                    <div class="error">Error: ${e.message}</div>
+                    <pre class="error">${e.stack}</pre>
+                `;
+            }
+            
+            tests.appendChild(div);
+        });
+        
+        // Also expose to window for manual testing
+        window.testConversion = (latex) => {
+            console.log('Input:', latex);
+            const ast = parse(latex);
+            console.log('AST:', ast);
+            const printed = print(ast);
+            console.log('Printed:', printed);
+            const word = toWordEquation(latex);
+            console.log('Word:', word);
+            return word;
+        };
+        
+        console.log('Try: testConversion("x^2 + y^2")');
+    </script>
+</body>
+</html>
+
