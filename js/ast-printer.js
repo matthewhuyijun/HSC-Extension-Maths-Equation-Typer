@@ -65,6 +65,20 @@ export function print(ast, context = {}) {
         const cmd = ast.value;
         const cmdName = cmd.slice(1);
         
+        // Handle placeholder
+        if (cmdName === 'placeholder') {
+            return '▒';
+        }
+        
+        // Handle limit operator specially (no space after subscript)
+        if (cmdName === 'lim') {
+            let result = 'lim';
+            if (ast.sub) result += '_' + printScriptArg(ast.sub);
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+            result += '▒';  // Add placeholder after limit
+            return result;
+        }
+        
         if (greekMap[cmdName]) {
             let result = greekMap[cmdName];
             if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
@@ -106,17 +120,17 @@ export function print(ast, context = {}) {
     if (type === 'frac') {
         const num = print(ast.num);
         const den = print(ast.den);
-        return `(${num})/(${den})`;
+        return `(${num})/(${den}) `;
     }
 
     if (type === 'sqrt') {
         if (ast.index) {
             const idx = print(ast.index);
             const rad = print(ast.radicand);
-            return `√(${idx}&${rad})`;
+            return `√(${idx}&${rad}) `;
         } else {
             const rad = print(ast.radicand);
-            return `√(${rad})`;
+            return `√(${rad}) `;
         }
     }
 
@@ -126,6 +140,7 @@ export function print(ast, context = {}) {
         // Always use parentheses for both sub and sup in sum/prod/int
         if (ast.sub) result += '_' + printScriptArg(ast.sub, false, true);
         if (ast.sup) result += '^' + printScriptArg(ast.sup, false, true);
+        result += '▒';  // Add placeholder after limits for the integrand/summand
         return result;
     }
 
