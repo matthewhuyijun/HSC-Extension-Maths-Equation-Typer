@@ -136,7 +136,7 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         }
         
         if (standardFunctions.includes(cmdName)) {
-            let result = cmdName;
+            let result = cmdName + ' ';  // Add space after function name
             if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
             if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
