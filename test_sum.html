@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Sum/Product Test</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-case {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .latex {
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin: 5px 0;
+        }
+        .result {
+            font-family: 'Cambria Math', 'Segoe UI Symbol', sans-serif;
+            font-size: 18px;
+            color: #0066cc;
+            margin: 10px 0;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 4px;
+        }
+        .status {
+            color: #666;
+            font-size: 14px;
+        }
+        h1 {
+            color: #333;
+        }
+        h2 {
+            color: #555;
+            font-size: 16px;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sum & Product Formula Tests</h1>
+    <div id="status" class="status">Loading...</div>
+    <div id="tests"></div>
+
+    <script type="module">
+        console.log('Starting sum/product tests...');
+        
+        try {
+            const module = await import('./js/latex-converter.js');
+            const { toWordEquation } = module;
+            
+            document.getElementById('status').textContent = 'Module loaded! Testing formulas...';
+            
+            const testCases = [
+                {
+                    name: "Simple sum with single char bounds",
+                    latex: "\\sum_{n=1}^{10} n",
+                    expected: "should have subscript without extra parens for single char"
+                },
+                {
+                    name: "Sum with complex lower bound",
+                    latex: "\\sum_{p \\in \\mathbb{P}} \\frac{1}{p}",
+                    expected: "should have parentheses around complex lower bound"
+                },
+                {
+                    name: "Sum n=1 to infinity",
+                    latex: "\\sum_{n=1}^{\\infty} \\frac{1}{n^2}",
+                    expected: "simple bounds"
+                },
+                {
+                    name: "Product simple",
+                    latex: "\\prod_{i=1}^{n} i",
+                    expected: "simple product"
+                },
+                {
+                    name: "Product complex bound",
+                    latex: "\\prod_{p \\in \\mathbb{P}} \\left(1 - \\frac{1}{p^2}\\right)",
+                    expected: "complex lower bound with expression"
+                },
+                {
+                    name: "Integral simple",
+                    latex: "\\int_{0}^{1} x^2 dx",
+                    expected: "simple integral"
+                },
+                {
+                    name: "Multiple sums",
+                    latex: "\\sum_{i=1}^{n} \\sum_{j=1}^{m} a_{ij}",
+                    expected: "nested sums"
+                },
+                {
+                    name: "Sum with subscripted variable",
+                    latex: "\\sum_{k=0}^{n} x_k",
+                    expected: "term with subscript"
+                }
+            ];
+            
+            const testsDiv = document.getElementById('tests');
+            
+            testCases.forEach((test, index) => {
+                const div = document.createElement('div');
+                div.className = 'test-case';
+                
+                const title = document.createElement('h2');
+                title.textContent = `${index + 1}. ${test.name}`;
+                div.appendChild(title);
+                
+                const latexDiv = document.createElement('div');
+                latexDiv.innerHTML = `<strong>LaTeX:</strong> <span class="latex">${test.latex}</span>`;
+                div.appendChild(latexDiv);
+                
+                const expectedDiv = document.createElement('div');
+                expectedDiv.innerHTML = `<strong>Expected:</strong> ${test.expected}`;
+                expectedDiv.style.color = '#666';
+                expectedDiv.style.fontSize = '14px';
+                div.appendChild(expectedDiv);
+                
+                try {
+                    const result = toWordEquation(test.latex);
+                    const resultDiv = document.createElement('div');
+                    resultDiv.innerHTML = `<strong>Result:</strong> <div class="result">${result}</div>`;
+                    div.appendChild(resultDiv);
+                    
+                    console.log(`Test ${index + 1}: ${test.name}`);
+                    console.log(`  Input:  ${test.latex}`);
+                    console.log(`  Output: ${result}`);
+                    console.log('');
+                } catch (error) {
+                    const errorDiv = document.createElement('div');
+                    errorDiv.style.color = 'red';
+                    errorDiv.textContent = `ERROR: ${error.message}`;
+                    div.appendChild(errorDiv);
+                    console.error(`Test ${index + 1} failed:`, error);
+                }
+                
+                testsDiv.appendChild(div);
+            });
+            
+            document.getElementById('status').textContent = '✓ All tests completed';
+            document.getElementById('status').style.color = 'green';
+            
+        } catch (error) {
+            console.error('Error loading module:', error);
+            document.getElementById('status').textContent = 'ERROR: ' + error.message;
+            document.getElementById('status').style.color = 'red';
+        }
+    </script>
+</body>
+</html>
+

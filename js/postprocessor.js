@@ -136,32 +136,40 @@ function wrapBox(segment = '') {
     },
     {
         name: 'sum-formatting',
-        description: 'Format summation with ▒: ∑_(n=3)^4▒n',
-        // Match: ∑ followed by subscript, superscript, and term
-        pattern: /∑_(\([^)]+\)|[^\s^]+)\^(\([^)]+\)|\d+|[a-zA-Z])\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
+        description: 'Format summation with ▒: ∑_(n=3)^4▒n or ∑_(p∈ℙ)▒(1/p)',
+        // Match: ∑ followed by subscript, optional superscript, and term
+        pattern: /∑_(\([^)]+\)|[^\s^]+)(?:\^(\([^)]+\)|\d+|[a-zA-Z]))?\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
         replace: (match, lower, upper, term) => {
             const lowerClean = ensureParens(stripParens(lower.trim()));
-            const upperClean = stripParens(upper.trim());
             const termClean = term.trim().replace(/^▒+/, '').replace(/▒+$/, '').replace(/^:+/, '');
             
             if (!termClean) return match; // Don't transform if no term
             
-            return `∑_${lowerClean}^${upperClean}▒${termClean}`;
+            if (upper) {
+                const upperClean = stripParens(upper.trim());
+                return `∑_${lowerClean}^${upperClean}▒${termClean}`;
+            } else {
+                return `∑_${lowerClean}▒${termClean}`;
+            }
         }
     },
     {
         name: 'product-formatting',
-        description: 'Format product with ▒: ∏_(n=3)^5▒n',
-        // Match: ∏ followed by subscript, superscript, and term
-        pattern: /∏_(\([^)]+\)|[^\s^]+)\^(\([^)]+\)|\d+|[a-zA-Z])\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
+        description: 'Format product with ▒: ∏_(n=3)^5▒n or ∏_(p∈ℙ)▒(1-1/p)',
+        // Match: ∏ followed by subscript, optional superscript, and term
+        pattern: /∏_(\([^)]+\)|[^\s^]+)(?:\^(\([^)]+\)|\d+|[a-zA-Z]))?\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
         replace: (match, lower, upper, term) => {
             const lowerClean = ensureParens(stripParens(lower.trim()));
-            const upperClean = stripParens(upper.trim());
             const termClean = term.trim().replace(/^▒+/, '').replace(/▒+$/, '').replace(/^:+/, '');
             
             if (!termClean) return match; // Don't transform if no term
             
-            return `∏_${lowerClean}^${upperClean}▒${termClean}`;
+            if (upper) {
+                const upperClean = stripParens(upper.trim());
+                return `∏_${lowerClean}^${upperClean}▒${termClean}`;
+            } else {
+                return `∏_${lowerClean}▒${termClean}`;
+            }
         }
     },
     {
