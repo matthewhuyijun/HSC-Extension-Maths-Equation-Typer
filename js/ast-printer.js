@@ -143,7 +143,7 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         }
         
         if (standardFunctions.includes(cmdName)) {
-            let result = cmdName + ' ';  // Add space after function name
+            let result = cmdName;
             if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
             if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
@@ -295,21 +295,6 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         }
         if (currentRow.trim()) rows.push(currentRow.trim());
         return rows.length ? `(■(${rows.join('@')}))` : '(■())';
-    }
-
-    if (type === 'bmatrix') {
-        const rows = [];
-        let currentRow = '';
-        for (const child of ast.children) {
-            if (child.type === 'command' && child.value === '\\\\') {
-                if (currentRow) rows.push(currentRow.trim());
-                currentRow = '';
-            } else {
-                currentRow += print(child);
-            }
-        }
-        if (currentRow.trim()) rows.push(currentRow.trim());
-        return rows.length ? `[■(${rows.join('@')})]` : '[■()]';
     }
 
     if (type === 'cases') {
