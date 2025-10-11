@@ -2063,7 +2063,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
-                L = L.replace(new RegExp(String.raw`\\begin\{bmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{bmatrix\}`, "g"), '');
             } catch (e) {
                 console.warn('normalizeLatexStr normalization failed', e);
             }
@@ -2209,7 +2208,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 'implies': '\\Rightarrow',
                 'iff': '\\Leftrightarrow',
                 '__': '\\lfloor',
-                '~': '\\lceil',
+                '~': '\\sim',
                 '{': '\\{',
                 '}': '\\}',
                 '(:': '\\langle',
@@ -2557,8 +2556,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 {display:'\\underset{\\sim}{k}',insert:'\\underset{\\sim}{k}'},
                 {display:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
                 {display:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
-                {display:'\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}',insert:'\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}'},
-                {display:'\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}',insert:'\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}'},
                 {display:'\\overrightarrow{\\placeholder{}}',insert:'\\overrightarrow{\\placeholder{}}'}
             ],
             greek:[{display:'\\alpha',insert:'\\alpha'},{display:'\\beta',insert:'\\beta'},{display:'\\gamma',insert:'\\gamma'},{display:'\\delta',insert:'\\delta'},{display:'\\theta',insert:'\\theta'},{display:'\\lambda',insert:'\\lambda'},{display:'\\mu',insert:'\\mu'},{display:'\\sigma',insert:'\\sigma'},{display:'\\omega',insert:'\\omega'},{display:'\\Delta',insert:'\\Delta'}],
@@ -2670,8 +2667,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 },
                 { display: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}', insert: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}' },
                 { display: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}', insert: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}' },
-                { display: '\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}', insert: '\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}' },
-                { display: '\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}', insert: '\\begin{bmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{bmatrix}' },
                 { display: '\\overrightarrow{\\placeholder{}}', insert: '\\overrightarrow{\\placeholder{}}' }
             ],
             greek: [
