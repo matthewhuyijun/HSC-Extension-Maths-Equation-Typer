@@ -71,13 +71,17 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
             
             const printed = print(node, context);
             
-            // Add space between adjacent letters (unless handled by trig function above)
+            // Add space between adjacent letters (unless already handled)
             if (i > 0 && printed && result.length > 0) {
                 const prev = result[result.length - 1];
                 const curr = printed;
+                // Don't add space if prev ends with space or curr is a function name (contains space after it)
+                const prevEndsWithSpace = prev.endsWith(' ');
                 const prevEndsWithLetter = /[a-zA-Zα-ω]$/.test(prev);
                 const currStartsWithLetter = /^[a-zA-Z]/.test(curr);
-                if (prevEndsWithLetter && currStartsWithLetter) {
+                // Check if current is a standard function (has space after function name)
+                const currIsFunction = /^(sin|cos|tan|cot|sec|csc|ln|log|exp|lim|max|min|sup|inf|det|dim|ker|arg|sinh|cosh|tanh|coth|arcsin|arccos|arctan|arccot|arcsec|arccsc) /.test(curr);
+                if (!prevEndsWithSpace && !currIsFunction && prevEndsWithLetter && currStartsWithLetter) {
                     result.push(' ');
                 }
             }
@@ -143,7 +147,7 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         }
         
         if (standardFunctions.includes(cmdName)) {
-            let result = cmdName;
+            let result = cmdName + ' ';  // Add space after function name
             if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
             if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
             return result;
