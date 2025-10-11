@@ -243,7 +243,7 @@
                 skipWhitespace();
                 const env = parseGroup();
                 const envName = env && env.children && env.children[0] && env.children[0].value;
-                if (envName === 'pmatrix' || envName === 'bmatrix' || envName === 'cases') {
+                if (envName === 'pmatrix' || envName === 'cases') {
                     const bodyNodes = [];
                     while (pos < str.length) {
                         skipWhitespace();
@@ -257,7 +257,7 @@
                         skipWhitespace();
                         parseGroup();
                     }
-                    return { type: envName, children: attachScripts(bodyNodes) };
+                    return { type: envName, children: bodyNodes };
                 }
             }
             
