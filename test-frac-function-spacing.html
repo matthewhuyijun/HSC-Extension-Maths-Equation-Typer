@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test: Fraction followed by Function Spacing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .test-case {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-case.pass {
+            border-color: green;
+            background-color: #e8f5e9;
+        }
+        .test-case.fail {
+            border-color: red;
+            background-color: #ffebee;
+        }
+        .test-name {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 10px;
+        }
+        .test-details {
+            font-family: 'Courier New', monospace;
+            margin: 5px 0;
+        }
+        .summary {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            font-weight: bold;
+            color: white;
+            min-width: 150px;
+            text-align: center;
+        }
+        .summary.pass {
+            background-color: #4caf50;
+        }
+        .summary.fail {
+            background-color: #f44336;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test: Fraction followed by Function Spacing</h1>
+    <p>测试分数后跟函数时的间距处理</p>
+    
+    <div id="results"></div>
+
+    <script type="module">
+        import { parseLatex } from './js/latex-parser.js';
+        import { printAST } from './js/ast-printer.js';
+
+        const tests = [
+            {
+                name: "Test 1: \\tfrac{1}{k}\\ln (原始问题)",
+                latex: "\\tfrac{1}{k}\\ln|g-kv^2|",
+                expected: "1/k ln |g-kv^2|",
+                description: "\\tfrac 后跟 \\ln 应该有空格"
+            },
+            {
+                name: "Test 2: 完整表达式 (用户提供的)",
+                latex: "\\int_{v_0^2}^{v^2}\\frac{d(v^2)}{g-kv^2}=\\Big[-\\tfrac{1}{k}\\ln|g-kv^2|\\Big]_{v_0^2}^{v^2}",
+                expected: "∫_(v_0 ^2)^(v^2)▒(d(v^2 ))/(g-kv^2)=[-1/k ln |g-kv^2 |]_(v_0 ^2) ^(v^2)",
+                description: "完整的积分表达式"
+            },
+            {
+                name: "Test 3: \\frac{1}{k}\\ln (普通分数)",
+                latex: "\\frac{1}{k}\\ln|x|",
+                expected: "1/k ln |x|",
+                description: "\\frac 后跟 \\ln 也应该有空格"
+            },
+            {
+                name: "Test 4: \\frac{a}{b}\\log",
+                latex: "\\frac{a}{b}\\log x",
+                expected: "a/b log x",
+                description: "分数后跟 \\log"
+            },
+            {
+                name: "Test 5: \\frac{1}{2}\\sin",
+                latex: "\\frac{1}{2}\\sin x",
+                expected: "1/2 sin x",
+                description: "分数后跟 \\sin"
+            },
+            {
+                name: "Test 6: \\frac{1}{2}\\cos",
+                latex: "\\frac{1}{2}\\cos\\theta",
+                expected: "1/2 cos θ",
+                description: "分数后跟 \\cos"
+            },
+            {
+                name: "Test 7: \\frac{d}{dx}\\exp",
+                latex: "\\frac{d}{dx}\\exp(x)",
+                expected: "d/dx exp (x)",
+                description: "分数后跟 \\exp"
+            },
+            {
+                name: "Test 8: 多个函数",
+                latex: "\\frac{1}{k}\\ln\\frac{1}{m}\\log x",
+                expected: "1/k ln 1/m log x",
+                description: "多个分数和函数交替"
+            },
+            {
+                name: "Test 9: 分数后跟括号 (不应该改变)",
+                latex: "\\frac{d}{dx}(x^2)",
+                expected: "d/dx (x^2)",
+                description: "确保分数后跟括号仍然正常工作"
+            },
+            {
+                name: "Test 10: 分数后跟 \\left( (不应该改变)",
+                latex: "\\frac{\\partial}{\\partial x}\\left(\\frac{\\partial u}{\\partial x}\\right)",
+                expected: "∂/∂x (∂u/∂x)",
+                description: "确保之前修复的 leftdelim 间距仍然正常"
+            },
+            {
+                name: "Test 11: \\tfrac{1}{x}\\max",
+                latex: "\\tfrac{1}{x}\\max(a,b)",
+                expected: "1/x max (a,b)",
+                description: "分数后跟 \\max"
+            },
+            {
+                name: "Test 12: \\frac{1}{n}\\min",
+                latex: "\\frac{1}{n}\\min\\{a,b\\}",
+                expected: "1/n min {a,b}",
+                description: "分数后跟 \\min"
+            }
+        ];
+
+        const resultsDiv = document.getElementById('results');
+        let passCount = 0;
+        let failCount = 0;
+
+        tests.forEach((test, index) => {
+            const ast = parseLatex(test.latex);
+            const result = printAST(ast);
+            const passed = result === test.expected;
+            
+            if (passed) passCount++;
+            else failCount++;
+
+            const testDiv = document.createElement('div');
+            testDiv.className = `test-case ${passed ? 'pass' : 'fail'}`;
+            
+            testDiv.innerHTML = `
+                <div class="test-name">${passed ? '✓' : '✗'} ${test.name}</div>
+                <div style="color: #666; margin-bottom: 10px;">${test.description}</div>
+                <div class="test-details"><strong>LaTeX:</strong> ${test.latex}</div>
+                <div class="test-details"><strong>Expected:</strong> ${test.expected}</div>
+                <div class="test-details"><strong>Got:</strong> ${result}</div>
+                ${!passed ? `
+                    <div style="color: red; margin-top: 10px;">
+                        <strong>FAILED</strong><br>
+                        Expected length: ${test.expected.length}, Got length: ${result.length}<br>
+                        First diff at position: ${[...test.expected].findIndex((c, i) => c !== result[i])}
+                    </div>
+                ` : ''}
+            `;
+            
+            resultsDiv.appendChild(testDiv);
+        });
+
+        // Summary
+        const summary = document.createElement('div');
+        summary.className = `summary ${failCount === 0 ? 'pass' : 'fail'}`;
+        summary.innerHTML = `
+            ${failCount === 0 ? '✓ All Tests Passed!' : '✗ Some Tests Failed'}<br>
+            Pass: ${passCount}/${tests.length}<br>
+            Fail: ${failCount}/${tests.length}
+        `;
+        document.body.appendChild(summary);
+
+        console.log('Test Results:');
+        console.log(`Pass: ${passCount}/${tests.length}`);
+        console.log(`Fail: ${failCount}/${tests.length}`);
+        
+        tests.forEach((test, i) => {
+            const ast = parseLatex(test.latex);
+            const result = printAST(ast);
+            const passed = result === test.expected;
+            console.log(`${i+1}. ${test.name}: ${passed ? 'PASS' : 'FAIL'}`);
+            if (!passed) {
+                console.log(`   Expected: "${test.expected}"`);
+                console.log(`   Got:      "${result}"`);
+            }
+        });
+    </script>
+</body>
+</html>
+

@@ -322,6 +322,13 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
                         console.log(`    prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
                     }
                     result.push(' ');
+                } else if (prevIsFraction && currIsFunction) {
+                    // Fraction followed by function (e.g., 1/k ln): add space
+                    // Functions already have trailing space, but we need space before them
+                    if (window.DEBUG_AST) {
+                        console.log('  ✓ prevIsFraction && currIsFunction (e.g., 1/k ln)');
+                    }
+                    result.push(' ');
                 }
                     }
                 }
