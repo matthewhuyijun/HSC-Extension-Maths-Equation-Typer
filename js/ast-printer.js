@@ -109,9 +109,12 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
 
     // 添加 \text{} 命令的打印处理
     if (type === 'text_command') {
-        // 提取文本内容并在两侧添加单空格（LaTeX中）
+        // 提取文本内容，保持原有空格
+        if (window.DEBUG_AST) {
+            console.log('text_command content:', JSON.stringify(ast.content, null, 2));
+        }
         const content = print(ast.content);
-        return ' ' + content + ' ';
+        return content;
     }
 
     if (type === 'command') {
@@ -302,31 +305,25 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     }
 
     if (type === 'cases') {
-        const rows = [];
-        for (const child of ast.children) {
-            if (child.type === 'command' && child.value === '\\\\') {
-                // Row separator - do nothing, we handle in else
-            } else if (child.type === 'text' && child.value === '&') {
-                // Column separator - do nothing for cases (we handle differently)
-            } else {
-                // For cases environment, we need to process each row
-                // The format is: value & condition
-                let rowContent = '';
-                let parts = [];
-                let currentPart = '';
-                
-                // We need to look at the full row structure
-                // This is tricky because the AST is flattened
-                // Let's build the row content and then split by &
-            }
+        // Debug: log AST structure
+        if (window.DEBUG_AST) {
+            console.log('Cases AST children:', JSON.stringify(ast.children, null, 2));
         }
+        
+        const rows = [];
         
         // Process children to build rows properly
         let currentRow = [];
         let currentPart = '';
         
         for (const child of ast.children) {
+            if (window.DEBUG_AST) {
+                console.log('Processing child:', { type: child.type, value: child.value });
+            }
+            
             if (child.type === 'command' && child.value === '\\\\') {
+                // Row separator found
+                if (window.DEBUG_AST) console.log('✓ Found row separator');
                 if (currentPart) currentRow.push(currentPart.trim());
                 if (currentRow.length > 0) {
                     // Format: value, &condition becomes: value&condition
@@ -335,10 +332,15 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
                 currentRow = [];
                 currentPart = '';
             } else if (child.type === 'text' && child.value === '&') {
+                // Column separator found
+                if (window.DEBUG_AST) console.log('✓ Found column separator');
                 if (currentPart) currentRow.push(currentPart.trim());
                 currentPart = '';
             } else {
-                currentPart += print(child);
+                // Regular content
+                const printed = print(child);
+                if (window.DEBUG_AST) console.log('Printed:', printed);
+                currentPart += printed;
             }
         }
         // Handle last row

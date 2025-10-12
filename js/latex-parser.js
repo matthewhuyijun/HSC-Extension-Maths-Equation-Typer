@@ -69,6 +69,18 @@
         if (peek() === '}') consume();
         return { type: 'group', children: attachScripts(nodes.filter(n => n.type !== 'text' || n.value !== '')) };
     }
+    
+    function parseTextGroup() {
+        // Special parser for \text{} that preserves spaces
+        if (peek() !== '{') return null;
+        consume();
+        let text = '';
+        while (pos < str.length && peek() !== '}') {
+            text += consume();
+        }
+        if (peek() === '}') consume();
+        return { type: 'group', children: [{ type: 'text', value: text }] };
+    }
 
     function parseBracketGroup() {
         if (peek() !== '[') return null;
@@ -239,7 +251,7 @@
             // 添加 \text{} 命令的处理
             if (cmdName === 'text') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseTextGroup();
                 return { type: 'text_command', content };
             }
             
@@ -279,6 +291,10 @@
                         parseCommand();
                         skipWhitespace();
                         parseGroup();
+                    }
+                    // Debug: log parsed body nodes
+                    if (window.DEBUG_AST) {
+                        console.log(`${envName} bodyNodes:`, JSON.stringify(bodyNodes, null, 2));
                     }
                     // 修复：添加 attachScripts 以正确处理下标和上标
                     return { type: envName, children: attachScripts(bodyNodes) };
@@ -331,8 +347,13 @@
             return { type: 'text', value: ']' };
         }
         
+        if (ch === '&') {
+            consume();
+            return { type: 'text', value: '&' };
+        }
+        
         let text = '';
-        while (pos < str.length && !/[\\{}\[\]_^|\s]/.test(peek())) {
+        while (pos < str.length && !/[\\{}\[\]_^|&\s]/.test(peek())) {
             text += consume();
         }
         return { type: 'text', value: text };

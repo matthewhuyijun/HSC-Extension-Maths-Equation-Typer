@@ -2027,6 +2027,39 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         mf2.addEventListener('input', syncFromMathLive);
         ta.addEventListener('input', syncFromTextArea);
         
+        // Add paste event listener for textarea to ensure proper height adjustment after paste
+        ta.addEventListener('paste', () => {
+            // Wait for paste to complete and content to be processed
+            setTimeout(() => {
+                syncFromTextArea();
+                // Extra height adjustments after paste
+                if (typeof adjustMathFieldHeight === 'function') {
+                    requestAnimationFrame(() => {
+                        adjustMathFieldHeight();
+                        setTimeout(adjustMathFieldHeight, 100);
+                        setTimeout(adjustMathFieldHeight, 300);
+                    });
+                }
+            }, 10);
+        });
+        
+        // Add paste event listener for MathLive field (rendered input)
+        mf2.addEventListener('paste', () => {
+            // Wait for MathLive to process the pasted content
+            setTimeout(() => {
+                syncFromMathLive();
+                // Multiple height adjustments to ensure proper sizing
+                if (typeof adjustMathFieldHeight === 'function') {
+                    requestAnimationFrame(() => {
+                        adjustMathFieldHeight();
+                        setTimeout(adjustMathFieldHeight, 100);
+                        setTimeout(adjustMathFieldHeight, 300);
+                        setTimeout(adjustMathFieldHeight, 500);
+                    });
+                }
+            }, 10);
+        });
+        
         // Listen for module loading completion and trigger initial sync
         window.addEventListener('e2ModulesReady', () => {
             console.log('🔄 Modules ready, performing initial sync');
@@ -3334,13 +3367,23 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             try {
                 const contentElement = mf2.shadowRoot?.querySelector('.ML__content');
                 if (contentElement) {
+                    // First, temporarily set height to auto to get true content height
+                    const originalHeight = mf2.style.height;
+                    mf2.style.height = 'auto';
+                    
                     const contentHeight = contentElement.scrollHeight;
                     const minHeight = 60;
                     const newHeight = Math.max(contentHeight + 24, minHeight); // 24px for padding
+                    
+                    mf2.style.height = newHeight + 'px';
+                } else {
+                    // Fallback: use scrollHeight
+                    const minHeight = 60;
+                    const newHeight = Math.max(mf2.scrollHeight, minHeight);
                     mf2.style.height = newHeight + 'px';
                 }
             } catch (e) {
-                // Fallback: use scrollHeight
+                // Final fallback: use scrollHeight
                 const minHeight = 60;
                 const newHeight = Math.max(mf2.scrollHeight, minHeight);
                 mf2.style.height = newHeight + 'px';
@@ -3636,10 +3679,49 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         window.removeWordSpaces = window.LatexConverter.removeWordSpaces;
         window.normalizeLatexStr = window.LatexUtils.normalizeLatexStr;
         
+        // Enable AST debugging (set to false in production)
+        window.DEBUG_AST = false;
+        
         // Create convenience function for test suite
         window.convertLatexToUnicodeMath = function(latex) {
             return window.LatexConverter.toWordEquation(latex);
         };
+        
+        // Debug test for cases environment
+        window.debugCases = function() {
+            const testLatex = '|x|=\\begin{cases} x & \\text{if } x\\geq 0 \\\\ -x & \\text{if } x<0 \\end{cases}';
+            console.log('🧪 Testing cases environment:');
+            console.log('Input LaTeX:', testLatex);
+            const result = window.LatexConverter.toWordEquation(testLatex);
+            console.log('Output UnicodeMath:', result);
+            console.log('Expected:         |x|={█(x&if x≥0@-x&if x<0)┤');
+            const matches = result === '|x|={█(x&if x≥0@-x&if x<0)┤';
+            console.log(matches ? '✅ PASS' : '❌ FAIL');
+            return result;
+        };
+        
+        // Additional test for simple cases
+        window.testSimpleCases = function() {
+            const testLatex = '\\begin{cases} x & x>0 \\\\ 0 & x=0 \\end{cases}';
+            console.log('🧪 Testing simple cases:');
+            console.log('Input LaTeX:', testLatex);
+            const result = window.LatexConverter.toWordEquation(testLatex);
+            console.log('Output UnicodeMath:', result);
+            console.log('Expected:         {█(x&x>0@0&x=0)┤');
+            const matches = result === '{█(x&x>0@0&x=0)┤';
+            console.log(matches ? '✅ PASS' : '❌ FAIL');
+            return result;
+        };
+        
+        // Auto-run debug tests on load (disabled by default)
+        // Uncomment to enable automatic testing:
+        // setTimeout(() => {
+        //     console.log('=====================================');
+        //     window.debugCases();
+        //     console.log('-------------------------------------');
+        //     window.testSimpleCases();
+        //     console.log('=====================================');
+        // }, 100);
         
         // Mark modules as loaded
         window.e2ModulesLoaded = true;
