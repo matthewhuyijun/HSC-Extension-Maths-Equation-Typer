@@ -25,7 +25,7 @@
     // Mathematical symbol mappings
     const symbolMap = {
         infty: '∞', pm: '±', mp: '∓', times: '×', div: '÷',
-        ast: '∗', star: '⋆', bullet: '•', circ: '∘',
+        ast: '∗', star: '⋆', bullet: '•', circ: '∘', cdot: '·',
         to: '→', rightarrow: '→', longrightarrow: '→',
         leftarrow: '←', longleftarrow: '←', leftrightarrow: '↔',
         Rightarrow: '⇒', Leftarrow: '⇐', Leftrightarrow: '⇔',
