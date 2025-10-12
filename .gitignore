@@ -1,32 +1,63 @@
-# Development and test files
-ast_refactor_prompt.txt
-converter_new.js
-debug_conversion.html
-debug_test.js
-index.html.backup
-index.html.backup_before_spacing_fix
-index.html.old
-new_converter_indented.txt
-test_converter.js
-test_final.html
-test_input.txt
-test_modules.html
-test_node.js
-test_sync.html
-test-formulas.html
-test-simple.html
-clean_html.py
-test-boundaries.html
+# ============================================
+# 🧹 E2 MathsTyper - Essential Files Only
+# ============================================
 
-# Development documentation
+# Backup files
+*.backup
+*.old
+*.bak
+index.html.backup*
+
+# Test files
+test*.html
+test*.js
+test_*.html
+test_*.js
+debug*.html
+debug*.js
+
+# Development documentation (keep only README.md)
+*_PROMPT.txt
+*_SUMMARY.md
+*_FIX.md
+*_COMPLETE.md
+*_CASES.txt
+AI_*.txt
+DEBUG_*.md
+FRAC_*.md
+LEFTDELIM_*.md
+SPACING_*.md
 MODULES_README.md
 PROJECT_STATS.md
 QUICK_START.md
-REFACTORING_COMPLETE.md
-REFACTORING_SUMMARY.md
+REFACTORING_*.md
 START_HERE.md
 
-# Test files in js/
+# Server/development scripts
+serve.sh
+start-server.*
+*.bat
+
+# Temporary/generated files
+converter_new.js
+new_converter_indented.txt
+clean_html.py
+<!DOCTYPE html>.css
+
+# Test/bridge files in js/
 js/main.js
-js/test-bridge.js
-js/test-bundle.js
+js/test-*.js
+js/*-bridge.js
+js/*-bundle.js
+
+# IDE and system files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (if ever added)
+node_modules/
+package-lock.json
