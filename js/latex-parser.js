@@ -213,6 +213,29 @@
                 return { type: 'mathbb', content };
             }
             
+            // 数学字体命令：直接返回内容，忽略字体样式（Word 不支持）
+            const fontCommands = [
+                'mathbf',    // 粗体
+                'mathrm',    // 正体
+                'mathit',    // 斜体
+                'mathcal',   // 花体
+                'mathsf',    // 无衬线体
+                'mathtt',    // 打字机体
+                'mathfrak',  // 哥特体
+                'boldsymbol',// 粗体符号
+                'bm',        // 粗体数学
+                'textbf',    // 文本粗体
+                'textit',    // 文本斜体
+                'textrm'     // 文本正体
+            ];
+            
+            if (fontCommands.includes(cmdName)) {
+                skipWhitespace();
+                const content = parseGroup();
+                // 直接返回内容，不包装字体样式
+                return content || { type: 'text', value: '' };
+            }
+            
             // 添加 \text{} 命令的处理
             if (cmdName === 'text') {
                 skipWhitespace();
@@ -257,7 +280,8 @@
                         skipWhitespace();
                         parseGroup();
                     }
-                    return { type: envName, children: bodyNodes };
+                    // 修复：添加 attachScripts 以正确处理下标和上标
+                    return { type: envName, children: attachScripts(bodyNodes) };
                 }
             }
             
