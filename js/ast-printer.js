@@ -284,52 +284,55 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
                             if (window.DEBUG_AST) console.log('    → Adding single space for \\!');
                             result.push(' ');  // Single space: \! acts as explicit spacing marker
                         }
-                    } else if (!prevEndsWithSpace && !currIsFunction && !prevEndsWithEquals && !currStartsWithEquals) {
-                        // Add space when:
-                        // 1. Previous ends with letter and current starts with letter (e.g., "ab" -> "a b")
-                        // 2. Previous ends with ) and current starts with letter (e.g., "(1)/(2)e" -> "(1)/(2) e")
-                        // 3. Previous ends with ) and current starts with ( (e.g., "(a)/(b)(c)/(d)" -> "(a)/(b) (c)/(d)")
-                        // 4. Previous is a fraction (contains /) and current starts with ( (e.g., "d/dx(x^2)" -> "d/dx (x^2)")
-                        // 5. Previous ends with superscript (e.g. "^2") and current starts with letter (e.g., "∂^2 u" -> "∂^2 u")
-                        // But NOT if current is a function (functions already have trailing space)
-                        // And NOT around equals signs
-                const prevEndsWithSuperscript = /\^[0-9]\s*$/.test(prev);
-                // Check if previous node was a fraction
-                const prevIsFraction = prevNode && prevNode.type === 'frac';
-                // Check if current node is a group (which typically starts with paren)
-                const currIsGroup = node && node.type === 'group';
-                // Check if current node is leftdelim (which precedes opening delimiter)
-                const currIsLeftDelim = node && node.type === 'leftdelim';
-                // Check if next node is an opening paren (to handle \left( case)
-                const nextIsOpenParen = nextNode && nextNode.type === 'text' && nextNode.value === '(';
-                
-                if (window.DEBUG_AST && (prevIsFraction || currIsGroup || currIsLeftDelim)) {
-                    console.log(`  Node checks: prevNode.type=${prevNode?.type}, node.type=${node?.type}, nextNode.type=${nextNode?.type}, nextNode.value='${nextNode?.value || ''}'`);
-                    console.log(`  prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
-                }
-                
-                if (currStartsWithLetter && (prevEndsWithLetter || prevEndsWithClosingParen || prevEndsWithSuperscript)) {
-                    result.push(' ');
-                } else if (prevEndsWithClosingParen && currStartsWithOpenParen) {
-                    result.push(' ');
-                } else if (prev.includes('/') && (currStartsWithOpenParen || currIsGroup)) {
-                    // Fraction followed by open paren or group: add space (e.g., d/dx(x^2) -> d/dx (x^2))
-                    result.push(' ');
-                } else if (prevIsFraction && (currIsGroup || (currIsLeftDelim && nextIsOpenParen))) {
-                    // Fraction node followed by group or by \left(: add space
-                    if (window.DEBUG_AST) {
-                        console.log('  ✓ prevIsFraction && (currIsGroup || currIsLeftDelim+nextOpenParen)');
-                        console.log(`    prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
-                    }
-                    result.push(' ');
-                } else if (prevIsFraction && currIsFunction) {
-                    // Fraction followed by function (e.g., 1/k ln): add space
-                    // Functions already have trailing space, but we need space before them
-                    if (window.DEBUG_AST) {
-                        console.log('  ✓ prevIsFraction && currIsFunction (e.g., 1/k ln)');
-                    }
-                    result.push(' ');
-                }
+                    } else if (!prevEndsWithSpace && !prevEndsWithEquals && !currStartsWithEquals) {
+                        // Check if previous node was a fraction
+                        const prevIsFraction = prevNode && prevNode.type === 'frac';
+                        
+                        // Special case: fraction followed by function (e.g., 1/k ln)
+                        // This needs to be checked BEFORE the !currIsFunction check
+                        if (prevIsFraction && currIsFunction) {
+                            if (window.DEBUG_AST) {
+                                console.log('  ✓ prevIsFraction && currIsFunction (e.g., 1/k ln)');
+                            }
+                            result.push(' ');
+                        } else if (!currIsFunction) {
+                            // Add space when:
+                            // 1. Previous ends with letter and current starts with letter (e.g., "ab" -> "a b")
+                            // 2. Previous ends with ) and current starts with letter (e.g., "(1)/(2)e" -> "(1)/(2) e")
+                            // 3. Previous ends with ) and current starts with ( (e.g., "(a)/(b)(c)/(d)" -> "(a)/(b) (c)/(d)")
+                            // 4. Previous is a fraction (contains /) and current starts with ( (e.g., "d/dx(x^2)" -> "d/dx (x^2)")
+                            // 5. Previous ends with superscript (e.g. "^2") and current starts with letter (e.g., "∂^2 u" -> "∂^2 u")
+                            // But NOT if current is a function (functions already have trailing space)
+                            // And NOT around equals signs
+                            const prevEndsWithSuperscript = /\^[0-9]\s*$/.test(prev);
+                            // Check if current node is a group (which typically starts with paren)
+                            const currIsGroup = node && node.type === 'group';
+                            // Check if current node is leftdelim (which precedes opening delimiter)
+                            const currIsLeftDelim = node && node.type === 'leftdelim';
+                            // Check if next node is an opening paren (to handle \left( case)
+                            const nextIsOpenParen = nextNode && nextNode.type === 'text' && nextNode.value === '(';
+                            
+                            if (window.DEBUG_AST && (prevIsFraction || currIsGroup || currIsLeftDelim)) {
+                                console.log(`  Node checks: prevNode.type=${prevNode?.type}, node.type=${node?.type}, nextNode.type=${nextNode?.type}, nextNode.value='${nextNode?.value || ''}'`);
+                                console.log(`  prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
+                            }
+                            
+                            if (currStartsWithLetter && (prevEndsWithLetter || prevEndsWithClosingParen || prevEndsWithSuperscript)) {
+                                result.push(' ');
+                            } else if (prevEndsWithClosingParen && currStartsWithOpenParen) {
+                                result.push(' ');
+                            } else if (prev.includes('/') && (currStartsWithOpenParen || currIsGroup)) {
+                                // Fraction followed by open paren or group: add space (e.g., d/dx(x^2) -> d/dx (x^2))
+                                result.push(' ');
+                            } else if (prevIsFraction && (currIsGroup || (currIsLeftDelim && nextIsOpenParen))) {
+                                // Fraction node followed by group or by \left(: add space
+                                if (window.DEBUG_AST) {
+                                    console.log('  ✓ prevIsFraction && (currIsGroup || currIsLeftDelim+nextOpenParen)');
+                                    console.log(`    prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
+                                }
+                                result.push(' ');
+                            }
+                        }
                     }
                 }
             }

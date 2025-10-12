@@ -55,24 +55,39 @@ const currIsFunction = /^(sin|cos|tan|...|ln|log|...) /.test(curr);
 
 ## 解决方案
 
-在 `ast-printer.js` 第 325-332 行添加新的间距条件：
+在 `ast-printer.js` 第 287-336 行重构间距逻辑：
 
-```javascript
-} else if (prevIsFraction && currIsFunction) {
-    // 分数后跟函数（例如：1/k ln）：添加空格
-    // 函数本身已有尾随空格，但我们需要在它们之前添加空格
-    if (window.DEBUG_AST) {
-        console.log('  ✓ prevIsFraction && currIsFunction (e.g., 1/k ln)');
-    }
-    result.push(' ');
-}
-```
+### 关键修改
+
+1. **移除 `!currIsFunction` 条件**（第 287 行）
+   - 原来：`} else if (!prevEndsWithSpace && !currIsFunction && !prevEndsWithEquals && !currStartsWithEquals) {`
+   - 修改后：`} else if (!prevEndsWithSpace && !prevEndsWithEquals && !currStartsWithEquals) {`
+
+2. **添加优先检查**（第 293-297 行）
+   ```javascript
+   if (prevIsFraction && currIsFunction) {
+       if (window.DEBUG_AST) {
+           console.log('  ✓ prevIsFraction && currIsFunction (e.g., 1/k ln)');
+       }
+       result.push(' ');
+   }
+   ```
+
+3. **将其他逻辑放入 `else if (!currIsFunction)` 块**（第 298-335 行）
+   - 这确保非函数的间距逻辑仍然正常工作
+   - 函数的间距现在由上面的特殊检查处理
 
 ### 修复逻辑
 
-- 检测前一个节点是否为分数类型（`prevIsFraction`）
-- 检测当前输出是否为函数（`currIsFunction`）
-- 如果两个条件都满足，在函数前添加一个空格
+原问题：
+- 第 287 行的 `!currIsFunction` 条件导致整个间距块被跳过
+- 即使我们在块内添加了 `prevIsFraction && currIsFunction` 检查，也永远不会执行
+
+解决方案：
+1. 移除外层的 `!currIsFunction` 条件
+2. 首先检查 `prevIsFraction && currIsFunction`（添加空格）
+3. 然后用 `else if (!currIsFunction)` 处理其他非函数情况
+4. 这样分数+函数的组合会被正确处理，而其他情况保持不变
 
 ## 测试用例
 
