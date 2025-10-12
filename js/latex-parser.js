@@ -70,6 +70,20 @@
         return { type: 'group', children: attachScripts(nodes.filter(n => n.type !== 'text' || n.value !== '')) };
     }
     
+    function parseGroupOrToken() {
+        // Parse either a group {...} or a single token
+        // This is used for commands like \sqrt that can take either \sqrt{x} or \sqrt x
+        const group = parseGroup();
+        if (group) return group;
+        
+        // No group, so parse a single token
+        const node = parseNode();
+        if (node && (node.type !== 'text' || node.value !== '')) {
+            return { type: 'group', children: [node] };
+        }
+        return null;
+    }
+    
     function parseTextGroup() {
         // Special parser for \text{} that preserves spaces
         if (peek() !== '{') return null;
@@ -128,7 +142,7 @@
             
             const cmdName = cmd.value.slice(1);
             
-            if (cmdName === 'frac') {
+            if (cmdName === 'frac' || cmdName === 'tfrac' || cmdName === 'dfrac') {
                 skipWhitespace();
                 const num = parseGroup();
                 skipWhitespace();
@@ -140,7 +154,7 @@
                 skipWhitespace();
                 const index = peek() === '[' ? parseBracketGroup() : null;
                 skipWhitespace();
-                const radicand = parseGroup();
+                const radicand = parseGroupOrToken();
                 return { type: 'sqrt', index, radicand };
             }
             
@@ -163,15 +177,25 @@
                     consume();
                     return { type: 'leftdot' };
                 }
+                if (peek() === '|') {
+                    consume();
+                    return { type: 'leftpipe' };
+                }
+                // For other delimiters like (, [, \{, strip \left but keep the delimiter
                 return { type: 'leftdelim' };
             }
             
             if (cmdName === 'right') {
                 skipWhitespace();
+                if (peek() === '.') {
+                    consume();
+                    return { type: 'rightdot' };
+                }
                 if (peek() === '|') {
                     consume();
                     return { type: 'rightpipe' };
                 }
+                // For other delimiters like ), ], \}, strip \right but keep the delimiter
                 return { type: 'rightdelim' };
             }
             
@@ -191,60 +215,73 @@
             
             if (cmdName === 'overrightarrow') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseGroupOrToken();
                 return { type: 'overrightarrow', content };
             }
             
             if (cmdName === 'vec') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseGroupOrToken();
                 return { type: 'vec', content };
             }
             
             if (cmdName === 'dot') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseGroupOrToken();
                 return { type: 'dotaccent', content };
             }
             
             if (cmdName === 'ddot') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseGroupOrToken();
                 return { type: 'ddotaccent', content };
             }
             
             if (cmdName === 'overline') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseGroupOrToken();
                 return { type: 'overline', content };
             }
             
             if (cmdName === 'mathbb') {
                 skipWhitespace();
-                const content = parseGroup();
+                const content = parseGroupOrToken();
                 return { type: 'mathbb', content };
             }
             
-            // 数学字体命令：直接返回内容，忽略字体样式（Word 不支持）
+            if (cmdName === 'boxed') {
+                skipWhitespace();
+                const content = parseGroupOrToken();
+                return { type: 'boxed', content };
+            }
+            
+            // Handle \ell as a font-styled letter (script lowercase L)
+            // Treat it like other font styling - convert to plain 'l'
+            if (cmdName === 'ell') {
+                return { type: 'text', value: 'l' };
+            }
+            
+            // Font commands: strip all styling, return plain content
+            // This ensures consistency - no silent failures where "ell" appears as text
             const fontCommands = [
-                'mathbf',    // 粗体
-                'mathrm',    // 正体
-                'mathit',    // 斜体
-                'mathcal',   // 花体
-                'mathsf',    // 无衬线体
-                'mathtt',    // 打字机体
-                'mathfrak',  // 哥特体
-                'boldsymbol',// 粗体符号
-                'bm',        // 粗体数学
-                'textbf',    // 文本粗体
-                'textit',    // 文本斜体
-                'textrm'     // 文本正体
+                'mathbf',    // bold
+                'mathrm',    // roman
+                'mathit',    // italic
+                'mathcal',   // calligraphic
+                'mathsf',    // sans-serif
+                'mathtt',    // typewriter
+                'mathfrak',  // fraktur
+                'boldsymbol',// bold symbol
+                'bm',        // bold math
+                'textbf',    // text bold
+                'textit',    // text italic
+                'textrm'     // text roman
             ];
             
             if (fontCommands.includes(cmdName)) {
                 skipWhitespace();
                 const content = parseGroup();
-                // 直接返回内容，不包装字体样式
+                // Return plain content, ignore font styling
                 return content || { type: 'text', value: '' };
             }
             

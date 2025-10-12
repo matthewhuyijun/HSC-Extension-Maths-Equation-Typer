@@ -45,14 +45,31 @@ function wrapBox(segment = '') {
 }
 
     /**
+     * List of standard math functions that should NOT get double spacing
+     */
+    const mathFunctions = [
+        'sin', 'cos', 'tan', 'cot', 'sec', 'csc',
+        'sinh', 'cosh', 'tanh', 'coth', 'sech', 'csch',
+        'arcsin', 'arccos', 'arctan', 'arccot', 'arcsec', 'arccsc',
+        'ln', 'log', 'exp', 'lim', 'max', 'min', 'sup', 'inf',
+        'det', 'dim', 'ker', 'arg', 'deg', 'gcd', 'lcm', 'hom'
+    ];
+
+    /**
      * Post-processing rules for specific expression patterns
      */
     const rules = [
     {
         name: 'double-space-around-text-words',
-        description: 'Add double spaces around text words for better Word spacing',
+        description: 'Add double spaces around text words for better Word spacing (excluding math functions)',
         pattern: / ([a-zA-Z]{2,}) /g,
-        replace: '  $1  '
+        replace: (match, word) => {
+            // Don't add double spaces around math functions
+            if (mathFunctions.includes(word.toLowerCase())) {
+                return match; // Keep single space
+            }
+            return `  ${word}  `; // Add double spaces
+        }
     },
     {
         name: 'remove-other-double-spaces',
@@ -183,6 +200,17 @@ function wrapBox(segment = '') {
         description: 'Remove extra spacing before right pipe delimiter',
         pattern: /\s*┤\|/g,
         replace: '┤|'
+    },
+    {
+        name: 'unmatched-right-pipe',
+        description: 'Convert ┤| to | when not preceded by ├ anywhere before it',
+        // This is applied via a custom replace function that checks for ├ in the prefix
+        pattern: /┤\|/g,
+        replace: (match, offset, string) => {
+            // Check if there's a ├ somewhere before this ┤|
+            const prefix = string.substring(0, offset);
+            return prefix.includes('├') ? match : '|';
+        }
     },
     {
         name: 'projection-spacing',

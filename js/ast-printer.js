@@ -75,14 +75,30 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
             if (i > 0 && printed && result.length > 0) {
                 const prev = result[result.length - 1];
                 const curr = printed;
-                // Don't add space if prev ends with space or curr is a function name (contains space after it)
+                // Don't add space if prev ends with space
                 const prevEndsWithSpace = prev.endsWith(' ');
                 const prevEndsWithLetter = /[a-zA-Zα-ω]$/.test(prev);
+                const prevEndsWithClosingParen = /\)$/.test(prev);
                 const currStartsWithLetter = /^[a-zA-Z]/.test(curr);
+                const currStartsWithOpenParen = /^\(/.test(curr);
                 // Check if current is a standard function (has space after function name)
                 const currIsFunction = /^(sin|cos|tan|cot|sec|csc|ln|log|exp|lim|max|min|sup|inf|det|dim|ker|arg|sinh|cosh|tanh|coth|arcsin|arccos|arctan|arccot|arcsec|arccsc) /.test(curr);
-                if (!prevEndsWithSpace && !currIsFunction && prevEndsWithLetter && currStartsWithLetter) {
-                    result.push(' ');
+                // Don't add space around equals signs
+                const prevEndsWithEquals = prev.endsWith('=');
+                const currStartsWithEquals = curr.startsWith('=');
+                
+                // Add space when:
+                // 1. Previous ends with letter and current starts with letter (e.g., "ab" -> "a b")
+                // 2. Previous ends with ) and current starts with letter (e.g., "(1)/(2)e" -> "(1)/(2) e")
+                // 3. Previous ends with ) and current starts with ( (e.g., "(a)/(b)(c)/(d)" -> "(a)/(b) (c)/(d)")
+                // But NOT if current is a function (functions already have trailing space)
+                // And NOT around equals signs
+                if (!prevEndsWithSpace && !currIsFunction && !prevEndsWithEquals && !currStartsWithEquals) {
+                    if (currStartsWithLetter && (prevEndsWithLetter || prevEndsWithClosingParen)) {
+                        result.push(' ');
+                    } else if (prevEndsWithClosingParen && currStartsWithOpenParen) {
+                        result.push(' ');
+                    }
                 }
             }
             result.push(printed);
@@ -96,6 +112,7 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
 
     if (type === 'text') {
         let result = ast.value || '';
+        // Don't auto-add spaces around equals sign - let user control spacing
         if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
         if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
@@ -159,6 +176,23 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         if (cmdName === 'left' || cmdName === 'right') return '';
         if (cmdName === '\\') return '';
         
+        // Strip all bracket sizing commands - Word handles sizing automatically
+        const sizingCommands = [
+            'big', 'Big', 'bigg', 'Bigg',           // Basic sizing
+            'bigl', 'Bigl', 'biggl', 'Biggl',       // Left-specific sizing
+            'bigr', 'Bigr', 'biggr', 'Biggr',       // Right-specific sizing
+            'bigm', 'Bigm', 'biggm', 'Biggm'        // Middle-specific sizing
+        ];
+        if (sizingCommands.includes(cmdName)) return '';
+        
+        // Strip display style commands - Word doesn't support these
+        const styleCommands = ['displaystyle', 'textstyle', 'scriptstyle', 'scriptscriptstyle'];
+        if (styleCommands.includes(cmdName)) return '';
+        
+        // Handle escaped braces \{ and \}
+        if (cmdName === '{') return '{';
+        if (cmdName === '}') return '}';
+        
         // Handle \: as a space command (medium math space)
         if (cmdName === ':') return ' ';
         
@@ -179,14 +213,14 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     if (type === 'frac') {
         const num = print(ast.num);
         const den = print(ast.den);
-        return `(${num})/(${den}) `;
+        return `(${num})/(${den})`;
     }
 
     if (type === 'sqrt') {
         if (ast.index) {
             const idx = print(ast.index);
             const rad = print(ast.radicand);
-            return `√(${idx}&${rad}) `;
+            return `√(${idx}&${rad})`;
         } else {
             const rad = print(ast.radicand);
             return `√(${rad}) `;
@@ -263,17 +297,27 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
 
     if (type === 'mathbb') {
         const content = print(ast.content).trim();
-        // Map common blackboard bold letters to Unicode
-        const mathbbMap = {
+        // Only convert the "Big 5" number sets (universally recognized semantic symbols)
+        // All other letters are treated as plain text (font styling ignored)
+        const bigFive = {
             'C': '\u2102', // ℂ Complex numbers
             'N': '\u2115', // ℕ Natural numbers
             'Q': '\u211A', // ℚ Rational numbers
             'R': '\u211D', // ℝ Real numbers
             'Z': '\u2124', // ℤ Integers
-            'P': '\u2119', // ℙ Projective space / Primes
-            'H': '\u210D', // ℍ Quaternions
         };
-        let result = mathbbMap[content] || content;
+        // For consistency: only the Big 5 get Unicode conversion
+        // Everything else (like \mathbb{F}, \mathbb{P}) becomes plain text
+        let result = bigFive[content] || content;
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        return result;
+    }
+
+    if (type === 'boxed') {
+        // UnicodeMath box notation: ▭〖content〗
+        const content = print(ast.content).trim();
+        let result = '▭〖' + content + '〗';
         if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
         if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
@@ -362,10 +406,18 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         return '├';
     }
 
+    if (type === 'rightdot') {
+        return '┤';
+    }
+
+    if (type === 'leftpipe') {
+        return '|';
+    }
+
     if (type === 'rightpipe') {
         let result = '┤|';
-        if (ast.sub) result += printScriptArg(ast.sub) + ' ';
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, false) + ' ';
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
     }
 

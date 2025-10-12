@@ -39,7 +39,10 @@
         cdots: '⋯', ldots: '…', vdots: '⋮', ddots: '⋱',
         angle: '∠', perp: '⊥', parallel: '∥', triangle: '△',
         langle: '⟨', rangle: '⟩', lfloor: '⌊', rfloor: '⌋',
-        lceil: '⌈', rceil: '⌉', emptyset: '∅', prime: '′'
+        lceil: '⌈', rceil: '⌉', emptyset: '∅', prime: '′',
+        lbrace: '{', rbrace: '}',  // Braces
+        lvert: '|', rvert: '|',    // Single vertical bars
+        lVert: '‖', rVert: '‖'     // Double vertical bars
     };
 
     // Standard mathematical function names
