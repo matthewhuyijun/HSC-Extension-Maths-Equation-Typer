@@ -326,8 +326,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
                 if (window.DEBUG_AST) console.log('✓ Found row separator');
                 if (currentPart) currentRow.push(currentPart.trim());
                 if (currentRow.length > 0) {
-                    // Format: value, &condition becomes: value&condition
-                    rows.push(currentRow.join('&'));
+                    // 左对齐：在第一列前添加 &，列之间使用 &&
+                    rows.push('&' + currentRow.join('&&'));
                 }
                 currentRow = [];
                 currentPart = '';
@@ -346,7 +346,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         // Handle last row
         if (currentPart) currentRow.push(currentPart.trim());
         if (currentRow.length > 0) {
-            rows.push(currentRow.join('&'));
+            // 左对齐：在第一列前添加 &，列之间使用 &&
+            rows.push('&' + currentRow.join('&&'));
         }
         
         // UnicodeMath format for piecewise: {█(row1@row2@row3)┤

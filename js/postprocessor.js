@@ -200,7 +200,7 @@ function wrapBox(segment = '') {
         name: 'limit-formatting',
         description: 'Format limit expressions: lim┬(h→0) expression',
         // Match: lim with subscript/superscript followed by ▒ and the expression up to = or end
-        pattern: /lim(_\([^)]+\)|_[^\s^]+)?(\^\([^)]+\)|\^[^\s]+)?\s*▒?\s*(.+?)(?=\s*=|$)/g,
+        pattern: /lim(_\([^)]+\)|_[^\s^]+)?(\^\([^)]+\)|\^[^\s]+)?\s*▒?\s*(.+?)(?=&&|\s*=|$)/g,
         replace: (match, sub, sup, expression) => {
             const subPart = sub || '';
             const supPart = sup || '';
@@ -225,6 +225,13 @@ function wrapBox(segment = '') {
             }
             return `lim 〖${exprClean}〗`; // No subscript case
         }
+    },
+    {
+        name: 'cases-condition-spacing',
+        description: 'Add space after && in cases environment',
+        // Match && followed by any non-space character
+        pattern: /&&(?!\s)/g,
+        replace: '&& '
     }
 ];
 
