@@ -739,13 +739,19 @@ html[data-theme="dark"] input[type="text"],
 html[data-theme="dark"] .math-field,
 html[data-theme="dark"] .output-box,
 html[data-theme="dark"] .latex-preview,
-html[data-theme="dark"] .rendered-input,
 html[data-theme="dark"] .raw-latex,
 html[data-theme="dark"] .word-equation {
-  background: var(--color-input-bg) !important;
+  background: var(--color-surface) !important;
   color: var(--color-text) !important;
-  border: 1px solid var(--color-button-border) !important;
+  border: 1px solid var(--color-border) !important;
   box-shadow: none !important;
+}
+
+/* Rendered input needs white background in dark mode for LaTeX readability */
+html[data-theme="dark"] .rendered-input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid var(--color-border) !important;
 }
 
 /* Highlight when active or hovered - using blue theme */
@@ -757,8 +763,8 @@ html[data-theme="dark"] input[type="text"]:focus {
 
 /* Theme toggle buttons (sun/moon/monitor icons) */
 html[data-theme="dark"] .theme-toggle button {
-  background: var(--color-button-bg) !important;
-  border: 1px solid var(--color-button-border) !important;
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
   color: var(--color-text) !important;
 }
 
@@ -2509,7 +2515,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }
         
         /* ---------------- Toolbar and Tabs ---------------- */
-        const tabs=[{id:'calc',label:'Calculus'},{id:'powers',label:'Powers'},{id:'trigs',label:'Trigs'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'}];
+        const tabs=[{id:'calc',label:'Calculus'},{id:'powers',label:'Powers'},{id:'trigs',label:'Trigs'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'},{id:'special',label:'More'}];
         const tabRowConfig={};
         const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
         function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
@@ -2533,9 +2539,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
                 {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
                 {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
-                {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'},
-                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}'},
-                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}'}
+                {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
             ],
             powers:[
                 {display:'{\\placeholder{}}^{\\placeholder{}}',insert:'{\\placeholder{}}^{\\placeholder{}}'},
@@ -2656,7 +2660,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 }
                 
             ],
-            sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}]
+            sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}],
+            special:[
+                {display:'\\boxed{\\placeholder{}}',insert:'\\boxed{\\placeholder{}}'},
+                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}'},
+                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}'}
+            ]
         };
 
         // Curated layouts for toolbar
@@ -2664,9 +2673,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             calc: [
                 { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{}\\: dx' },
                 { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx' },
-                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' },
-                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}' },
-                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}' }
+                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
             ],
             powers: [
                 { display: '{\\placeholder{}}^{\\placeholder{}}', insert: '{\\placeholder{}}^{\\placeholder{}}' },
@@ -2754,6 +2761,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 { display: '\\mathbb{Z}', insert: '\\mathbb{Z}' },
                 { display: '\\mathbb{Q}', insert: '\\mathbb{Q}' },
                 { display: '\\mathbb{R}', insert: '\\mathbb{R}' }
+            ],
+            special: [
+                { display: '\\boxed{\\placeholder{}}', insert: '\\boxed{\\placeholder{}}' },
+                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}' },
+                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}' }
             ]
         };
 
