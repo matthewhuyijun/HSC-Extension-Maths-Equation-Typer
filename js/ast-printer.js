@@ -37,12 +37,115 @@
 function printScriptArg(arg, isSup = false, forceParens = false) {
     if (!arg) return '';
     const content = print(arg).trim();
-    if (isSup || forceParens) {
+    
+    // Special case: single character doesn't need parentheses (even for superscripts)
+    if (content.length === 1 && /[a-zA-Z0-9]/.test(content)) return content;
+    
+    // Special case for ┬∼ notation
+    if (content.includes('┬∼')) return content;
+    
+    // Force parentheses if explicitly requested
+    if (forceParens) {
         return `(${content})`;
     }
-    if (content.includes('┬∼')) return content;
-    if (content.length === 1 && /[a-zA-Z0-9]/.test(content)) return content;
+    
+    // For superscripts, add parentheses for multi-character content
+    if (isSup && content.length > 1) {
+        return `(${content})`;
+    }
+    
+    // For subscripts, only add parentheses for complex content
+    if (!isSup && content.length > 1) {
     return `(${content})`;
+}
+    
+    return content;
+}
+
+    /**
+     * Check if an AST node represents a "simple" expression that doesn't need parentheses
+     * Simple expressions: single letters, numbers, symbols, or differential forms like dv, dt, dx, ∂u, ∂t
+     * @param {Object|Array} ast - The AST node to check
+     * @returns {boolean} True if the expression is simple
+     */
+    function isSimple(ast) {
+        if (!ast) return true;
+        
+        // Group node: check its children recursively
+        if (ast.type === 'group') {
+            return isSimple(ast.children);
+        }
+        
+        // Single text node (with or without subscripts/superscripts is OK if it's just one or two chars)
+        if (ast.type === 'text') {
+            const value = ast.value || '';
+            if (!value) return true;
+            // Simple patterns: single char, two chars, or differential like "dv", "dt", "dx"
+            // Even with superscripts/subscripts, a single letter is still simple (e.g., v^2, x_1)
+            if (value.length <= 2) return true;
+            if (/^d[a-zA-Z]$/.test(value)) return true;
+            return false;
+        }
+        
+        // Command node (like \partial): these are simple
+        if (ast.type === 'command') {
+            return !ast.sub && !ast.sup; // Simple if no sub/superscripts
+        }
+        
+        // Array of nodes: check if all nodes are simple
+        if (Array.isArray(ast)) {
+            if (ast.length === 0) return true;
+            
+            // If it's a single node in an array, check that node
+            if (ast.length === 1) {
+                return isSimple(ast[0]);
+            }
+            
+            // Multiple nodes: check if it's like ∂u, ∂t, ∂x (command + single char)
+            if (ast.length === 2) {
+                const first = ast[0];
+                const second = ast[1];
+                // Pattern: \partial u (command followed by single-char text)
+                if (first.type === 'command' && !first.sub && !first.sup &&
+                    second.type === 'text' && second.value && second.value.length === 1 && 
+                    !second.sub && !second.sup) {
+                    return true;
+                }
+            }
+            
+            // Handle ∂^2 u (command with superscript + single char)
+            if (ast.length === 2) {
+                const first = ast[0];
+                const second = ast[1];
+                // Pattern: \partial^2 u (command with sup + single-char text)
+                if (first.type === 'command' && first.sup && !first.sub &&
+                    second.type === 'text' && second.value && second.value.length <= 2 && 
+                    !second.sub && !second.sup) {
+                    return true;
+                }
+            }
+            
+            // Multiple nodes: check if all are single-char text nodes (like "d", "v" as separate nodes)
+            if (ast.length <= 3) {
+                const allSimpleChars = ast.every(node => 
+                    node.type === 'text' && 
+                    node.value && 
+                    node.value.length === 1 && 
+                    !node.sub && 
+                    !node.sup
+                );
+                if (allSimpleChars) {
+                    const text = ast.map(n => n.value).join('');
+                    // Allow: single letters, numbers, or d+letter differential forms
+                    if (/^[a-zA-Z0-9]{1,2}$/.test(text) || /^d[a-zA-Z]$/.test(text)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+        
+        return false;
 }
 
     /**
@@ -57,6 +160,17 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         for (let i = 0; i < ast.length; i++) {
             const node = ast[i];
             const prevNode = i > 0 ? ast[i-1] : null;
+            const nextNode = i + 1 < ast.length ? ast[i + 1] : null;
+            
+            // Skip space nodes around equals signs
+            if (node.type === 'space') {
+                // Check if previous or next node is an equals sign
+                const prevIsEquals = prevNode && prevNode.type === 'text' && prevNode.value === '=';
+                const nextIsEquals = nextNode && nextNode.type === 'text' && nextNode.value === '=';
+                if (prevIsEquals || nextIsEquals) {
+                    continue; // Skip this space
+                }
+            }
             
             // Check if previous node is a trig function and current is a group
             if (prevNode && prevNode.type === 'command' && 
@@ -72,7 +186,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
             const printed = print(node, context);
             
             // Add space between adjacent letters (unless already handled)
-            if (i > 0 && printed && result.length > 0) {
+            // Note: Allow spacing logic even if printed is empty (e.g., for leftdelim nodes)
+            if (i > 0 && result.length > 0) {
                 const prev = result[result.length - 1];
                 const curr = printed;
                 // Don't add space if prev ends with space
@@ -81,23 +196,133 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
                 const prevEndsWithClosingParen = /\)$/.test(prev);
                 const currStartsWithLetter = /^[a-zA-Z]/.test(curr);
                 const currStartsWithOpenParen = /^\(/.test(curr);
+                // Check if current AST node is an opening parenthesis (text node with '(')
+                const currIsOpenParen = node.type === 'text' && node.value === '(';
                 // Check if current is a standard function (has space after function name)
                 const currIsFunction = /^(sin|cos|tan|cot|sec|csc|ln|log|exp|lim|max|min|sup|inf|det|dim|ker|arg|sinh|cosh|tanh|coth|arcsin|arccos|arctan|arccot|arcsec|arccsc) /.test(curr);
                 // Don't add space around equals signs
                 const prevEndsWithEquals = prev.endsWith('=');
                 const currStartsWithEquals = curr.startsWith('=');
                 
-                // Add space when:
-                // 1. Previous ends with letter and current starts with letter (e.g., "ab" -> "a b")
-                // 2. Previous ends with ) and current starts with letter (e.g., "(1)/(2)e" -> "(1)/(2) e")
-                // 3. Previous ends with ) and current starts with ( (e.g., "(a)/(b)(c)/(d)" -> "(a)/(b) (c)/(d)")
-                // But NOT if current is a function (functions already have trailing space)
-                // And NOT around equals signs
-                if (!prevEndsWithSpace && !currIsFunction && !prevEndsWithEquals && !currStartsWithEquals) {
-                    if (currStartsWithLetter && (prevEndsWithLetter || prevEndsWithClosingParen)) {
-                        result.push(' ');
-                    } else if (prevEndsWithClosingParen && currStartsWithOpenParen) {
-                        result.push(' ');
+                // Check if previous node was a fraction and current node is also a fraction
+                // Two consecutive fractions should have double space
+                const prevNodeWasFrac = prevNode && prevNode.type === 'frac';
+                const currNodeIsFrac = node && node.type === 'frac';
+                
+                // Get next node for lookahead checks (用于前瞻检查)
+                const nextNode = (i + 1 < ast.length) ? ast[i + 1] : null;
+                
+                // Also check for pattern: frac ... = frac where there's another frac before
+                // This handles cases like: dv/dx  dx/dt  =v  dv/dx  =d/dx
+                // But only if the current text is JUST an equals sign (not "=v" or "a=")
+                let fracEqualsFragWithPriorFrac = false;
+                if (prevNodeWasFrac && node.type === 'text' && node.value === '=' && 
+                    i + 1 < ast.length && ast[i + 1].type === 'frac') {
+                    // Pattern: frac (standalone =) frac
+                    // Check if there's another frac within the previous 3 nodes
+                    for (let j = i - 2; j >= Math.max(0, i - 4); j--) {
+                        if (ast[j] && ast[j].type === 'frac') {
+                            fracEqualsFragWithPriorFrac = true;
+                            if (window.DEBUG_AST) console.log(`  Found prior frac at [${j}], adding double space before standalone equals`);
+                            break;
+                        }
+                    }
+                }
+                
+                if (prevNodeWasFrac && currNodeIsFrac) {
+                    // Consecutive fractions: add double space
+                    if (window.DEBUG_AST) console.log('  Consecutive fractions: adding double space');
+                    result.push('  ');
+                } else if (fracEqualsFragWithPriorFrac) {
+                    // frac = frac with prior frac: add double space
+                    result.push('  ');
+                } else {
+                    // Check if there was a negative space (\!) among recent nodes
+                    // Look back at previous nodes (skip empty-printing nodes like leftdelim, rightdelim)
+                    let hasRecentNegativeSpace = false;
+                    for (let j = i - 1; j >= Math.max(0, i - 3); j--) {
+                        const checkNode = ast[j];
+                        if (window.DEBUG_AST) {
+                            console.log(`  Checking node [${j}]: type='${checkNode?.type}', value='${checkNode?.value || ''}'`);
+                        }
+                        if (checkNode && checkNode.type === 'space' && checkNode.value === '') {
+                            hasRecentNegativeSpace = true;
+                            if (window.DEBUG_AST) console.log('    → Found negative space!');
+                            break;
+                        }
+                        // Stop if we hit something that produces meaningful output
+                        if (checkNode && checkNode.type !== 'leftdelim' && checkNode.type !== 'rightdelim' && checkNode.type !== 'space') {
+                            if (window.DEBUG_AST) console.log('    → Stopping, hit meaningful node');
+                            break;
+                        }
+                    }
+                    
+                    // Special handling for negative space followed by fraction or letter or open paren
+                    // \! produces empty string, but we want a single space after fractions when \! is present
+                    // We need to check the actual previous content (before \!), not the \! itself
+                    if (hasRecentNegativeSpace) {
+                        // Find the last non-empty entry in result
+                        let lastRealContent = '';
+                        for (let j = result.length - 1; j >= 0; j--) {
+                            if (result[j] && result[j].length > 0) {
+                                lastRealContent = result[j];
+                                break;
+                            }
+                        }
+                        const lastEndsWithClosingParen = /\)$/.test(lastRealContent);
+                        const lastIsFraction = lastRealContent.includes('/');  // Check if it's a fraction
+                        
+                        if (window.DEBUG_AST) {
+                            console.log(`  hasRecentNegativeSpace=true`);
+                            console.log(`  lastRealContent='${lastRealContent}'`);
+                            console.log(`  lastEndsWithClosingParen=${lastEndsWithClosingParen}, lastIsFraction=${lastIsFraction}`);
+                            console.log(`  curr='${curr}', currStartsWithLetter=${currStartsWithLetter}, currStartsWithOpenParen=${currStartsWithOpenParen}, currIsOpenParen=${currIsOpenParen}, curr.includes('/')=${curr.includes('/')}`);
+                        }
+                        
+                        if ((lastEndsWithClosingParen || lastIsFraction) && 
+                            (currStartsWithLetter || currStartsWithOpenParen || currIsOpenParen || curr.includes('/'))) {
+                            if (window.DEBUG_AST) console.log('    → Adding single space for \\!');
+                            result.push(' ');  // Single space: \! acts as explicit spacing marker
+                        }
+                    } else if (!prevEndsWithSpace && !currIsFunction && !prevEndsWithEquals && !currStartsWithEquals) {
+                        // Add space when:
+                        // 1. Previous ends with letter and current starts with letter (e.g., "ab" -> "a b")
+                        // 2. Previous ends with ) and current starts with letter (e.g., "(1)/(2)e" -> "(1)/(2) e")
+                        // 3. Previous ends with ) and current starts with ( (e.g., "(a)/(b)(c)/(d)" -> "(a)/(b) (c)/(d)")
+                        // 4. Previous is a fraction (contains /) and current starts with ( (e.g., "d/dx(x^2)" -> "d/dx (x^2)")
+                        // 5. Previous ends with superscript (e.g. "^2") and current starts with letter (e.g., "∂^2 u" -> "∂^2 u")
+                        // But NOT if current is a function (functions already have trailing space)
+                        // And NOT around equals signs
+                const prevEndsWithSuperscript = /\^[0-9]\s*$/.test(prev);
+                // Check if previous node was a fraction
+                const prevIsFraction = prevNode && prevNode.type === 'frac';
+                // Check if current node is a group (which typically starts with paren)
+                const currIsGroup = node && node.type === 'group';
+                // Check if current node is leftdelim (which precedes opening delimiter)
+                const currIsLeftDelim = node && node.type === 'leftdelim';
+                // Check if next node is an opening paren (to handle \left( case)
+                const nextIsOpenParen = nextNode && nextNode.type === 'text' && nextNode.value === '(';
+                
+                if (window.DEBUG_AST && (prevIsFraction || currIsGroup || currIsLeftDelim)) {
+                    console.log(`  Node checks: prevNode.type=${prevNode?.type}, node.type=${node?.type}, nextNode.type=${nextNode?.type}, nextNode.value='${nextNode?.value || ''}'`);
+                    console.log(`  prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
+                }
+                
+                if (currStartsWithLetter && (prevEndsWithLetter || prevEndsWithClosingParen || prevEndsWithSuperscript)) {
+                    result.push(' ');
+                } else if (prevEndsWithClosingParen && currStartsWithOpenParen) {
+                    result.push(' ');
+                } else if (prev.includes('/') && (currStartsWithOpenParen || currIsGroup)) {
+                    // Fraction followed by open paren or group: add space (e.g., d/dx(x^2) -> d/dx (x^2))
+                    result.push(' ');
+                } else if (prevIsFraction && (currIsGroup || (currIsLeftDelim && nextIsOpenParen))) {
+                    // Fraction node followed by group or by \left(: add space
+                    if (window.DEBUG_AST) {
+                        console.log('  ✓ prevIsFraction && (currIsGroup || currIsLeftDelim+nextOpenParen)');
+                        console.log(`    prevIsFraction=${prevIsFraction}, currIsGroup=${currIsGroup}, currIsLeftDelim=${currIsLeftDelim}, nextIsOpenParen=${nextIsOpenParen}`);
+                    }
+                    result.push(' ');
+                }
                     }
                 }
             }
@@ -113,8 +338,8 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     if (type === 'text') {
         let result = ast.value || '';
         // Don't auto-add spaces around equals sign - let user control spacing
-        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+        if (ast.sub) result += '_' + printScriptArg(ast.sub);
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
         return result;
     }
 
@@ -154,15 +379,15 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
         
         if (greekMap[cmdName]) {
             let result = greekMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+            if (ast.sub) result += '_' + printScriptArg(ast.sub);
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
             return result;
         }
         
         if (symbolMap[cmdName]) {
             let result = symbolMap[cmdName];
-            if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
-            if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
+            if (ast.sub) result += '_' + printScriptArg(ast.sub);
+            if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
             return result;
         }
         
@@ -211,8 +436,20 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     }
 
     if (type === 'frac') {
-        const num = print(ast.num);
-        const den = print(ast.den);
+        // Print numerator and denominator, trim trailing spaces
+        const num = print(ast.num).trim();
+        const den = print(ast.den).trim();
+        
+        // Check if numerator and denominator are "simple" (don't need parentheses)
+        const numIsSimple = isSimple(ast.num);
+        const denIsSimple = isSimple(ast.den);
+        
+        // If both are simple, use slash notation without parentheses
+        if (numIsSimple && denIsSimple) {
+            return `${num}/${den}`;
+        }
+        
+        // Otherwise, use parentheses for clarity
         return `(${num})/(${den})`;
     }
 

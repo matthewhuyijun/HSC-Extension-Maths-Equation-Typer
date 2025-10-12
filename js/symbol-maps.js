@@ -40,6 +40,7 @@
         angle: '∠', perp: '⊥', parallel: '∥', triangle: '△',
         langle: '⟨', rangle: '⟩', lfloor: '⌊', rfloor: '⌋',
         lceil: '⌈', rceil: '⌉', emptyset: '∅', prime: '′',
+        partial: '∂', nabla: '∇',  // Calculus operators
         lbrace: '{', rbrace: '}',  // Braces
         lvert: '|', rvert: '|',    // Single vertical bars
         lVert: '‖', rVert: '‖'     // Double vertical bars

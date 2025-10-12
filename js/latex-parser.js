@@ -67,7 +67,8 @@
             nodes.push(parseNode());
         }
         if (peek() === '}') consume();
-        return { type: 'group', children: attachScripts(nodes.filter(n => n.type !== 'text' || n.value !== '')) };
+        // Filter out empty text nodes AND space nodes from groups
+        return { type: 'group', children: attachScripts(nodes.filter(n => n.type !== 'space' && (n.type !== 'text' || n.value !== ''))) };
     }
     
     function parseGroupOrToken() {
@@ -104,7 +105,8 @@
             nodes.push(parseNode());
         }
         if (peek() === ']') consume();
-        return { type: 'bracket', children: attachScripts(nodes.filter(n => n.type !== 'text' || n.value !== '')) };
+        // Filter out empty text nodes AND space nodes from bracket groups
+        return { type: 'bracket', children: attachScripts(nodes.filter(n => n.type !== 'space' && (n.type !== 'text' || n.value !== ''))) };
     }
 
     function parseCommand() {
@@ -131,7 +133,16 @@
     }
 
     function parseNode() {
-        skipWhitespace();
+        // Check for whitespace BEFORE skipping it - preserve as space node
+        if (pos < str.length && /\s/.test(peek())) {
+            let spaces = '';
+            while (pos < str.length && /\s/.test(peek())) {
+                spaces += consume();
+            }
+            // Return a space node to preserve the space in AST
+            return { type: 'space', value: ' ' };
+        }
+        
         if (pos >= str.length) return { type: 'text', value: '' };
         
         const ch = peek();
