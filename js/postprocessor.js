@@ -103,7 +103,7 @@ function wrapBox(segment = '') {
     },
     {
         name: 'integral-with-limits-formatting',
-        description: 'Format definite integrals with ▒ and lenticular brackets: ∫_(b)^(a)▒〖f(x)〗 dx',
+        description: 'Format definite integrals with ▒: ∫_(b)^(a)▒f(x) dx',
         // Match: ∫ with limits followed by integrand and differential
         // Use greedy match and look for differential at the END (with optional whitespace before it)
         pattern: /∫_(\([^)]+\)|[^\s^]+)\^(\([^)]+\)|[^\s]+?)\s*▒?\s*:?\s*(.+?)\s+d([a-zA-Z])(?=\s|$)/g,
@@ -125,12 +125,12 @@ function wrapBox(segment = '') {
             if (!integrandClean) return match; // Don't transform if no integrand
             
             // Wrap bounds in parentheses like sum/prod
-            return `∫_(${lowerClean})^(${upperClean})▒〖${integrandClean}〗 d${diff}`;
+            return `∫_(${lowerClean})^(${upperClean})▒ ${integrandClean} d${diff}`;
         }
     },
     {
         name: 'integral-indefinite-formatting',
-        description: 'Format indefinite integrals: ∫▒〖f(x)〗 dx',
+        description: 'Format indefinite integrals: ∫▒f(x) dx',
         // Match: ∫ without limits (no _ after ∫) followed by integrand and differential
         pattern: /∫(?!_)\s*▒?\s*:?\s*(.+?)\s*d\s*([a-zA-Z])/g,
         replace: (match, integrand, variable) => {
@@ -148,7 +148,7 @@ function wrapBox(segment = '') {
             
             if (!integrandClean) return match; // Don't transform if no integrand
             
-            return `∫▒〖${integrandClean}〗 d${diff}`;
+            return `∫▒ ${integrandClean} d${diff}`;
         }
     },
     {
@@ -264,6 +264,16 @@ function wrapBox(segment = '') {
                 return `lim┬(${subscript}) 〖${exprClean}〗`;
             }
             return `lim 〖${exprClean}〗`;
+        }
+    },
+    {
+        name: 'fraction-before-operator-spacing',
+        description: 'Add two spaces between standalone fraction and operators (∑, ∏, ∫)',
+        pattern: /^(\s*)([^\s]+\/[^\s]+)\s+([∑∏∫]_)/gm,
+        replace: (match, space, fraction, operator) => {
+            // Don't match if this is part of a limit expression
+            if (match.includes('lim')) return match;
+            return `${space}${fraction}  ${operator}`;
         }
     },
     {

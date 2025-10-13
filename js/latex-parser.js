@@ -77,11 +77,23 @@
         const group = parseGroup();
         if (group) return group;
         
-        // No group, so parse a single token
-        const node = parseNode();
-        if (node && (node.type !== 'text' || node.value !== '')) {
-            return { type: 'group', children: [node] };
+        // No group, so parse a single character/token
+        const ch = peek();
+        if (!ch) return null;
+        
+        // If it's a command, parse the whole command
+        if (ch === '\\') {
+            const cmd = parseCommand();
+            if (cmd) return { type: 'group', children: [cmd] };
+            return null;
         }
+        
+        // Otherwise, parse just a single character
+        if (!/[\s{}]/.test(ch)) {
+            const char = consume();
+            return { type: 'group', children: [{ type: 'text', value: char }] };
+        }
+        
         return null;
     }
     
@@ -155,9 +167,9 @@
             
             if (cmdName === 'frac' || cmdName === 'tfrac' || cmdName === 'dfrac') {
                 skipWhitespace();
-                const num = parseGroup();
+                const num = parseGroupOrToken();
                 skipWhitespace();
-                const den = parseGroup();
+                const den = parseGroupOrToken();
                 return { type: 'frac', num, den };
             }
             
