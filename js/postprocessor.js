@@ -239,21 +239,31 @@ function wrapBox(segment = '') {
                 subscript = subPart.replace(/^_\(/, '').replace(/\)$/, '').replace(/^_/, '');
             }
             
-            const exprClean = expression.trim()
+            let exprClean = expression.trim()
                 .replace(/^▒+/, '')
                 .replace(/▒+$/, '')
                 .replace(/^〖/, '')
-                .replace(/〗$/, '')
-                // Add two spaces after fractions before operators (∑, ∏, ∫)
-                .replace(/(\/)([^\s]+)\s*(?=[∑∏∫])/g, '$1$2  ');
+                .replace(/〗$/, '');
             
             if (!exprClean) return match; // Don't transform if no expression
             
-            // Use ┬ format with space and bracket: lim┬(subscript) 〖expression〗
+            // Check if expression starts with a fraction followed by operator (∑, ∏, ∫)
+            const fractionBeforeOperator = exprClean.match(/^(.+?\/[^\s]+)\s*([∑∏∫].*)/);
+            if (fractionBeforeOperator) {
+                const fraction = fractionBeforeOperator[1];
+                const rest = fractionBeforeOperator[2];
+                // Wrap only the fraction part, add two spaces before the operator
+                if (subscript) {
+                    return `lim┬(${subscript}) 〖${fraction}〗  ${rest}`;
+                }
+                return `lim 〖${fraction}〗  ${rest}`;
+            }
+            
+            // No fraction before operator - wrap entire expression
             if (subscript) {
                 return `lim┬(${subscript}) 〖${exprClean}〗`;
             }
-            return `lim 〖${exprClean}〗`; // No subscript case
+            return `lim 〖${exprClean}〗`;
         }
     },
     {
