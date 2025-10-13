@@ -374,6 +374,7 @@
         /* Dark mode mathfield - matching demo style */
         [data-theme="dark"] #mf2 {
             --background: #1e293b;
+            --color: #f3f4f6;
             --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
             border-color: #334155;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -2248,6 +2249,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 'iff': '\\Leftrightarrow',
                 '__': '\\lfloor',
                 '~': '\\sim',
+                'perp': '\\perp',
+                '⊥': '\\perp',
+                'parallel': '\\parallel',
+                '∥': '\\parallel',
                 '{': '\\{',
                 '}': '\\}',
                 '(:': '\\langle',
@@ -2329,89 +2334,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 ':.': '\\therefore'
             };
 
-            let isArmedForDeletion = false; // Tracks "armed" state for double-tap deletion
-
-            // Reset armed state on non-deletion actions
-            mf2.addEventListener('keydown', (ev) => {
-                if (ev.key !== 'Backspace') {
-                    isArmedForDeletion = false;
-                }
-            });
-
-            mf2.addEventListener('input', (ev) => {
-                if (ev.inputType !== 'deleteContentBackward' && ev.inputType !== 'deleteContentForward') {
-                    isArmedForDeletion = false;
-                }
-            });
-
-            mf2.addEventListener('focus', () => { isArmedForDeletion = false; });
-            mf2.addEventListener('blur', () => {
-                isArmedForDeletion = false;
-            });
-            mf2.addEventListener('move-out', () => {
-                isArmedForDeletion = false;
-            });
-
-            // Custom Backspace handling inspired by Word for Mac Equation Editor
-            mf2.addEventListener('keydown', (ev) => {
-                if (ev.key !== 'Backspace') return;
-
-                const sel = mf2.selection;
-                if (!sel.isCollapsed) {
-                    // Let MathLive handle normal deletion
-                    isArmedForDeletion = false;
-                    // Defer sync; MathLive will emit input event
-                    return;
-                }
-
-                const position = sel.start;
-                // Get atom at current position (assuming MathLive model access)
-                const atom = mf2.model.at(position - 1); // Atom before cursor
-                if (!atom) {
-                    // Let MathLive handle normal deletion
-                    return;
-                }
-
-                // Check if cursor is at the start of an empty placeholder/box
-                const isEmptyBox = atom.type === 'placeholder' && position === atom.range.end;
-
-                if (!isEmptyBox) {
-                    // Normal deletion
-                    mf2.executeCommand('deleteBackward');
-                    isArmedForDeletion = false;
-                    syncFromMathLive();
-                    return;
-                }
-
-                // Determine if this is the "first" box in the symbol (e.g., numerator in fraction)
-                const path = mf2.model.path || mf2.model.getPath(position);
-                const branch = path[path.length - 1];
-                const siblings = branch.parent[branch.branch] || [];
-                const boxIndex = siblings.indexOf(atom);
-                const isFirstBox = boxIndex === 0;
-
-                if (!isFirstBox) {
-                    // Navigate to previous box (like Word: Backspace moves to prior placeholder)
-                    mf2.executeCommand('moveToPrevious');
-                    isArmedForDeletion = false;
-                    // Defer sync to input event
-                    return;
-                }
-
-                // In first empty box: double-tap logic
-                if (isArmedForDeletion) {
-                    // Second tap: delete the entire symbol/structure
-                    mf2.executeCommand('moveToGroupStart');
-                    mf2.executeCommand('extendToGroupEnd');
-                    mf2.executeCommand('delete');
-                    isArmedForDeletion = false;
-                } else {
-                    // First tap: arm for deletion, appears to do nothing (cursor stays)
-                    isArmedForDeletion = true;
-                }
-
-                // Defer sync to input event or selection change
-            });
 
             // Typing behavior: allow free typing like Desmos (no auto-termination interception)
 
@@ -2558,6 +2480,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 {display:'\\pm', insert:'\\pm'},
                 {display:'\\angle', insert: '\\angle'},
                 {display:'^{\\circ}', insert:'^{\\circ}',hint:'circ'},
+                {display:'\\perp', insert:'\\perp'},
+                {display:'\\parallel', insert:'\\parallel'},
                 {display:'\\neg',insert:'\\neg'},
                 {display:'\\exists',insert:'\\exists'},
                 {display:'\\forall',insert:'\\forall'},
@@ -3349,6 +3273,20 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         });
         
+        // 插入文本到光标位置的辅助函数
+        function insertAtCursor(textarea, textToInsert) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            textarea.value = before + textToInsert + after;
+            textarea.selectionStart = textarea.selectionEnd = start + textToInsert.length;
+            textarea.focus();
+            // 触发输入事件以更新预览
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        
         // Simple, clear width enforcement
         function setTextareaWidths() {
             const ta = document.getElementById('ta');
@@ -3511,6 +3449,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         'mp': '∓',
         'times': '×',
         'div': '÷',
+        'perp': '⊥',
+        'parallel': '∥',
         
         // Calculus & Advanced
         'lim': 'lim',

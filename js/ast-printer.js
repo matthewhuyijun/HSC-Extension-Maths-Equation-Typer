@@ -38,16 +38,16 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     if (!arg) return '';
     const content = print(arg).trim();
     
+    // Force parentheses if explicitly requested (check this FIRST)
+    if (forceParens) {
+        return `(${content})`;
+    }
+    
     // Special case: single character doesn't need parentheses (even for superscripts)
     if (content.length === 1 && /[a-zA-Z0-9]/.test(content)) return content;
     
     // Special case for ┬∼ notation
     if (content.includes('┬∼')) return content;
-    
-    // Force parentheses if explicitly requested
-    if (forceParens) {
-        return `(${content})`;
-    }
     
     // For superscripts, add parentheses for multi-character content
     if (isSup && content.length > 1) {
@@ -347,9 +347,9 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
 
     if (type === 'text') {
         let result = ast.value || '';
-        // Don't auto-add spaces around equals sign - let user control spacing
-        if (ast.sub) result += '_' + printScriptArg(ast.sub);
-        if (ast.sup) result += '^' + printScriptArg(ast.sup, true);
+        // Add spaces after subscript/superscript (except for sum/prod/int which handle it separately)
+        if (ast.sub) result += '_' + printScriptArg(ast.sub) + ' ';
+        if (ast.sup) result += '^' + printScriptArg(ast.sup, true) + ' ';
         return result;
     }
 
@@ -446,21 +446,31 @@ function printScriptArg(arg, isSup = false, forceParens = false) {
     }
 
     if (type === 'frac') {
-        // Print numerator and denominator, trim trailing spaces
-        const num = print(ast.num).trim();
-        const den = print(ast.den).trim();
+        // Print numerator and denominator
+        // Don't trim - let subscript/superscript spaces be preserved
+        const num = print(ast.num);
+        const den = print(ast.den);
+        
+        if (window.DEBUG_AST) {
+            console.log('FRAC DEBUG:');
+            console.log('  num:', JSON.stringify(num));
+            console.log('  den:', JSON.stringify(den));
+            console.log('  den ends with space?', den.endsWith(' '));
+        }
         
         // Check if numerator and denominator are "simple" (don't need parentheses)
         const numIsSimple = isSimple(ast.num);
         const denIsSimple = isSimple(ast.den);
         
         // If both are simple, use slash notation without parentheses
+        // Add space after fraction
         if (numIsSimple && denIsSimple) {
-            return `${num}/${den}`;
+            return `${num}/${den} `;
         }
         
         // Otherwise, use parentheses for clarity
-        return `(${num})/(${den})`;
+        // Add space after fraction
+        return `(${num})/(${den}) `;
     }
 
     if (type === 'sqrt') {

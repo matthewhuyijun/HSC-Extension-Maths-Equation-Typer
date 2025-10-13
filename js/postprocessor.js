@@ -153,7 +153,7 @@ function wrapBox(segment = '') {
     },
     {
         name: 'sum-formatting',
-        description: 'Format summation with ▒: ∑_(n=3)^4▒n or ∑_(p∈ℙ)▒(1/p)',
+        description: 'Format summation with ▒: ∑_(n=3)^(4)▒n or ∑_(p∈ℙ)▒(1/p)',
         // Match: ∑ followed by subscript, optional superscript, and term
         pattern: /∑_(\([^)]+\)|[^\s^]+)(?:\^(\([^)]+\)|\d+|[a-zA-Z]))?\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
         replace: (match, lower, upper, term) => {
@@ -163,7 +163,7 @@ function wrapBox(segment = '') {
             if (!termClean) return match; // Don't transform if no term
             
             if (upper) {
-                const upperClean = stripParens(upper.trim());
+                const upperClean = ensureParens(stripParens(upper.trim()));
                 return `∑_${lowerClean}^${upperClean}▒${termClean}`;
             } else {
                 return `∑_${lowerClean}▒${termClean}`;
@@ -172,7 +172,7 @@ function wrapBox(segment = '') {
     },
     {
         name: 'product-formatting',
-        description: 'Format product with ▒: ∏_(n=3)^5▒n or ∏_(p∈ℙ)▒(1-1/p)',
+        description: 'Format product with ▒: ∏_(n=3)^(5)▒n or ∏_(p∈ℙ)▒(1-1/p)',
         // Match: ∏ followed by subscript, optional superscript, and term
         pattern: /∏_(\([^)]+\)|[^\s^]+)(?:\^(\([^)]+\)|\d+|[a-zA-Z]))?\s*▒?\s*:?\s*([^∑∏]+?)(?=\s*(?:[∑∏]|$))/g,
         replace: (match, lower, upper, term) => {
@@ -182,7 +182,7 @@ function wrapBox(segment = '') {
             if (!termClean) return match; // Don't transform if no term
             
             if (upper) {
-                const upperClean = stripParens(upper.trim());
+                const upperClean = ensureParens(stripParens(upper.trim()));
                 return `∏_${lowerClean}^${upperClean}▒${termClean}`;
             } else {
                 return `∏_${lowerClean}▒${termClean}`;
@@ -243,7 +243,9 @@ function wrapBox(segment = '') {
                 .replace(/^▒+/, '')
                 .replace(/▒+$/, '')
                 .replace(/^〖/, '')
-                .replace(/〗$/, '');
+                .replace(/〗$/, '')
+                // Add two spaces after fractions before operators (∑, ∏, ∫)
+                .replace(/(\/)([^\s]+)\s*(?=[∑∏∫])/g, '$1$2  ');
             
             if (!exprClean) return match; // Don't transform if no expression
             
