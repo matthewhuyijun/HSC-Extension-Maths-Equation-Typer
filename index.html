@@ -16,6 +16,61 @@
 </script>
 <!-- Lucide Icons CDN -->
 <script src="https://unpkg.com/lucide@latest"></script>
+<!-- CodeCogs Equation Editor API -->
+<script src="https://editor.codecogs.com/eqneditor.api.min.js" crossorigin="anonymous"></script>
+<!-- CodeMirror 6 for LaTeX syntax highlighting -->
+<script type="module">
+  // ✅ CM6 imports (avoid the 'codemirror@6' meta-package to prevent version conflicts)
+  import { EditorView, keymap, highlightActiveLine, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor } from "https://esm.sh/@codemirror/view@6";
+  import { EditorState } from "https://esm.sh/@codemirror/state@6";
+  import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirror/commands@6";
+  import { indentOnInput, bracketMatching, foldGutter, syntaxHighlighting, defaultHighlightStyle, foldKeymap, StreamLanguage } from "https://esm.sh/@codemirror/language@6";
+  import { stex } from "https://esm.sh/@codemirror/legacy-modes@6/mode/stex";
+  import { searchKeymap, highlightSelectionMatches } from "https://esm.sh/@codemirror/search@6";
+  import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from "https://esm.sh/@codemirror/autocomplete@6";
+  
+  // Create basicSetup equivalent manually to avoid version conflicts
+  const basicSetup = [
+    lineNumbers(),
+    highlightActiveLineGutter(),
+    highlightSpecialChars(),
+    history(),
+    foldGutter(),
+    drawSelection(),
+    dropCursor(),
+    EditorState.allowMultipleSelections.of(true),
+    indentOnInput(),
+    syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
+    bracketMatching(),
+    closeBrackets(),
+    autocompletion(),
+    rectangularSelection(),
+    crosshairCursor(),
+    highlightActiveLine(),
+    highlightSelectionMatches(),
+    keymap.of([
+      ...closeBracketsKeymap,
+      ...defaultKeymap,
+      ...searchKeymap,
+      ...historyKeymap,
+      ...foldKeymap,
+      ...completionKeymap,
+    ])
+  ];
+  
+  window.CodeMirrorModules = {
+    EditorView,
+    basicSetup,
+    keymap,
+    EditorState,
+    StreamLanguage,
+    stex
+  };
+  console.log('✅ CodeMirror modules loaded');
+  
+  // Dispatch custom event to signal modules are ready
+  window.dispatchEvent(new CustomEvent('codemirror-ready'));
+</script>
 <!-- Rounded, friendly UI font -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
 <!-- Inter (UI font used by MathLive site) -->
@@ -353,7 +408,7 @@
         }
 
         /* 100% WIDTH ELEMENTS - ALL TEXT AREAS SAME WIDTH */
-        /* Raw LaTeX Input and Word Equation textareas */
+        /* Raw LaTeX Input and Word Equation Output textareas */
         #ta, #wordOut {
             width: 100%;
             max-width: 100%;
@@ -805,6 +860,142 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 [data-theme="dark"] .key:hover {
   background-color: #374151;
   border-color: #60a5fa;
+}
+
+/* ============================================
+   CodeMirror 6 Custom Styles
+   ============================================ */
+
+.cm-editor {
+  height: 100%;
+  font-size: 14px;
+  font-family: 'Courier New', Courier, monospace;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background-color: var(--color-surface);
+}
+
+.cm-scroller {
+  overflow: auto;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.cm-content {
+  padding: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  color: var(--color-text);
+}
+
+.cm-gutters {
+  background-color: var(--color-surface-alt);
+  border-right: 1px solid var(--color-border);
+}
+
+.cm-activeLineGutter {
+  background-color: var(--color-border);
+}
+
+.cm-line {
+  padding-left: 4px;
+}
+
+/* LaTeX syntax highlighting */
+.cm-keyword {
+  color: #d73a49;
+  font-weight: bold;
+}
+
+.cm-atom {
+  color: #005cc5;
+}
+
+.cm-number {
+  color: #005cc5;
+}
+
+.cm-comment {
+  color: #6a737d;
+  font-style: italic;
+}
+
+.cm-string {
+  color: #032f62;
+}
+
+.cm-bracket {
+  color: #24292e;
+  font-weight: bold;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .cm-editor {
+  background-color: #1e1e1e;
+  border-color: var(--color-border);
+}
+
+[data-theme="dark"] .cm-content {
+  color: #d4d4d4;
+}
+
+[data-theme="dark"] .cm-gutters {
+  background-color: #252526;
+  border-right-color: var(--color-border);
+}
+
+[data-theme="dark"] .cm-activeLineGutter {
+  background-color: #2a2a2a;
+}
+
+[data-theme="dark"] .cm-keyword {
+  color: #c586c0;
+}
+
+[data-theme="dark"] .cm-atom {
+  color: #4ec9b0;
+}
+
+[data-theme="dark"] .cm-number {
+  color: #b5cea8;
+}
+
+[data-theme="dark"] .cm-comment {
+  color: #6a9955;
+}
+
+[data-theme="dark"] .cm-string {
+  color: #ce9178;
+}
+
+[data-theme="dark"] .cm-bracket {
+  color: #d4d4d4;
+}
+
+/* Make CodeMirror fit properly in the io-section */
+.io-raw #latex-editor-container {
+  width: 100%;
+  min-height: 200px;
+  height: auto;
+  flex: 1;
+  display: block;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: visible;
+  background: var(--color-surface);
+  position: relative;
+}
+
+.io-raw #latex-editor-container .cm-editor {
+  height: 100%;
+  min-height: 200px;
+}
+
+.io-raw #latex-editor-container .cm-scroller {
+  min-height: 200px;
+  overflow: auto !important;
+}
+
+.io-raw #latex-editor-container .cm-content {
+  min-height: 200px;
 }
     </style>
     <script>
@@ -1762,6 +1953,25 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 0 28px rgba(59,130,246,0.45),
         0 0 60px rgba(59,130,246,0.25);
     }
+    
+    /* === CodeCogs Toolbar Styling === */
+    #codecogsToolbarWrap { 
+      padding: 6px 0; 
+    }
+    
+    /* === Screen-reader only / visually hidden utility === */
+    /* Hides element visually but keeps it focusable for accessibility and CodeCogs */
+    .sr-only-hidden {
+      position: absolute !important;
+      width: 1px; 
+      height: 1px;
+      padding: 0; 
+      margin: -1px;
+      overflow: hidden; 
+      clip: rect(0, 0, 1px, 1px);
+      white-space: nowrap; 
+      border: 0;
+    }
     </style>
 </head>
 <body>
@@ -1782,7 +1992,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           <button class="header-copy" id="shortcutsBtn" title="View available inline shortcuts">
             <i data-lucide="keyboard"></i> Shortcuts
           </button>
-            </div>
+          <button class="header-copy" id="toggleToolbarBtn" title="Switch toolbar">
+            <i data-lucide="shuffle"></i> Toggle Toolbar
+          </button>
+        </div>
 
         <div class="h-right">
           <div class="theme-switch" role="group" aria-label="Theme">
@@ -1857,16 +2070,26 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         <!-- 2. Raw LaTeX -->
         <div class="io-section io-raw">
           <div class="io-labelbar">
-            <label class="io-label" for="ta">Raw LaTeX Input</label>
+            <label class="io-label" for="ta">Raw LaTeX Input (Syntax Highlighted)</label>
           <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
       </div>
-          <textarea id="ta"></textarea>
+          
+          <!-- NEW: CodeCogs toolbar holder (hidden by default) -->
+          <div id="codecogsToolbarWrap" style="display:none; margin-bottom: 8px;">
+            <div id="codecogsToolbar"></div>
+            <!-- Optional: If you want CodeCogs image output: -->
+            <!-- <img id="codecogsOutput" alt="CodeCogs preview" style="margin-top:8px;max-width:100%;"> -->
+          </div>
+          
+          <div id="latex-editor-container"></div>
+          <!-- Keep hidden textarea for backwards compatibility, but focusable for CodeCogs -->
+          <textarea id="ta" class="sr-only-hidden"></textarea>
         </div>
 
-        <!-- 3. Word Equation -->
+        <!-- 3. Word Equation Output -->
         <div class="io-section io-word">
           <div class="io-labelbar">
-            <label class="io-label" for="wordOut">Word Equation</label>
+            <label class="io-label" for="wordOut">Word Equation Output</label>
           <button id="copyWordBtn" class="copyBtn">Copy Word Equation</button>
       </div>
           <textarea id="wordOut" readonly></textarea>
@@ -1911,16 +2134,148 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const ta=document.getElementById('ta');
         const mf2=document.getElementById('mf2');
         const wordOut=document.getElementById('wordOut');
+        let cmEditor = null; // CodeMirror editor instance
+        let isSyncing = false; // Flag to prevent infinite sync loops
         
         // Theme handling is now done in the header script above
 
+        // Initialize CodeMirror editor when modules are ready
+        function initCodeMirrorEditor() {
+            if (!window.CodeMirrorModules || cmEditor) {
+                console.log('CodeMirror init skipped:', {
+                    modulesReady: !!window.CodeMirrorModules,
+                    editorExists: !!cmEditor
+                });
+                return;
+            }
+            
+            try {
+                const {EditorView, basicSetup, EditorState, StreamLanguage, stex} = window.CodeMirrorModules;
+                
+                const startState = EditorState.create({
+                    doc: ta.value || '',
+                    extensions: [
+                        basicSetup,
+                        StreamLanguage.define(stex),
+                        EditorView.updateListener.of((update) => {
+                            if (update.docChanged && !isSyncing) {
+                                const newValue = update.state.doc.toString();
+                                ta.value = newValue; // Keep textarea in sync
+                                syncFromTextArea();
+                            }
+                        }),
+                        EditorView.theme({
+                            "&": { 
+                                height: "100%",
+                                fontSize: "14px",
+                                backgroundColor: "var(--color-surface)"
+                            },
+                            ".cm-content": {
+                                padding: "12px 14px",
+                                minHeight: "200px"
+                            },
+                            ".cm-scroller": { 
+                                overflow: "auto",
+                                minHeight: "200px"
+                            },
+                            ".cm-gutters": {
+                                backgroundColor: "var(--color-surface-alt)",
+                                color: "var(--muted)",
+                                borderRight: "1px solid var(--color-border)"
+                            },
+                            ".cm-line": {
+                                padding: "0 2px"
+                            }
+                        }),
+                        EditorView.lineWrapping,
+                        EditorView.editable.of(true)
+                    ]
+                });
+
+                const container = document.getElementById('latex-editor-container');
+                if (!container) {
+                    console.error('Container element not found!');
+                    return;
+                }
+
+                cmEditor = new EditorView({
+                    state: startState,
+                    parent: container
+                });
+                
+                // Focus the editor on container click
+                container.addEventListener('click', () => {
+                    cmEditor.focus();
+                });
+                
+                // Add a test to verify the editor is editable
+                console.log('✅ CodeMirror LaTeX editor initialized');
+                console.log('   - Document length:', cmEditor.state.doc.length, 'characters');
+                console.log('   - Is editable:', !cmEditor.state.readOnly);
+                console.log('   - Container dimensions:', container.offsetWidth, 'x', container.offsetHeight);
+                console.log('   - Container computed style:', {
+                    pointerEvents: window.getComputedStyle(container).pointerEvents,
+                    display: window.getComputedStyle(container).display,
+                    visibility: window.getComputedStyle(container).visibility,
+                    zIndex: window.getComputedStyle(container).zIndex
+                });
+                
+                // Debug: Add click handler to container to see if clicks register
+                container.addEventListener('click', (e) => {
+                    console.log('🖱️ Container clicked!', {
+                        target: e.target,
+                        currentTarget: e.currentTarget,
+                        editorElement: cmEditor.dom
+                    });
+                }, true); // Use capture phase
+                
+                // Debug: Add mousedown handler
+                container.addEventListener('mousedown', (e) => {
+                    console.log('🖱️ Container mousedown!', e.target);
+                }, true);
+                
+                // Try to focus it immediately
+                setTimeout(() => {
+                    cmEditor.focus();
+                    console.log('   - Editor focused');
+                    console.log('   - Has focus:', cmEditor.hasFocus);
+                }, 100);
+            } catch (error) {
+                console.error('❌ Failed to initialize CodeMirror:', error);
+                console.error('Error stack:', error.stack);
+            }
+        }
+
+        // Listen for the codemirror-ready event
+        window.addEventListener('codemirror-ready', initCodeMirrorEditor);
+        
+        // Also try on DOMContentLoaded as a fallback
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initCodeMirrorEditor, 100);
+        });
+        
+        // And immediate fallback for modules already loaded
+        if (window.CodeMirrorModules) {
+            initCodeMirrorEditor();
+        }
+        
+        // Debug: Global click handler to see what's getting clicked
+        document.addEventListener('click', (e) => {
+            const container = document.getElementById('latex-editor-container');
+            if (container && container.contains(e.target)) {
+                console.log('🖱️ Click inside latex-editor-container detected!', {
+                    target: e.target,
+                    classList: e.target.classList,
+                    tagName: e.target.tagName
+                });
+            }
+        }, true);
+
         function getLatex(){ return ta.value; }
 
-        /* ---------- LaTeX -> Word Equation conversion (AST-based) ---------- */
-        // NOTE: Converter functions are now loaded from modular JavaScript files
-        // See js/latex-converter.js, js/latex-parser.js, js/ast-printer.js, js/postprocessor.js
-        // The functions toWordEquation, normalizeWordInput, removeWordSpaces, normalizeLatexStr
-        // are imported via js/app-bridge.js module (loaded at the end of this file)
+        /* ---------- LaTeX -> MathML conversion (using MathJax) ---------- */
+        // MathML conversion uses MathJax's built-in tex2mml function
+        // The convertLatexToMathML wrapper function is defined at the end of this file
         
         // Preview update functions
         function updateLatexPreview() {
@@ -1939,9 +2294,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         }
         
-        // Flag to prevent infinite sync loops
-        let isSyncing = false;
-        
         function syncFromMathLive() {
             if (isSyncing) return;
             isSyncing = true;
@@ -1957,12 +2309,24 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 // Update Raw LaTeX Input with clean version (no \:)
                 if (ta.value !== displayLatex) { ta.value = displayLatex; }
                 
-                // Use version WITH \: for Word equation to maintain proper spacing
-                if (typeof toWordEquation === 'function') {
-                    wordOut.value = toWordEquation(cleanLatex);
+                // Update CodeMirror editor if it exists
+                if (cmEditor) {
+                    const currentDoc = cmEditor.state.doc.toString();
+                    if (currentDoc !== displayLatex) {
+                        cmEditor.dispatch({
+                            changes: { from: 0, to: currentDoc.length, insert: displayLatex }
+                        });
+                    }
+                }
+                
+                // Convert to MathML using MathJax
+                if (typeof convertLatexToMathML === 'function') {
+                    convertLatexToMathML(cleanLatex).then(mathml => {
+                        wordOut.value = mathml || '';
+                    });
                 } else {
-                    // Show loading message if module not ready yet
-                    wordOut.value = '(Loading converter...)';
+                    // Show loading message if converter not ready yet
+                    wordOut.value = '(Loading MathJax...)';
                 }
                 updateLatexPreview();
             } catch (error) {
@@ -1979,23 +2343,34 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             
             try {
                 let cleanLatex = ta.value;
-                // Normalize Word format input if detected
-                cleanLatex = typeof normalizeWordInput === 'function' ? normalizeWordInput(cleanLatex) : cleanLatex;
                 // Remove \: spacing if present in pasted content (keep textarea clean)
                 cleanLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
                 
-                if (ta.value !== cleanLatex) { ta.value = cleanLatex; }
+                if (ta.value !== cleanLatex) { 
+                    ta.value = cleanLatex;
+                    // Update CodeMirror if it exists
+                    if (cmEditor) {
+                        const currentDoc = cmEditor.state.doc.toString();
+                        if (currentDoc !== cleanLatex) {
+                            cmEditor.dispatch({
+                                changes: { from: 0, to: currentDoc.length, insert: cleanLatex }
+                            });
+                        }
+                    }
+                }
                 if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
                 
-                // Get MathLive's processed version (which may add \: spacing from templates)
-                let wordLatex = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
+                // Get MathLive's processed version
+                let latexForWord = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
                 
-                // Use version WITH \: for Word equation to maintain proper spacing
-                if (typeof toWordEquation === 'function') {
-                    wordOut.value = toWordEquation(wordLatex);
+                // Convert to MathML using MathJax
+                if (typeof convertLatexToMathML === 'function') {
+                    convertLatexToMathML(latexForWord).then(mathml => {
+                        wordOut.value = mathml || '';
+                    });
                 } else {
-                    // Show loading message if module not ready yet
-                    wordOut.value = '(Loading converter...)';
+                    // Show loading message if converter not ready yet
+                    wordOut.value = '(Loading MathJax...)';
                 }
                 
                 updateLatexPreview();
@@ -2081,6 +2456,88 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 syncFromMathLive();
             }
         }, 500);
+
+        /* ===== CodeCogs integration + toolbar switcher ===== */
+
+        let cc = null;                 // CodeCogs link object
+        let activeToolbar = 'custom';  // 'custom' | 'codecogs'
+
+        // Show/hide the two toolbar systems
+        function setToolbar(mode) {
+          const tabsWrap    = document.getElementById('tabs_wrapper');    // existing tabs row
+          const expanded    = document.getElementById('expanded-area');   // existing expanded keys
+          const ccWrap      = document.getElementById('codecogsToolbarWrap');
+          const toggleBtn   = document.getElementById('toggleToolbarBtn');
+          const taEl        = document.getElementById('ta');
+
+          if (!tabsWrap || !expanded || !ccWrap || !toggleBtn) return;
+
+          if (mode === 'codecogs') {
+            tabsWrap.style.display = 'none';
+            expanded.style.display = 'none';
+            ccWrap.style.display = '';
+            
+            // Make #ta focusable for CodeCogs (remove sr-only-hidden class)
+            if (taEl) taEl.classList.remove('sr-only-hidden');
+            
+            toggleBtn.innerHTML = '<i data-lucide="shuffle"></i> Use Built-in Toolbar';
+          } else {
+            tabsWrap.style.display = '';
+            expanded.style.display = '';
+            ccWrap.style.display = 'none';
+            
+            // Hide #ta again (CodeMirror is the visible editor)
+            if (taEl) taEl.classList.add('sr-only-hidden');
+            
+            toggleBtn.innerHTML = '<i data-lucide="shuffle"></i> Use CodeCogs Toolbar';
+          }
+
+          // refresh icons
+          if (window.lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+          }
+          activeToolbar = mode;
+        }
+
+        // Initialize CodeCogs toolbar bound to the SAME raw input (#ta)
+        function initCodeCogsToolbar() {
+          if (cc || !window.EqEditor) return;
+
+          // Link CodeCogs to the hidden textarea (#ta)
+          cc = EqEditor.TextArea.link('ta')
+              .addToolbar(new EqEditor.Toolbar('codecogsToolbar'), true);
+
+          // Optional: render to an <img>, if you kept #codecogsOutput
+          // cc.addOutput(new EqEditor.Output('codecogsOutput'));
+
+          // When CodeCogs inserts/edits, make sure app sync runs
+          const taEl = document.getElementById('ta');
+          if (taEl) {
+            taEl.addEventListener('input', () => {
+              // Your existing function pushes to MathLive + preview + CodeMirror
+              if (typeof syncFromTextArea === 'function') syncFromTextArea();
+            });
+          }
+        }
+
+        // Wire up the header toggle button
+        const toggleBtn = document.getElementById('toggleToolbarBtn');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', () => {
+            if (activeToolbar === 'custom') {
+              // First-time init when switching to CodeCogs
+              if (!cc) initCodeCogsToolbar();
+              setToolbar('codecogs');
+            } else {
+              setToolbar('custom');
+            }
+          });
+          // Button label on first load
+          setToolbar('custom');
+        }
+
+        // If you prefer the CodeCogs toolbar to be the default on load, uncomment:
+        // initCodeCogsToolbar(); setToolbar('codecogs');
 
         /* ---------- Cleanup: delete object when all boxes emptied ---------- */
         function normalizeLatexStr(L) {
@@ -3189,17 +3646,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
         }
 
-        /* ---------------- Insert Word equation helper ---------------- */
-        function insertWordEquation(wordEquation) {
+        /* ---------------- Insert Word Equation helper ---------------- */
+        function insertWordEquation(wordText) {
           const wordOutput = document.getElementById('wordOut');
           const cursorPos = wordOutput.selectionStart || wordOutput.value.length;
           const textBefore = wordOutput.value.substring(0, cursorPos);
           const textAfter = wordOutput.value.substring(cursorPos);
           
-          wordOutput.value = textBefore + wordEquation + textAfter;
+          wordOutput.value = textBefore + wordText + textAfter;
           
           // Set cursor after inserted text
-          const newCursorPos = cursorPos + wordEquation.length;
+          const newCursorPos = cursorPos + wordText.length;
           wordOutput.setSelectionRange(newCursorPos, newCursorPos);
           wordOutput.focus();
         }
@@ -3596,24 +4053,43 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     })();
     </script>
 
-    <!-- Load converter modules in dependency order (no ES6 modules for file:// compatibility) -->
-    <script src="js/symbol-maps.js"></script>
-    <script src="js/latex-utils.js"></script>
-    <script src="js/ast-printer.js"></script>
-    <script src="js/postprocessor.js"></script>
-    <script src="js/latex-parser.js"></script>
-    <script src="js/latex-converter.js"></script>
+    <!-- Load LaTeX Converter Modules -->
+    <script src="./js/symbol-maps.js"></script>
+    <script src="./js/latex-utils.js"></script>
+    <script src="./js/latex-parser.js"></script>
+    <script src="./js/ast-printer.js"></script>
+    <script src="./js/postprocessor.js"></script>
+    <script src="./js/latex-converter.js"></script>
     
-    <!-- Expose main functions for backward compatibility -->
     <script>
-    (function() {
+        // The JS modules (latex-converter.js, postprocessor.js, latex-utils.js) 
+        // are loaded above and expose their functions to the global window object.
+        // We just need to verify they're loaded and dispatch the ready event.
+        
+        // Wait for all scripts to be loaded
+        window.addEventListener('load', () => {
+            if (window.LatexConverter && window.PostProcessor && window.LatexUtils) {
+                console.log('✅ LaTeX converter modules loaded');
+                window.dispatchEvent(new CustomEvent('latex-modules-ready'));
+            } else {
+                console.error('❌ LaTeX converter modules not loaded properly', {
+                    LatexConverter: !!window.LatexConverter,
+                    PostProcessor: !!window.PostProcessor,
+                    LatexUtils: !!window.LatexUtils
+                });
+            }
+        });
+    </script>
+
+    <!-- LaTeX to MathML Conversion Helper (using MathJax) -->
+    <script>
+    // Wait for modules to be ready
+    window.addEventListener('latex-modules-ready', function() {
         // Debug: Check what modules are available
         console.log('🔍 Module check:');
-        console.log('  LatexParser:', typeof window.LatexParser, window.LatexParser);
-        console.log('  ASTPrinter:', typeof window.ASTPrinter, window.ASTPrinter);
-        console.log('  PostProcessor:', typeof window.PostProcessor, window.PostProcessor);
         console.log('  LatexConverter:', typeof window.LatexConverter, window.LatexConverter);
         console.log('  LatexUtils:', typeof window.LatexUtils, window.LatexUtils);
+        console.log('  PostProcessor:', typeof window.PostProcessor, window.PostProcessor);
         
         // Check if all required modules are loaded
         if (!window.LatexConverter) {
@@ -3639,6 +4115,26 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             return window.LatexConverter.toWordEquation(latex);
         };
         
+        // LaTeX to MathML conversion using MathJax
+        window.convertLatexToMathML = async function(latex) {
+            if (!window.MathJax || !window.MathJax.tex2mml) {
+                console.warn('MathJax tex2mml not available yet');
+                return '';
+            }
+            try {
+                const mathml = window.MathJax.tex2mml(latex, {
+                    display: false,
+                    em: 16,
+                    ex: 8,
+                    containerWidth: 80 * 16
+                });
+                return mathml;
+            } catch (error) {
+                console.error('MathML conversion error:', error);
+                return '';
+            }
+        };
+        
         // Debug test for cases environment
         window.debugCases = function() {
             const testLatex = '|x|=\\begin{cases} x & \\text{if } x\\geq 0 \\\\ -x & \\text{if } x<0 \\end{cases}';
@@ -3652,38 +4148,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             return result;
         };
         
-        // Additional test for simple cases
-        window.testSimpleCases = function() {
-            const testLatex = '\\begin{cases} x & x>0 \\\\ 0 & x=0 \\end{cases}';
-            console.log('🧪 Testing simple cases:');
-            console.log('Input LaTeX:', testLatex);
-            const result = window.LatexConverter.toWordEquation(testLatex);
-            console.log('Output UnicodeMath:', result);
-            console.log('Expected:         {█(x&x>0@0&x=0)┤');
-            const matches = result === '{█(x&x>0@0&x=0)┤';
-            console.log(matches ? '✅ PASS' : '❌ FAIL');
-            return result;
+        // Helper function to remove spacing commands for clean LaTeX
+        window.removeWordSpaces = function(latex) {
+            // Remove Word-specific spacing commands like \:
+            return latex.replace(/\\:/g, '');
         };
         
-        // Auto-run debug tests on load (disabled by default)
-        // Uncomment to enable automatic testing:
-        // setTimeout(() => {
-        //     console.log('=====================================');
-        //     window.debugCases();
-        //     console.log('-------------------------------------');
-        //     window.testSimpleCases();
-        //     console.log('=====================================');
-        // }, 100);
-        
-        // Mark modules as loaded
-        window.e2ModulesLoaded = true;
-        
-        // Dispatch event to notify that modules are ready
-        window.dispatchEvent(new Event('e2ModulesReady'));
-        
-        // Log successful module loading
-        console.log('✅ E2 MathsTyper modules loaded successfully');
-        console.log('📦 Available functions: toWordEquation, normalizeWordInput, removeWordSpaces, normalizeLatexStr');
+        console.log('✅ MathML converter ready (using MathJax)');
         
         // Trigger initial sync if math field has content
         setTimeout(() => {
@@ -3695,7 +4166,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 }
             }
         }, 100);
-    })();
+    });
     </script>
 </body>
 </html>
