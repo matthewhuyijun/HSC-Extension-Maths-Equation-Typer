@@ -2099,6 +2099,42 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 0 28px rgba(59,130,246,0.45),
         0 0 60px rgba(59,130,246,0.25);
     }
+
+    /* GitHub button - small and subtle */
+    .github-btn {
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 40px !important;
+      height: 40px !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 1px solid var(--color-border) !important;
+      color: var(--color-text) !important;
+      border-radius: 50% !important;
+      transition: all 0.2s ease !important;
+      opacity: 0.7 !important;
+    }
+
+    .github-btn:hover {
+      background: var(--color-bg) !important;
+      border-color: var(--color-text) !important;
+      color: var(--color-text) !important;
+      opacity: 1 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .github-btn:active {
+      transform: translateY(0) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .github-btn svg {
+      width: 18px !important;
+      height: 18px !important;
+    }
     
     /* === LaTeX Input Area (Ace Editor) === */
     #ta {
@@ -2183,6 +2219,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         </button>
 
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
+          <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="github-btn" title="View on GitHub">
+            <i data-lucide="github"></i>
+          </a>
           <button class="header-copy" id="copyBtn" title="Copy LaTeX">
             <i data-lucide="copy"></i> Copy LaTeX
           </button>
