@@ -825,7 +825,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 }
     </style>
     <script>
-        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
+        window.MathJax = { 
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']]
+            }, 
+            svg: { fontCache: 'global' } 
+        };
         window.whenMathJaxReady = window.whenMathJaxReady || function(){};
     </script>
     <script>
@@ -2434,7 +2440,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             const latexPreview = document.getElementById('latexPreview');
             const latex = ta.value.trim();
             if (latex) {
-                latexPreview.innerHTML = '\\(' + latex + '\\)';
+                latexPreview.innerHTML = '\\[' + latex + '\\]';
                 if (window.MathJax && window.MathJax.typesetPromise) {
                     window.MathJax.typesetPromise([latexPreview]).then(() => {
                         // After MathJax renders, adjust height if content exceeds container
