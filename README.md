@@ -7,12 +7,19 @@ A specialized web app designed for **E2 students** to type LaTeX equations and c
 ## 🎯 E2-Specific Features
 
 • **E2-Optimized Buttons** - Custom button layout designed for E2 math curriculum
+
 • **Visual LaTeX Editor** - Type math using MathLive's interactive editor
+
 • **Live Preview** - See your equations rendered in real-time
+
 • **Multiple Export Formats** - Copy LaTeX, MathML, and other formats for different platforms
+
 • **LaTeX Export** - Copy raw LaTeX code for various platforms
+
 • **Dark Mode** - System-aware theme with manual override
+
 • **Keyboard Shortcuts** - 100+ inline shortcuts for fast typing
+
 • **Mobile Friendly** - Responsive design works on all devices
 
 ---
@@ -27,19 +34,27 @@ A specialized web app designed for **E2 students** to type LaTeX equations and c
 ## 📝 Platform Compatibility
 
 ### ✅ **Notion** - Perfect Match
-• LaTeX and MathML work excellently in Notion
+
+• LaTeX work excellently in Notion
+
 • Clean, professional rendering
+
 • No compatibility issues
 
 ### ⚠️ **Microsoft Word** - Use Native Equation Editor Instead
 **Important:** While LaTeX can be used in Word, it's **not recommended** for:
+
 • **Vectors** (complex arrow notation)
+
+
 • **Complex numbers** (imaginary unit notation)
-• **Advanced mathematical expressions**
+
 
 **Why LaTeX struggles in Word:**
 • I've tested multiple approaches: Unicode with regex, AST parsing, and MathML conversion
+
 • All methods failed to render complex mathematical notation properly in Word
+
 • Word's native equation editor handles these cases much better
 
 **Recommendation:** Use Word's **native equation editor** (Insert → Equation) for complex math in Word documents.
@@ -51,12 +66,9 @@ A specialized web app designed for **E2 students** to type LaTeX equations and c
 Thank you to all the amazing open-source projects that made this possible:
 
 • **MathLive** by Arno Gourdol - Interactive math editor that powers the equation input
+
 • **MathJax** - Math rendering engine for LaTeX preview
+
 • **Lucide** - Beautiful icon set for the interface
+
 • **Open Source Community** - For making tools like this accessible to E2 students
-
----
-
-**Version:** 2.2 (E2 Pure LaTeX Edition)  
-**Last Updated:** October 15, 2025  
-**Designed for:** E2 Students & Notion Users
