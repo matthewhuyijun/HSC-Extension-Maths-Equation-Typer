@@ -61,6 +61,18 @@ A specialized web app designed for **E2 students** to type LaTeX equations and c
 
 ---
 
+## 🔗 GitHub Links
+
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-blue?style=for-the-badge&logo=github)](https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer)
+
+[![View on GitHub](https://img.shields.io/badge/View%20on-GitHub-black?style=for-the-badge&logo=github)](https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer)
+
+[![Download ZIP](https://img.shields.io/badge/Download-ZIP-green?style=for-the-badge&logo=github)](https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer/archive/refs/heads/main.zip)
+
+[![Clone Repository](https://img.shields.io/badge/Clone-Repository-orange?style=for-the-badge&logo=git)](https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer.git)
+
+---
+
 ## 🙏 Credits & Acknowledgments
 
 Thank you to all the amazing open-source projects that made this possible:
