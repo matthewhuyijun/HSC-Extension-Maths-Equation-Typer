@@ -9,7 +9,6 @@ A clean, modern web app for typing LaTeX equations and converting them to MathML
 - ✅ **Visual LaTeX Editor** - Type math using MathLive's interactive editor
 - ✅ **Live Preview** - See your equations rendered in real-time
 - ✅ **MathML Export** - Copy clean MathML code to clipboard
-- ✅ **Unicode Equation Export** ⭐ - Copy Word-compatible UnicodeMath format
 - ✅ **Word-Compatible MathML** - Auto-fixes n-ary operators for Microsoft Word
 - ✅ **Piecewise Normalizer** - Auto-converts piecewise functions to stretchy braces
 - ✅ **LaTeX Export** - Copy raw LaTeX code
