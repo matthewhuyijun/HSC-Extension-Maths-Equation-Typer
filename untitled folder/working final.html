@@ -3,9 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>HSC MathsTyper 💯</title>
-<!-- Custom favicon -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💯%3C/text%3E%3C/svg%3E">
+<title>E2 MathsTyper</title>
 <!-- Instant theme detection to prevent flash -->
 <script>
 (function() {
@@ -18,11 +16,6 @@
 </script>
 <!-- Lucide Icons CDN -->
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- Ace Editor -->
-<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/ace.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/mode-latex.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/theme-github.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/theme-github_dark.js"></script>
 <!-- Rounded, friendly UI font -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
 <!-- Inter (UI font used by MathLive site) -->
@@ -311,7 +304,7 @@
 
         /* Base styling for textareas only */
         textarea {
-            font-size: 18px; 
+            font-size: 16px; 
             padding: 12px; 
             border: 1px solid var(--color-border); 
             border-radius: 6px; 
@@ -335,7 +328,6 @@
         #mf2 {
             width: 100%;
             --background: #ffffff;
-            background: var(--background);
             --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
             --hue: 211;
             --border-radius: 8px;
@@ -365,11 +357,11 @@
         }
 
         /* 100% WIDTH ELEMENTS - ALL TEXT AREAS SAME WIDTH */
-        /* Raw LaTeX Input textarea */
-        #ta {
+        /* Raw LaTeX Input and Word Equation Output textareas */
+        #ta, #wordOut {
             width: 100%;
             max-width: 100%;
-            min-height: 20px; /* Very minimal height */
+            min-height: 48px; /* Approx one line height */
             height: auto;
             overflow-y: auto; /* Allow scrolling if content exceeds one line */
         }
@@ -386,9 +378,7 @@
         /* Dark mode mathfield - matching demo style */
         [data-theme="dark"] #mf2 {
             --background: #1e293b;
-            background: var(--background);
             --color: #f3f4f6;
-            color: var(--color);
             --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
             border-color: #334155;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -758,7 +748,8 @@ html[data-theme="dark"] input[type="text"],
 html[data-theme="dark"] .math-field,
 html[data-theme="dark"] .output-box,
 html[data-theme="dark"] .latex-preview,
-html[data-theme="dark"] .raw-latex {
+html[data-theme="dark"] .raw-latex,
+html[data-theme="dark"] .word-equation {
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
   border: 1px solid var(--color-border) !important;
@@ -825,13 +816,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 }
     </style>
     <script>
-        window.MathJax = { 
-            tex: { 
-                inlineMath: [['$', '$'], ['\\(', '\\)']],
-                displayMath: [['$$', '$$'], ['\\[', '\\]']]
-            }, 
-            svg: { fontCache: 'global' } 
-        };
+        window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
         window.whenMathJaxReady = window.whenMathJaxReady || function(){};
     </script>
     <script>
@@ -1541,31 +1526,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 14px 32px rgba(3,12,30,.58);
     }
 
-    /* Pure LaTeX button active state - follows tab design system */
-    .pure-latex-active {
-      background: var(--color-tab-active-bg) !important;
-      color: var(--color-tab-active-text) !important;
-      border-color: var(--color-tab-active-bg) !important;
-      animation: pureLatexGlow 2s ease-in-out infinite alternate !important;
-      box-shadow: 
-        0 0 20px rgba(37, 99, 235, 0.5), 
-        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
-    }
-
-    @keyframes pureLatexGlow {
-      0% {
-        box-shadow: 
-          0 0 20px rgba(37, 99, 235, 0.5), 
-          inset 0 1px 0 rgba(255, 255, 255, 0.15);
-      }
-      100% {
-        box-shadow: 
-          0 0 25px rgba(37, 99, 235, 0.6), 
-          0 12px 22px rgba(15, 23, 42, 0.18),
-          inset 0 1px 0 rgba(255, 255, 255, 0.2);
-      }
-    }
-
     .btn--symbol-skin:active{ transform: translateY(0) }
 
     .copyBtn.btn--symbol-skin,
@@ -1689,6 +1649,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
     .io-rendered { grid-column: 1 / -1; }
     .io-raw      { grid-column: 1 / -1; }
+    .io-word     { grid-column: 1 / -1; }
     .io-preview  { grid-column: 1 / -1; }
 
     .io-section {
@@ -1737,7 +1698,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     /* Textarea min-height */
-    #ta { min-height: 20px; }
+    #ta, #wordOut { min-height: 56px; }
 
     /* ========== Preview Bar Styling ========== */
     .preview-bar {
@@ -1745,18 +1706,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: 10px;
-      min-height: 120px;
-      height: auto;
+      min-height: 56px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.3rem;
-      overflow: auto;
+      overflow-x: auto;
       box-shadow: 0 1px 0 rgba(2,6,23,0.05);
       transition: border-color 0.2s ease;
       width: 100%;
       box-sizing: border-box;
-      max-width: 100%;
     }
 
     [data-theme="dark"] .preview-bar {
@@ -2107,102 +2066,41 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 0 28px rgba(59,130,246,0.45),
         0 0 60px rgba(59,130,246,0.25);
     }
-
-    /* GitHub button - match pill button effects */
-    .github-btn {
-      text-decoration: none !important;
-      display: inline-flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-      width: 40px !important;
-      height: 40px !important;
-      padding: 0 !important;
-      background: var(--key-surface) !important;
-      border: 1px solid var(--key-border) !important;
-      color: var(--color-text) !important;
-      border-radius: 50% !important;
-      cursor: pointer !important;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06) !important;
-      transition: background .18s ease, color .18s ease, box-shadow .18s ease, transform .12s ease, border-color .18s ease !important;
-    }
-
-    .github-btn:hover,
-    .github-btn:focus-visible {
-      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface)) !important;
-      border-color: var(--color-tab-active-bg) !important;
-      transform: translateY(-1px) !important;
-      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25) !important;
-    }
-
-    .github-btn:active {
-      transform: translateY(0) !important;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
-    }
-
-    .github-btn svg {
-      width: 18px !important;
-      height: 18px !important;
-      stroke-width: 2 !important;
-      transition: color .18s ease, stroke .18s ease !important;
-    }
     
-    /* === LaTeX Input Area (Ace Editor) === */
+    /* === LaTeX Input Area === */
     #ta {
       width: 100%;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      color: var(--color-text) !important;
       border: 1px solid var(--color-border);
       border-radius: 10px;
       box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+      min-height: 56px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+      font-size: 14px;
+      line-height: 1.6;
+      resize: vertical;
       box-sizing: border-box;
-      overflow: hidden;
     }
     
-    #ta .ace_editor {
-      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace !important;
-      font-size: 18px !important;
-      line-height: 1.6 !important;
-    }
-    
-    #ta:focus-within {
+    #ta:focus {
       outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, var(--color-text));
       outline-offset: 2px;
       border-color: var(--color-tab-active-bg);
       box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tab-active-bg) 10%, transparent);
     }
     
-    /* Ace Editor theme overrides */
-    .ace_editor {
-      background: var(--color-surface) !important;
-    }
-    
-    .ace_gutter {
-      background: var(--color-surface-alt) !important;
-      color: var(--muted) !important;
-      border-right: 1px solid var(--color-border);
-    }
-    
-    .ace_content {
-      background: var(--color-surface) !important;
-      color: var(--color-text) !important;
-    }
-    
-    .ace_cursor {
-      color: var(--color-caret) !important;
-    }
-    
-    .ace_selection {
-      background: rgba(173, 216, 230, 0.5) !important; /* Light blue highlight */
-    }
-    
     [data-theme="dark"] #ta {
+      background: var(--color-surface);
+      color: var(--color-text) !important;
+      border: 1px solid var(--color-border);
       box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
     }
     
-    [data-theme="dark"] #ta:focus-within {
+    [data-theme="dark"] #ta:focus {
+      border-color: var(--color-tab-active-bg);
       box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
-    }
-    
-    [data-theme="dark"] .ace_selection {
-      background: rgba(96, 165, 250, 0.3) !important;
     }
     
     /* === Screen-reader only / visually hidden utility === */
@@ -2229,17 +2127,14 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         </button>
 
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
-          <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="github-btn" title="View on GitHub">
-            <i data-lucide="github"></i>
-          </a>
-          <button class="header-copy" id="copyBtn" title="Copy LaTeX">
+          <button class="header-copy" id="headerCopyLatex">
             <i data-lucide="copy"></i> Copy LaTeX
+          </button>
+          <button class="header-copy" id="headerCopyWord">
+            <i data-lucide="file-text"></i> Copy Word Equation
           </button>
           <button class="header-copy" id="shortcutsBtn" title="View available inline shortcuts">
             <i data-lucide="keyboard"></i> Shortcuts
-          </button>
-          <button class="header-copy" id="pureLatexBtn" title="Pure LaTeX Mode">
-            <i data-lucide="terminal"></i> Pure LaTeX
           </button>
             </div>
 
@@ -2315,13 +2210,25 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         <!-- 2. Raw LaTeX Input -->
         <div class="io-section io-raw">
-          <label class="io-label" for="ta">Raw LaTeX Input</label>
+          <div class="io-labelbar">
+            <label class="io-label" for="ta">Raw LaTeX Input</label>
+          <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
+      </div>
           
-          <!-- Ace Editor container -->
-          <div id="ta" style="width: 100%;"></div>
+          <!-- LaTeX input textarea -->
+          <textarea id="ta" spellcheck="false"></textarea>
         </div>
 
-        <!-- 3. LaTeX Preview (full width like Rendered Input) -->
+        <!-- 3. Word Equation Output -->
+        <div class="io-section io-word">
+          <div class="io-labelbar">
+            <label class="io-label" for="wordOut">Word Equation Output</label>
+          <button id="copyWordBtn" class="copyBtn">Copy Word Equation</button>
+      </div>
+          <textarea id="wordOut" readonly></textarea>
+        </div>
+
+        <!-- 4. LaTeX Preview (full width like Rendered Input) -->
         <div class="io-section io-preview">
           <label class="io-label">LaTeX Preview</label>
           <div class="preview-bar" id="latexPreview"></div>
@@ -2357,73 +2264,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
              }
          }
 
-        const taContainer=document.getElementById('ta');
+        const ta=document.getElementById('ta');
         const mf2=document.getElementById('mf2');
+        const wordOut=document.getElementById('wordOut');
         let isSyncing = false; // Flag to prevent infinite sync loops
-        
-        // Initialize Ace Editor
-        const aceEditor = ace.edit(taContainer);
-        aceEditor.setTheme("ace/theme/github");
-        aceEditor.session.setMode("ace/mode/latex");
-        aceEditor.setOptions({
-            fontSize: "18px",
-            fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace",
-            showPrintMargin: false,
-            highlightActiveLine: true,
-            enableBasicAutocompletion: true,
-            enableLiveAutocompletion: false,
-            wrap: true,
-            tabSize: 2,
-            useSoftTabs: true,
-            showGutter: false,
-            showLineNumbers: false,
-            maxLines: Infinity,
-            minLines: 4
-        });
-        
-        // Create ta object that mimics textarea API for compatibility
-        const ta = {
-            get value() { return aceEditor.getValue(); },
-            set value(v) { 
-                const cursorPos = aceEditor.getCursorPosition();
-                aceEditor.setValue(v, -1); // -1 to move cursor to start
-                // Try to restore cursor position if reasonable
-                if (cursorPos.row < aceEditor.session.getLength()) {
-                    aceEditor.moveCursorTo(cursorPos.row, cursorPos.column);
-                }
-            },
-            addEventListener: (event, handler) => {
-                if (event === 'input') {
-                    aceEditor.on('change', handler);
-                } else if (event === 'paste') {
-                    aceEditor.on('paste', handler);
-                }
-            },
-            focus: () => aceEditor.focus()
-        };
-        
-        // Apply theme based on current theme setting
-        function updateAceTheme() {
-            const theme = document.documentElement.getAttribute('data-theme');
-            if (theme === 'dark') {
-                aceEditor.setTheme("ace/theme/github_dark");
-            } else {
-                aceEditor.setTheme("ace/theme/github");
-            }
-        }
-        
-        // Initial theme setup
-        updateAceTheme();
-        
-        // Watch for theme changes
-        const themeObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'data-theme') {
-                    updateAceTheme();
-                }
-            });
-        });
-        themeObserver.observe(document.documentElement, { attributes: true });
         
         // Theme handling is now done in the header script above
 
@@ -2436,40 +2280,19 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         // The convertLatexToMathML wrapper function is defined at the end of this file
         
         // Preview update functions
-        function updateLatexPreview(rawLatexOverride) {
+        function updateLatexPreview() {
             const latexPreview = document.getElementById('latexPreview');
-            // Use rawLatexOverride if provided (from MathLive), otherwise fall back to ta.value
-            const latex = (rawLatexOverride !== undefined ? rawLatexOverride : ta.value).trim();
+            const latex = ta.value.trim();
             if (latex) {
-                latexPreview.textContent = '\\[' + latex + '\\]';
+                latexPreview.innerHTML = '\\(' + latex + '\\)';
                 if (window.MathJax && window.MathJax.typesetPromise) {
-                    window.MathJax.typesetPromise([latexPreview]).then(() => {
-                        // After MathJax renders, adjust height if content exceeds container
-                        adjustPreviewHeight();
-                    }).catch(err => {
+                    window.MathJax.typesetPromise([latexPreview]).catch(err => {
                         console.warn('LaTeX preview typeset failed:', err);
                         latexPreview.innerHTML = '<span style="color: #ef4444; font-size: 0.9rem;">Invalid LaTeX</span>';
                     });
                 }
             } else {
-                latexPreview.textContent = '';
-            }
-        }
-
-        // Adjust preview bar height to match content if it exceeds default height
-        function adjustPreviewHeight() {
-            const latexPreview = document.getElementById('latexPreview');
-            
-            // Get the content's scroll height (actual content height)
-            const contentHeight = latexPreview.scrollHeight;
-            
-            // Only expand if content exceeds the current container height
-            // Otherwise, let CSS handle the default min-height (120px)
-            if (contentHeight > latexPreview.offsetHeight) {
-                latexPreview.style.minHeight = contentHeight + 'px';
-            } else {
-                // Reset to CSS default
-                latexPreview.style.minHeight = '';
+                latexPreview.innerHTML = '';
             }
         }
         
@@ -2482,14 +2305,35 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 // Replace differentialD with 'd'
                 const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
                 
-                // Keep the LaTeX spaces (\:) in the output
-                const displayLatex = cleanLatex;
+                // Create version without \: for display and copying (clean LaTeX)
+                const displayLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
                 
-                // Update Raw LaTeX Input
+                // Update Raw LaTeX Input with clean version (no \:)
                 if (ta.value !== displayLatex) { ta.value = displayLatex; }
                 
-                // Update preview with the cleaned LaTeX (with replacement applied)
-                updateLatexPreview(cleanLatex);
+                // Convert to MathML using MathJax
+                if (typeof convertLatexToMathML === 'function') {
+                    convertLatexToMathML(cleanLatex).then(mathml => {
+                        let out = mathml || '';
+                        if (window.WordMathML && typeof window.WordMathML.convertMathMLForWord === 'function') {
+                            out = window.WordMathML.convertMathMLForWord(out);
+                        }
+                        if (window.WordMathML && typeof window.WordMathML.convertOverlines === 'function') {
+                            out = window.WordMathML.convertOverlines(out);
+                        }
+                        if (typeof fixDotAccentsInString === 'function') {
+                            out = fixDotAccentsInString(out);
+                        }
+                        if (typeof fixMathMLforWord === 'function') {
+                            out = fixMathMLforWord(out);
+                        }
+                        wordOut.value = out;
+                    });
+                } else {
+                    // Show loading message if converter not ready yet
+                    wordOut.value = '(Loading MathJax...)';
+                }
+                updateLatexPreview();
             } catch (error) {
                 console.error('Error in syncFromMathLive:', error);
                 // Don't crash - just log the error
@@ -2504,9 +2348,40 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             
             try {
                 let cleanLatex = ta.value;
-                // Keep LaTeX spaces in the input
+                // Remove \: spacing if present in pasted content (keep textarea clean)
+                cleanLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
+                
+                if (ta.value !== cleanLatex) { 
+                    ta.value = cleanLatex;
+                }
                 
                 if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
+                
+                // Get MathLive's processed version
+                let latexForWord = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
+                
+                // Convert to MathML using MathJax
+                if (typeof convertLatexToMathML === 'function') {
+                    convertLatexToMathML(latexForWord).then(mathml => {
+                        let out = mathml || '';
+                        if (window.WordMathML && typeof window.WordMathML.convertMathMLForWord === 'function') {
+                            out = window.WordMathML.convertMathMLForWord(out);
+                        }
+                        if (window.WordMathML && typeof window.WordMathML.convertOverlines === 'function') {
+                            out = window.WordMathML.convertOverlines(out);
+                        }
+                        if (typeof fixDotAccentsInString === 'function') {
+                            out = fixDotAccentsInString(out);
+                        }
+                        if (typeof fixMathMLforWord === 'function') {
+                            out = fixMathMLforWord(out);
+                        }
+                        wordOut.value = out;
+                    });
+                } else {
+                    // Show loading message if converter not ready yet
+                    wordOut.value = '(Loading MathJax...)';
+                }
                 
                 updateLatexPreview();
                 // Adjust math field height after content changes
@@ -2520,6 +2395,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 }
             } catch (error) {
                 console.error('Error in syncFromTextArea:', error);
+                // Try to show error in Word output so user knows something went wrong
+                if (wordOut) {
+                    wordOut.value = '⚠️ Error processing LaTeX: ' + error.message;
+                }
             } finally {
                 isSyncing = false;
             }
@@ -3058,15 +2937,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 },
                 {
                     isSelectable: true,
-                    keyType: 'conjugate',
-                    currentVar: 'z',
-                    display: '\\overline{z}',
-                    insert: '\\overline{z}',
-                    options: ['z', '\\omega', '\\placeholder{}'],
-                    syncGroup: 'complex'
-                },
-                {
-                    isSelectable: true,
                     keyType: 'real',
                     currentVar: 'z',
                     display: 'Re(z)',
@@ -3290,13 +3160,21 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         }
 
+        function latexTokenToUnicode(token){
+            const map = new Map([
+                ['\\alpha','α'],['\\beta','β'],['\\gamma','γ'],['\\delta','δ'],['\\epsilon','ε'],['\\zeta','ζ'],['\\eta','η'],['\\theta','θ'],['\\iota','ι'],['\\kappa','κ'],['\\lambda','λ'],['\\mu','μ'],['\\nu','ν'],['\\xi','ξ'],['\\omicron','ο'],['\\pi','π'],['\\rho','ρ'],['\\sigma','σ'],['\\tau','τ'],['\\upsilon','υ'],['\\phi','φ'],['\\chi','χ'],['\\psi','ψ'],['\\omega','ω'],
+                ['\\Gamma','Γ'],['\\Delta','Δ'],['\\Theta','Θ'],['\\Lambda','Λ'],['\\Xi','Ξ'],['\\Pi','Π'],['\\Sigma','Σ'],['\\Upsilon','Υ'],['\\Phi','Φ'],['\\Psi','Ψ'],['\\Omega','Ω']
+            ]);
+            if(token==='\\placeholder{}') return '□';
+            return map.get(token) || token;
+        }
 
         function formatSelectOptionLabel(value, providedText){
             if(typeof providedText==='string' && providedText.trim().length>0){
                 return providedText;
             }
             if(typeof value==='string'){
-                return value;
+                return latexTokenToUnicode(value);
             }
             return String(value);
         }
@@ -3675,6 +3553,21 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
         }
 
+        /* ---------------- Insert Word Equation helper ---------------- */
+        function insertWordEquation(wordText) {
+          const wordOutput = document.getElementById('wordOut');
+          const cursorPos = wordOutput.selectionStart || wordOutput.value.length;
+          const textBefore = wordOutput.value.substring(0, cursorPos);
+          const textAfter = wordOutput.value.substring(cursorPos);
+          
+          wordOutput.value = textBefore + wordText + textAfter;
+          
+          // Set cursor after inserted text
+          const newCursorPos = cursorPos + wordText.length;
+          wordOutput.setSelectionRange(newCursorPos, newCursorPos);
+          wordOutput.focus();
+        }
+
         /* ---------------- Copy buttons ---------------- */
         async function copyToClipboard(a, b) {
           const label = b || 'text';
@@ -3707,16 +3600,36 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
           showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
         }
-        const copyButton = document.getElementById('copyBtn');
-        const resolveCopyLabel = () => (localStorage.getItem('pureLatexMode') === 'true' ? 'Pure LaTeX' : 'LaTeX');
-        if (copyButton) {
-          copyButton.addEventListener('click', () => {
-            copyToClipboard(getLatex() ?? '', resolveCopyLabel());
-          });
-        }
+        document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
+        document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
         
         // Add hover expansion functionality to editor copy buttons
         document.getElementById('copyBtn').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        document.getElementById('copyWordBtn').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        document.getElementById('headerCopyLatex').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
+        document.getElementById('headerCopyWord').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+        
+        // Add hover expansion functionality to header buttons
+        document.getElementById('headerCopyLatex').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        document.getElementById('headerCopyWord').addEventListener('mouseenter', () => {
             const expArea = document.getElementById('expanded-area');
             if (expArea && expArea.getAttribute('data-tab-id')) {
                 const currentTabId = expArea.getAttribute('data-tab-id');
@@ -3740,17 +3653,19 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         
         // Simple, clear width enforcement
         function setTextareaWidths() {
-            const taContainer = document.getElementById('ta');
+            const ta = document.getElementById('ta');
+            const wordOut = document.getElementById('wordOut');
             
-            if (taContainer) {
-                taContainer.style.width = '100%';
-                taContainer.style.maxWidth = '100%';
-                console.log('Set #ta container to 100% width');
-                
-                // Resize Ace Editor to fit container
-                if (typeof aceEditor !== 'undefined' && aceEditor.resize) {
-                    aceEditor.resize();
-                }
+            if (ta) {
+                ta.style.width = '100%';
+                ta.style.maxWidth = '100%';
+                console.log('Set #ta to 100% width');
+            }
+            
+            if (wordOut) {
+                wordOut.style.width = '100%';
+                wordOut.style.maxWidth = '100%';
+                console.log('Set #wordOut to 100% width');
             }
         }
 
@@ -4043,11 +3958,70 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     })();
     </script>
 
+    <!-- Load LaTeX Converter Modules -->
+    <script src="./js/symbol-maps.js"></script>
+    <script src="./js/latex-utils.js"></script>
+    <script src="./js/latex-parser.js"></script>
+    <script src="./js/ast-printer.js"></script>
+    <script src="./js/postprocessor.js"></script>
+    <script src="./js/latex-converter.js"></script>
+    <script src="./js/mathml-normalizer.js"></script>
+    
+    <script src="./js/nary-operator-normalizer.js"></script>
+    
+    <script>
+        // The JS modules (latex-converter.js, postprocessor.js, latex-utils.js) 
+        // are loaded above and expose their functions to the global window object.
+        // We just need to verify they're loaded and dispatch the ready event.
+        
+        // Wait for all scripts to be loaded
+        window.addEventListener('load', () => {
+            if (window.LatexConverter && window.PostProcessor && window.LatexUtils) {
+                console.log('✅ LaTeX converter modules loaded');
+                window.dispatchEvent(new CustomEvent('latex-modules-ready'));
+            } else {
+                console.error('❌ LaTeX converter modules not loaded properly', {
+                    LatexConverter: !!window.LatexConverter,
+                    PostProcessor: !!window.PostProcessor,
+                    LatexUtils: !!window.LatexUtils
+                });
+            }
+        });
+    </script>
+
     <!-- LaTeX to MathML Conversion Helper (using MathJax) -->
     <script>
+    // Wait for modules to be ready
+    window.addEventListener('latex-modules-ready', function() {
+        // Debug: Check what modules are available
+        console.log('🔍 Module check:');
+        console.log('  LatexConverter:', typeof window.LatexConverter, window.LatexConverter);
+        console.log('  LatexUtils:', typeof window.LatexUtils, window.LatexUtils);
+        console.log('  PostProcessor:', typeof window.PostProcessor, window.PostProcessor);
+        
+        // Check if all required modules are loaded
+        if (!window.LatexConverter) {
+            console.error('❌ LatexConverter module not loaded!');
+            return;
+        }
+        if (!window.LatexUtils) {
+            console.error('❌ LatexUtils module not loaded!');
+            return;
+        }
+        
+        // Extract functions from namespaced modules
+        window.toWordEquation = window.LatexConverter.toWordEquation;
+        window.normalizeWordInput = window.LatexConverter.normalizeWordInput;
+        window.removeWordSpaces = window.LatexConverter.removeWordSpaces;
+        window.normalizeLatexStr = window.LatexUtils.normalizeLatexStr;
+        
         // Enable AST debugging (set to false in production)
         window.DEBUG_AST = false;
         
+        // Create convenience function for test suite
+        window.convertLatexToUnicodeMath = function(latex) {
+            return window.LatexConverter.toWordEquation(latex);
+        };
         
         /**
          * Fixes n-ary operators in MathML to ensure proper display in Microsoft Word
@@ -4578,6 +4552,18 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             return (window.WordMathML && typeof window.WordMathML.convertOverlines==='function') ? window.WordMathML.convertOverlines(s) : s;
         };
         
+        // Debug test for cases environment
+        window.debugCases = function() {
+            const testLatex = '|x|=\\begin{cases} x & \\text{if } x\\geq 0 \\\\ -x & \\text{if } x<0 \\end{cases}';
+            console.log('🧪 Testing cases environment:');
+            console.log('Input LaTeX:', testLatex);
+            const result = window.LatexConverter.toWordEquation(testLatex);
+            console.log('Output UnicodeMath:', result);
+            console.log('Expected:         |x|={█(x&if x≥0@-x&if x<0)┤');
+            const matches = result === '|x|={█(x&if x≥0@-x&if x<0)┤';
+            console.log(matches ? '✅ PASS' : '❌ FAIL');
+            return result;
+        };
         
         // Debug test for overbar combining conversion
         window.debugOverbar = async function() {
@@ -4748,69 +4734,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       } else {
         normalizeMath(document);
       }
-    })();
-    </script>
-
-    <script>
-    // ========== Pure LaTeX Mode ==========
-    (function() {
-      const PURE_LATEX_KEY = 'pureLatexMode';
-      const pureLatexBtn = document.getElementById('pureLatexBtn');
-      const tabsWrapper = document.getElementById('tabs_wrapper');
-      const expandedArea = document.getElementById('expanded-area');
-      const renderedSection = document.querySelector('.io-rendered');
-      const rawSection = document.querySelector('.io-raw');
-      const previewSection = document.querySelector('.io-preview');
-      const ioGrid = document.querySelector('.io-grid');
-      
-      let isPureLatexMode = localStorage.getItem(PURE_LATEX_KEY) === 'true';
-
-      function updateButtonState() {
-        if (!pureLatexBtn) return;
-        if (isPureLatexMode) {
-          pureLatexBtn.classList.add('pure-latex-active');
-        } else {
-          pureLatexBtn.classList.remove('pure-latex-active');
-        }
-      }
-
-      function applyLayoutOrder() {
-        if (!ioGrid || !rawSection || !previewSection) return;
-        if (isPureLatexMode) {
-          ioGrid.insertBefore(previewSection, rawSection);
-        } else {
-          ioGrid.insertBefore(rawSection, previewSection);
-        }
-      }
-
-      function applyPureLatexMode() {
-        applyLayoutOrder();
-
-        if (isPureLatexMode) {
-          // Hide toolbar and rendered input
-          if (tabsWrapper) tabsWrapper.style.display = 'none';
-          if (expandedArea) expandedArea.style.display = 'none';
-          if (renderedSection) renderedSection.style.display = 'none';
-        } else {
-          // Show everything
-          if (tabsWrapper) tabsWrapper.style.display = '';
-          if (expandedArea) expandedArea.style.display = '';
-          if (renderedSection) renderedSection.style.display = '';
-        }
-        updateButtonState();
-      }
-
-      // Toggle Pure LaTeX mode
-      if (pureLatexBtn) {
-        pureLatexBtn.addEventListener('click', () => {
-          isPureLatexMode = !isPureLatexMode;
-          localStorage.setItem(PURE_LATEX_KEY, isPureLatexMode);
-          applyPureLatexMode();
-        });
-      }
-
-      // Apply mode on page load
-      applyPureLatexMode();
     })();
     </script>
 </body>
