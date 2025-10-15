@@ -4043,50 +4043,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     })();
     </script>
 
-    <!-- Load LaTeX Converter Modules -->
-    <script src="./js/symbol-maps.js"></script>
-    <script src="./js/latex-utils.js"></script>
-    <script src="./js/latex-parser.js"></script>
-    <script src="./js/ast-printer.js"></script>
-    <script src="./js/postprocessor.js"></script>
-    <script src="./js/mathml-normalizer.js"></script>
-    
+    <!-- Load N-ary Operator Normalizer for Word compatibility -->
     <script src="./js/nary-operator-normalizer.js"></script>
     
-    <script>
-        // The JS modules (latex-utils.js) 
-        // are loaded above and expose their functions to the global window object.
-        // We just need to verify they're loaded and dispatch the ready event.
-        
-        // Wait for all scripts to be loaded
-        window.addEventListener('load', () => {
-            if (window.LatexUtils) {
-                console.log('✅ LaTeX utility modules loaded');
-                window.dispatchEvent(new CustomEvent('latex-modules-ready'));
-            } else {
-                console.error('❌ LaTeX utility modules not loaded properly', {
-                    LatexUtils: !!window.LatexUtils
-                });
-            }
-        });
-    </script>
-
     <!-- LaTeX to MathML Conversion Helper (using MathJax) -->
     <script>
-    // Wait for modules to be ready
-    window.addEventListener('latex-modules-ready', function() {
-        // Debug: Check what modules are available
-        console.log('🔍 Module check:');
-        console.log('  LatexUtils:', typeof window.LatexUtils, window.LatexUtils);
-        
-        // Check if all required modules are loaded
-        if (!window.LatexUtils) {
-            console.error('❌ LatexUtils module not loaded!');
-            return;
-        }
-        
-        // Extract functions from namespaced modules
-        window.normalizeLatexStr = window.LatexUtils.normalizeLatexStr;
+        // The nary-operator-normalizer.js module is loaded above
+        // and exposes its functions to the global window object.
         
         // Enable AST debugging (set to false in production)
         window.DEBUG_AST = false;
