@@ -2436,11 +2436,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         // The convertLatexToMathML wrapper function is defined at the end of this file
         
         // Preview update functions
-        function updateLatexPreview() {
+        function updateLatexPreview(rawLatexOverride) {
             const latexPreview = document.getElementById('latexPreview');
-            const latex = ta.value.trim();
+            // Use rawLatexOverride if provided (from MathLive), otherwise fall back to ta.value
+            const latex = (rawLatexOverride !== undefined ? rawLatexOverride : ta.value).trim();
             if (latex) {
-                latexPreview.innerHTML = '\\[' + latex + '\\]';
+                latexPreview.textContent = '\\[' + latex + '\\]';
                 if (window.MathJax && window.MathJax.typesetPromise) {
                     window.MathJax.typesetPromise([latexPreview]).then(() => {
                         // After MathJax renders, adjust height if content exceeds container
@@ -2451,7 +2452,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     });
                 }
             } else {
-                latexPreview.innerHTML = '';
+                latexPreview.textContent = '';
             }
         }
 
@@ -2487,7 +2488,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 // Update Raw LaTeX Input
                 if (ta.value !== displayLatex) { ta.value = displayLatex; }
                 
-                updateLatexPreview();
+                // Update preview with the cleaned LaTeX (with replacement applied)
+                updateLatexPreview(cleanLatex);
             } catch (error) {
                 console.error('Error in syncFromMathLive:', error);
                 // Don't crash - just log the error
