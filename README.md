@@ -1,4 +1,4 @@
-# E2 Typer - Pure LaTeX Math Equation Editor
+# HSC Extension Maths Typer - LaTeX Math Equation Editor
 
 A powerful web-based LaTeX math equation editor with real-time preview, syntax highlighting, and Microsoft Word compatibility.
 

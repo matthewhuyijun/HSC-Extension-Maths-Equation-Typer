@@ -1,0 +1,63 @@
+# ============================================
+# 🧹 E2 MathsTyper - Essential Files Only
+# ============================================
+
+# Backup files
+*.backup
+*.old
+*.bak
+index.html.backup*
+
+# Test files
+test*.html
+test*.js
+test_*.html
+test_*.js
+debug*.html
+debug*.js
+
+# Development documentation (keep only README.md)
+*_PROMPT.txt
+*_SUMMARY.md
+*_FIX.md
+*_COMPLETE.md
+*_CASES.txt
+AI_*.txt
+DEBUG_*.md
+FRAC_*.md
+LEFTDELIM_*.md
+SPACING_*.md
+MODULES_README.md
+PROJECT_STATS.md
+QUICK_START.md
+REFACTORING_*.md
+START_HERE.md
+
+# Server/development scripts
+serve.sh
+start-server.*
+*.bat
+
+# Temporary/generated files
+converter_new.js
+new_converter_indented.txt
+clean_html.py
+<!DOCTYPE html>.css
+
+# Test/bridge files in js/
+js/main.js
+js/test-*.js
+js/*-bridge.js
+js/*-bundle.js
+
+# IDE and system files
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Node modules (if ever added)
+node_modules/
+package-lock.json
