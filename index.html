@@ -3697,7 +3697,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
           showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
         }
-        document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'',isPureLatexMode ? 'Pure LaTeX' : 'LaTeX'));
+        const copyButton = document.getElementById('copyBtn');
+        const resolveCopyLabel = () => (localStorage.getItem('pureLatexMode') === 'true' ? 'Pure LaTeX' : 'LaTeX');
+        if (copyButton) {
+          copyButton.addEventListener('click', () => {
+            copyToClipboard(getLatex() ?? '', resolveCopyLabel());
+          });
+        }
         
         // Add hover expansion functionality to editor copy buttons
         document.getElementById('copyBtn').addEventListener('mouseenter', () => {
@@ -4786,10 +4792,14 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       const tabsWrapper = document.getElementById('tabs_wrapper');
       const expandedArea = document.getElementById('expanded-area');
       const renderedSection = document.querySelector('.io-rendered');
+      const rawSection = document.querySelector('.io-raw');
+      const previewSection = document.querySelector('.io-preview');
+      const ioGrid = document.querySelector('.io-grid');
       
       let isPureLatexMode = localStorage.getItem(PURE_LATEX_KEY) === 'true';
 
       function updateButtonState() {
+        if (!pureLatexBtn) return;
         if (isPureLatexMode) {
           pureLatexBtn.classList.add('pure-latex-active');
         } else {
@@ -4797,49 +4807,40 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }
       }
 
+      function applyLayoutOrder() {
+        if (!ioGrid || !rawSection || !previewSection) return;
+        if (isPureLatexMode) {
+          ioGrid.insertBefore(previewSection, rawSection);
+        } else {
+          ioGrid.insertBefore(rawSection, previewSection);
+        }
+      }
+
       function applyPureLatexMode() {
+        applyLayoutOrder();
+
         if (isPureLatexMode) {
           // Hide toolbar and rendered input
           if (tabsWrapper) tabsWrapper.style.display = 'none';
           if (expandedArea) expandedArea.style.display = 'none';
           if (renderedSection) renderedSection.style.display = 'none';
-          
-          // Reorder sections: LaTeX Preview first, then Raw LaTeX Input
-          const ioGrid = document.querySelector('.io-grid');
-          if (ioGrid) {
-            const previewSection = document.querySelector('.io-preview');
-            const inputSection = document.querySelector('.io-input');
-            if (previewSection && inputSection) {
-              ioGrid.insertBefore(previewSection, inputSection);
-            }
-          }
         } else {
-          // Show everything and restore original order
+          // Show everything
           if (tabsWrapper) tabsWrapper.style.display = '';
           if (expandedArea) expandedArea.style.display = '';
           if (renderedSection) renderedSection.style.display = '';
-          
-          // Restore original order: Raw LaTeX Input first, then LaTeX Preview
-          const ioGrid = document.querySelector('.io-grid');
-          if (ioGrid) {
-            const previewSection = document.querySelector('.io-preview');
-            const inputSection = document.querySelector('.io-input');
-            if (previewSection && inputSection) {
-              ioGrid.insertBefore(inputSection, previewSection);
-            }
-          }
-
         }
         updateButtonState();
       }
 
       // Toggle Pure LaTeX mode
-      pureLatexBtn.addEventListener('click', () => {
-        isPureLatexMode = !isPureLatexMode;
-        localStorage.setItem(PURE_LATEX_KEY, isPureLatexMode);
-        applyPureLatexMode();
-        
-      });
+      if (pureLatexBtn) {
+        pureLatexBtn.addEventListener('click', () => {
+          isPureLatexMode = !isPureLatexMode;
+          localStorage.setItem(PURE_LATEX_KEY, isPureLatexMode);
+          applyPureLatexMode();
+        });
+      }
 
       // Apply mode on page load
       applyPureLatexMode();
