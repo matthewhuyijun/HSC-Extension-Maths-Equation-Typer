@@ -1,62 +1,74 @@
-# HSC Extension Maths Typer - LaTeX Math Equation Editor
+# 📐 E2 MathsTyper - Pure LaTeX Edition
 
-A powerful web-based LaTeX math equation editor with real-time preview, syntax highlighting, and Microsoft Word compatibility.
+A specialized web app designed for **E2 students** to type LaTeX equations and convert them to various formats, optimized for **Notion** and web-based platforms. [**Try it now →**](index.html)
 
-## Features
+---
 
-- **Real-time LaTeX Preview** - See your equations rendered instantly
-- **Ace Editor Integration** - Professional code editor with LaTeX syntax highlighting
-- **MathLive Integration** - Interactive math input with visual editing
-- **Microsoft Word Compatibility** - Export MathML optimized for Word
-- **Theme Support** - Light and dark themes
-- **Pure LaTeX Mode** - Focused editing experience without visual distractions
+## 🎯 E2-Specific Features
 
-## Technologies Used
+• **E2-Optimized Buttons** - Custom button layout designed for E2 math curriculum
 
-- **Ace Editor (Ajax.org Cloud9 Editor)** - Professional code editor with LaTeX syntax highlighting, auto-completion, and theme support
-- **MathLive** - Interactive math input and editing
-- **MathJax** - LaTeX to MathML conversion and rendering
-- **Vanilla JavaScript** - Core functionality and DOM manipulation
-- **CSS3** - Modern styling with CSS Grid and Flexbox
+• **Visual LaTeX Editor** - Type math using MathLive's interactive editor
 
-## Ace Editor Features
+• **Live Preview** - See your equations rendered in real-time
 
-The raw LaTeX input area uses Ace Editor (Ajax.org Cloud9 Editor) to provide:
+• **Multiple Export Formats** - Copy LaTeX, MathML, and other formats for different platforms
 
-- **LaTeX Syntax Highlighting** - Commands, brackets, and symbols are color-coded
-- **Auto-completion** - Intelligent suggestions for LaTeX commands
-- **Line Numbers** - Easy navigation and debugging
-- **Theme Integration** - Automatically switches between light/dark themes
-- **Professional Editing** - Find/replace, multiple cursors, and other advanced features
-- **Real-time Sync** - Bidirectional synchronization with MathLive editor
+• **LaTeX Export** - Copy raw LaTeX code for various platforms
 
-## Usage
+• **Dark Mode** - System-aware theme with manual override
 
-1. **Type LaTeX** in the Ace Editor (raw input area) or use the MathLive visual editor
-2. **Preview** your equations in real-time
-3. **Copy** LaTeX or MathML for use in other applications
-4. **Toggle Pure LaTeX Mode** for a focused editing experience
+• **Keyboard Shortcuts** - 100+ inline shortcuts for fast typing
 
-## Keyboard Shortcuts
+• **Mobile Friendly** - Responsive design works on all devices
 
-- `Ctrl/Cmd + C` - Copy LaTeX
-- `Ctrl/Cmd + V` - Paste
-- `Ctrl/Cmd + Z` - Undo
-- `Ctrl/Cmd + Y` - Redo
+---
 
-## Browser Compatibility
+## 🚀 Quick Start
 
-- Chrome 80+
-- Firefox 75+
-- Safari 13+
-- Edge 80+
+1. **Open** `index.html` in any modern web browser (Chrome, Firefox, Safari, Edge)
+2. **Type** your LaTeX equation in the "Rendered Input" field
+3. **Copy** the generated LaTeX or other format using the copy buttons
+4. **Paste** the code into **Notion** or other web platforms
 
-## License
+## 📝 Platform Compatibility
 
-MIT License - see LICENSE file for details.
+### ✅ **Notion** - Perfect Match
 
-## Acknowledgments
+• LaTeX work excellently in Notion
 
-- [Ace Editor](https://ace.c9.io/) - Ajax.org Cloud9 Editor for the code editing experience
-- [MathLive](https://cortexjs.io/mathlive/) - Interactive math input
-- [MathJax](https://www.mathjax.org/) - LaTeX rendering engine
+• Clean, professional rendering
+
+• No compatibility issues
+
+### ⚠️ **Microsoft Word** - Use Native Equation Editor Instead
+**Important:** While LaTeX can be used in Word, it's **not recommended** for:
+
+• **Vectors** (complex arrow notation)
+
+
+• **Complex numbers** (imaginary unit notation)
+
+
+**Why LaTeX struggles in Word:**
+• I've tested multiple approaches: Unicode with regex, AST parsing, and MathML conversion
+
+• All methods failed to render complex mathematical notation properly in Word
+
+• Word's native equation editor handles these cases much better
+
+**Recommendation:** Use Word's **native equation editor** (Insert → Equation) for complex math in Word documents.
+
+---
+
+## 🙏 Credits & Acknowledgments
+
+Thank you to all the amazing open-source projects that made this possible:
+
+• **MathLive** by Arno Gourdol - Interactive math editor that powers the equation input
+
+• **MathJax** - Math rendering engine for LaTeX preview
+
+• **Lucide** - Beautiful icon set for the interface
+
+• **Open Source Community** - For making tools like this accessible to E2 students
