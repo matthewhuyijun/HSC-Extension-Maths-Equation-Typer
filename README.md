@@ -9,7 +9,9 @@ A clean, modern web app for typing LaTeX equations and converting them to MathML
 - ✅ **Visual LaTeX Editor** - Type math using MathLive's interactive editor
 - ✅ **Live Preview** - See your equations rendered in real-time
 - ✅ **MathML Export** - Copy clean MathML code to clipboard
+- ✅ **Unicode Equation Export** ⭐ - Copy Word-compatible UnicodeMath format
 - ✅ **Word-Compatible MathML** - Auto-fixes n-ary operators for Microsoft Word
+- ✅ **Piecewise Normalizer** - Auto-converts piecewise functions to stretchy braces
 - ✅ **LaTeX Export** - Copy raw LaTeX code
 - ✅ **Dark Mode** - System-aware theme with manual override
 - ✅ **Keyboard Shortcuts** - 100+ inline shortcuts for fast typing
@@ -115,9 +117,15 @@ Fully responsive design with:
 
 The app automatically post-processes MathML output to ensure it displays correctly in Microsoft Word without dotted placeholders.
 
+**📘 See also:** 
+- [MathML Templates Guide](MATHML_TEMPLATES.md) - Copy-paste ready MathML templates
+- [Overbar Conversion Guide](OVERBAR_CONVERSION_GUIDE.md) - Combining overline format for Word compatibility
+- [Piecewise Normalizer Guide](PIECEWISE_NORMALIZER.md) - Full documentation on piecewise function normalization
+- [Piecewise Quick Start](PIECEWISE_QUICK_START.md) - Test piecewise functions immediately
+
 ### What Gets Fixed:
 
-**N-ary Operators** (integrals ∫, sums ∑, products ∏) require their operands to be wrapped in `<mrow>` tags for Word to recognize them properly.
+**N-ary Operators** (integrals ∫, sums ∑, products ∏) require their operands to be wrapped in `<mrow>` tags for Word to recognize them properly. **The app automatically applies this fix** when generating MathML.
 
 **Before (causes dotted placeholder in Word):**
 ```xml
@@ -153,35 +161,110 @@ The app automatically post-processes MathML output to ensure it displays correct
 - **Summations:** `∑` (U+2211) - with `<munderover>`, `<munder>`, etc.
 - **Products:** `∏` (U+220F) - with `<munderover>`, `<munder>`, etc.
 
-### Testing:
+**Overbar Notation** (bars and overlines) are automatically converted to Unicode combining overline format (`U+0305`) for better Word compatibility:
 
-Run `debugNaryOperators()` in the browser console to test the n-ary operator wrapping:
-
-```javascript
-debugNaryOperators()
+**Before (causes issues in Word):**
+```xml
+<mover accent="true">
+  <mi>z</mi>
+  <mo>¯</mo>
+</mover>
 ```
 
-This will test various integrals, sums, and products to verify the MathML is Word-compatible.
+**After (Word-compatible):**
+```xml
+<mi>z&#x0305;</mi>
+```
+
+**Supported commands:** `\bar{z}`, `\overline{x}`, works with Latin and Greek letters.
+
+**Arrow Accents** (vector notation) are automatically enhanced with the `accent="true"` attribute and **long arrow symbols** for proper stretching and Word rendering:
+
+**Before (renders incorrectly in Word):**
+```xml
+<mover>
+  <mi>A</mi><mi>B</mi>
+  <mo>→</mo>
+</mover>
+```
+
+**After (Word-compatible):**
+```xml
+<mover accent="true">
+  <mrow>
+    <mi>A</mi><mi>B</mi>
+  </mrow>
+  <mo>⟶</mo>
+</mover>
+```
+
+**Key improvements:**
+- Uses **long rightwards arrow** (U+27F6 ⟶) instead of short arrow (U+2192 →)
+- Wraps multi-character bases in `<mrow>` for proper arrow stretching
+- Adds `accent="true"` for correct Word interpretation
+
+**Piecewise Functions** (cases environment) are automatically normalized to use stretchy braces:
+
+**Before (non-stretchy brace):**
+```xml
+<mrow>
+  <mo>{</mo>
+  <mtable>
+    <mtr><mtd><mi>x</mi></mtd><mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr>
+    <mtr><mtd><mn>0</mn></mtd><mtd><mi>x</mi><mo>≤</mo><mn>0</mn></mtd></mtr>
+  </mtable>
+  <mo></mo>
+</mrow>
+```
+
+**After (stretchy brace):**
+```xml
+<mrow>
+  <mfenced open="{" close="">
+    <mtable>
+      <mtr><mtd><mi>x</mi></mtd><mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr>
+      <mtr><mtd><mn>0</mn></mtd><mtd><mi>x</mi><mo>≤</mo><mn>0</mn></mtd></mtr>
+    </mtable>
+  </mfenced>
+</mrow>
+```
+
+**Benefits:**
+- Brace automatically stretches to span all table rows
+- Renders correctly in MathJax, KaTeX, and native MathML
+- Works perfectly in Microsoft Word
+- Use `\begin{cases}...\end{cases}` in LaTeX for automatic conversion
+
+**Supported commands:** `\overrightarrow{AB}`, `\overleftarrow{XY}`, works with any content.
+
+**📘 See also:** 
+- [Arrow Accent Quick Reference](ARROW_ACCENT_QUICK_REFERENCE.md) - Usage examples
+- [Arrow Accent Implementation](OVERRIGHTARROW_IMPLEMENTATION.md) - Technical details
+
+### Testing:
+
+Run these debug functions in the browser console:
+
+```javascript
+debugNaryOperators()       // Test n-ary operator wrapping (∫, ∑, ∏)
+debugOverbar()             // Test overbar combining conversion (\bar, \overline)
+await testOverrightarrow() // Test arrow accent conversion (\overrightarrow, \overleftarrow) - NEW
+```
+
+Or open the dedicated test pages:
+- `test_nary_operators.html` - N-ary operator tests
+- `test_overbar.html` - Overbar conversion tests
+- `test_overrightarrow.html` - Arrow accent tests (NEW)
 
 ---
 
-## 🧹 Simplified Architecture
+## 🏗️ Architecture
 
-This version removes all Microsoft Word/OMML conversion logic and uses only:
-- MathLive's built-in `convertLatexToMathMl()` function
+### MathML Conversion
+- Uses MathLive's built-in `convertLatexToMathMl()` function
 - Standard MathML output
-- No external dependencies beyond CDN libraries
+- Word-compatible normalizations
 
-### Files You Can Delete:
-The `js/` directory contains old Word converter modules that are **no longer needed**:
-- `ast-printer.js`
-- `latex-converter.js`
-- `latex-parser.js`
-- `latex-utils.js`
-- `postprocessor.js`
-- `symbol-maps.js`
-
-These can be safely deleted as the app now uses MathLive's native converter.
 
 ---
 
@@ -213,5 +296,5 @@ Free to use and modify. Built with open-source libraries.
 
 ---
 
-**Version:** 2.0 (MathML Edition)  
-**Last Updated:** October 13, 2025
+**Version:** 2.2 (MathML Edition)  
+**Last Updated:** October 15, 2025

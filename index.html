@@ -16,61 +16,11 @@
 </script>
 <!-- Lucide Icons CDN -->
 <script src="https://unpkg.com/lucide@latest"></script>
-<!-- CodeCogs Equation Editor API -->
-<script src="https://editor.codecogs.com/eqneditor.api.min.js" crossorigin="anonymous"></script>
-<!-- CodeMirror 6 for LaTeX syntax highlighting -->
-<script type="module">
-  // ✅ CM6 imports (avoid the 'codemirror@6' meta-package to prevent version conflicts)
-  import { EditorView, keymap, highlightActiveLine, lineNumbers, highlightActiveLineGutter, highlightSpecialChars, drawSelection, dropCursor, rectangularSelection, crosshairCursor } from "https://esm.sh/@codemirror/view@6";
-  import { EditorState } from "https://esm.sh/@codemirror/state@6";
-  import { defaultKeymap, history, historyKeymap } from "https://esm.sh/@codemirror/commands@6";
-  import { indentOnInput, bracketMatching, foldGutter, syntaxHighlighting, defaultHighlightStyle, foldKeymap, StreamLanguage } from "https://esm.sh/@codemirror/language@6";
-  import { stex } from "https://esm.sh/@codemirror/legacy-modes@6/mode/stex";
-  import { searchKeymap, highlightSelectionMatches } from "https://esm.sh/@codemirror/search@6";
-  import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from "https://esm.sh/@codemirror/autocomplete@6";
-  
-  // Create basicSetup equivalent manually to avoid version conflicts
-  const basicSetup = [
-    lineNumbers(),
-    highlightActiveLineGutter(),
-    highlightSpecialChars(),
-    history(),
-    foldGutter(),
-    drawSelection(),
-    dropCursor(),
-    EditorState.allowMultipleSelections.of(true),
-    indentOnInput(),
-    syntaxHighlighting(defaultHighlightStyle, {fallback: true}),
-    bracketMatching(),
-    closeBrackets(),
-    autocompletion(),
-    rectangularSelection(),
-    crosshairCursor(),
-    highlightActiveLine(),
-    highlightSelectionMatches(),
-    keymap.of([
-      ...closeBracketsKeymap,
-      ...defaultKeymap,
-      ...searchKeymap,
-      ...historyKeymap,
-      ...foldKeymap,
-      ...completionKeymap,
-    ])
-  ];
-  
-  window.CodeMirrorModules = {
-    EditorView,
-    basicSetup,
-    keymap,
-    EditorState,
-    StreamLanguage,
-    stex
-  };
-  console.log('✅ CodeMirror modules loaded');
-  
-  // Dispatch custom event to signal modules are ready
-  window.dispatchEvent(new CustomEvent('codemirror-ready'));
-</script>
+<!-- Ace Editor -->
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/ace.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/mode-latex.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/theme-github.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/ace-builds@1.32.0/src-min-noconflict/theme-github_dark.js"></script>
 <!-- Rounded, friendly UI font -->
 <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@500&display=swap" rel="stylesheet">
 <!-- Inter (UI font used by MathLive site) -->
@@ -320,7 +270,11 @@
             margin: 16px 5% 12px 5%;
             box-sizing: border-box;
         }
-        #expanded-area:hover { background: transparent; }
+        #expanded-area { 
+            background: var(--color-bg); 
+            border-radius: 16px;
+        }
+        #expanded-area:hover { background: var(--color-bg); }
         .hidden { display: none; }
 
         .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
@@ -355,7 +309,7 @@
 
         /* Base styling for textareas only */
         textarea {
-            font-size: 16px; 
+            font-size: 18px; 
             padding: 12px; 
             border: 1px solid var(--color-border); 
             border-radius: 6px; 
@@ -379,6 +333,7 @@
         #mf2 {
             width: 100%;
             --background: #ffffff;
+            background: var(--background);
             --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
             --hue: 211;
             --border-radius: 8px;
@@ -408,11 +363,11 @@
         }
 
         /* 100% WIDTH ELEMENTS - ALL TEXT AREAS SAME WIDTH */
-        /* Raw LaTeX Input and Word Equation Output textareas */
-        #ta, #wordOut {
+        /* Raw LaTeX Input textarea */
+        #ta {
             width: 100%;
             max-width: 100%;
-            min-height: 48px; /* Approx one line height */
+            min-height: 20px; /* Very minimal height */
             height: auto;
             overflow-y: auto; /* Allow scrolling if content exceeds one line */
         }
@@ -429,7 +384,9 @@
         /* Dark mode mathfield - matching demo style */
         [data-theme="dark"] #mf2 {
             --background: #1e293b;
+            background: var(--background);
             --color: #f3f4f6;
+            color: var(--color);
             --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
             border-color: #334155;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
@@ -678,7 +635,11 @@ header h1::after {
 #tabs { gap: 8px; padding: 0; }
 
 /* Expanded keys: tighter look + lift on hover */
-#expanded-area { gap: 14px; border-radius: 0; }
+#expanded-area { 
+  gap: 14px; 
+  border-radius: 16px;
+  background: var(--color-bg);
+}
 .key {
   border-radius: 14px;
   box-shadow: 0 10px 22px rgba(2, 6, 23, 0.12);
@@ -795,8 +756,7 @@ html[data-theme="dark"] input[type="text"],
 html[data-theme="dark"] .math-field,
 html[data-theme="dark"] .output-box,
 html[data-theme="dark"] .latex-preview,
-html[data-theme="dark"] .raw-latex,
-html[data-theme="dark"] .word-equation {
+html[data-theme="dark"] .raw-latex {
   background: var(--color-surface) !important;
   color: var(--color-text) !important;
   border: 1px solid var(--color-border) !important;
@@ -861,148 +821,300 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
   background-color: #374151;
   border-color: #60a5fa;
 }
-
-/* ============================================
-   CodeMirror 6 Custom Styles
-   ============================================ */
-
-.cm-editor {
-  height: 100%;
-  font-size: 14px;
-  font-family: 'Courier New', Courier, monospace;
-  border: 1px solid var(--color-border);
-  border-radius: 4px;
-  background-color: var(--color-surface);
-}
-
-.cm-scroller {
-  overflow: auto;
-  font-family: 'Courier New', Courier, monospace;
-}
-
-.cm-content {
-  padding: 8px;
-  font-family: 'Courier New', Courier, monospace;
-  color: var(--color-text);
-}
-
-.cm-gutters {
-  background-color: var(--color-surface-alt);
-  border-right: 1px solid var(--color-border);
-}
-
-.cm-activeLineGutter {
-  background-color: var(--color-border);
-}
-
-.cm-line {
-  padding-left: 4px;
-}
-
-/* LaTeX syntax highlighting */
-.cm-keyword {
-  color: #d73a49;
-  font-weight: bold;
-}
-
-.cm-atom {
-  color: #005cc5;
-}
-
-.cm-number {
-  color: #005cc5;
-}
-
-.cm-comment {
-  color: #6a737d;
-  font-style: italic;
-}
-
-.cm-string {
-  color: #032f62;
-}
-
-.cm-bracket {
-  color: #24292e;
-  font-weight: bold;
-}
-
-/* Dark mode adjustments */
-[data-theme="dark"] .cm-editor {
-  background-color: #1e1e1e;
-  border-color: var(--color-border);
-}
-
-[data-theme="dark"] .cm-content {
-  color: #d4d4d4;
-}
-
-[data-theme="dark"] .cm-gutters {
-  background-color: #252526;
-  border-right-color: var(--color-border);
-}
-
-[data-theme="dark"] .cm-activeLineGutter {
-  background-color: #2a2a2a;
-}
-
-[data-theme="dark"] .cm-keyword {
-  color: #c586c0;
-}
-
-[data-theme="dark"] .cm-atom {
-  color: #4ec9b0;
-}
-
-[data-theme="dark"] .cm-number {
-  color: #b5cea8;
-}
-
-[data-theme="dark"] .cm-comment {
-  color: #6a9955;
-}
-
-[data-theme="dark"] .cm-string {
-  color: #ce9178;
-}
-
-[data-theme="dark"] .cm-bracket {
-  color: #d4d4d4;
-}
-
-/* Make CodeMirror fit properly in the io-section */
-.io-raw #latex-editor-container {
-  width: 100%;
-  min-height: 200px;
-  height: auto;
-  flex: 1;
-  display: block;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
-  overflow: visible;
-  background: var(--color-surface);
-  position: relative;
-}
-
-.io-raw #latex-editor-container .cm-editor {
-  height: 100%;
-  min-height: 200px;
-}
-
-.io-raw #latex-editor-container .cm-scroller {
-  min-height: 200px;
-  overflow: auto !important;
-}
-
-.io-raw #latex-editor-container .cm-content {
-  min-height: 200px;
-}
     </style>
     <script>
         window.MathJax = { tex: { inlineMath: [['$', '$'], ['\\(', '\\)']] }, svg: { fontCache: 'global' } };
         window.whenMathJaxReady = window.whenMathJaxReady || function(){};
     </script>
+    <script>
+      /* ========= Word-Compatible MathML Conversion =========
+         Fixes <mo accent="false">&#xAF;</mo> → <mo stretchy="true">&#xAF;</mo>
+         and other accent/overbar issues when exporting MathML for Word
+      ======================================================== */
+      function fixMathMLforWord(mathmlString) {
+        if (!mathmlString) return "";
+
+        // Rule 1: accent="false" macron → stretchy="true"
+        mathmlString = mathmlString.replace(
+          /<mo\b[^>]*\baccent\s*=\s*["']false["'][^>]*>\s*&#xAF;\s*<\/mo>/g,
+          '<mo stretchy="true">&#xAF;</mo>'
+        );
+
+        // Rule 2: horizontal bars (—, &#x2015;) → macron
+        mathmlString = mathmlString.replace(
+          /<mo\b[^>]*\baccent\s*=\s*["'](?:true|1)["'][^>]*>\s*(?:&#x2015;|&#8213;|—)\s*<\/mo>/g,
+          '<mo stretchy="true">&#xAF;</mo>'
+        );
+
+        // Rule 3: Fix sum (∑) and product (∏) operators for Word compatibility
+        mathmlString = fixSumProdForWord(mathmlString);
+
+        // Rule 4: Fix arrow accents (overrightarrow, overleftarrow)
+        if (typeof window.fixArrowAccentsMathML === 'function') {
+          mathmlString = window.fixArrowAccentsMathML(mathmlString);
+        }
+
+        // Rule 5: Normalize piecewise definitions (brace + table → mfenced)
+        if (typeof window.MathMLNormalizer !== 'undefined' && 
+            typeof window.MathMLNormalizer.normalizePiecewise === 'function') {
+          const result = window.MathMLNormalizer.normalizePiecewise(mathmlString);
+          if (result && result.mathml) {
+            mathmlString = result.mathml;
+          }
+        }
+
+        return mathmlString;
+      }
+
+      /**
+       * Fixes sum (∑) and product (∏) operators in MathML to ensure proper display in Microsoft Word
+       * Adds movablelimits="true" and stretchy="false" attributes to make Word recognize them as operators
+       * @param {string} mathmlString - The MathML string to fix
+       * @returns {string} Fixed MathML string
+       */
+      function fixSumProdForWord(mathmlString) {
+        if (!mathmlString) return "";
+
+        // Replace any <mo> for "∑" or "∏" (including entity forms) with Word-compatible attributes
+        // This handles standalone operators and those within munder/munderover/mover
+        // Match various forms: ∑, &#x2211;, &#8721; for sum and ∏, &#x220F;, &#8719; for product
+        return mathmlString.replace(
+          /<mo[^>]*>\s*(?:∑|&#x2211;|&#8721;|∏|&#x220F;|&#8719;)\s*<\/mo>/g,
+          function(match) {
+            // Extract the operator symbol from the match
+            const symbolMatch = match.match(/>\s*(∑|&#x2211;|&#8721;|∏|&#x220F;|&#8719;)\s*</);
+            if (symbolMatch) {
+              const symbol = symbolMatch[1];
+              return '<mo movablelimits="true" stretchy="false">' + symbol + '</mo>';
+            }
+            return match;
+          }
+        );
+      }
+
+      // Quick console test
+      document.addEventListener('DOMContentLoaded', () => {
+        const testInput = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">\n  <mover>\n    <mi>z<\/mi>\n    <mo accent="false">&#xAF;<\/mo>\n  <\/mover>\n<\/math>`;
+        const fixed = fixMathMLforWord(testInput);
+        if (fixed && fixed.includes('stretchy="true"')) {
+          console.log('✅ fixMathMLforWord applied in test');
+        }
+
+        // Test sum/prod conversion
+        const sumTestInput = `<math xmlns="http://www.w3.org/1998/Math/MathML">\n  <munderover>\n    <mo>∑<\/mo>\n    <mi>i=1<\/mi>\n    <mi>n<\/mi>\n  <\/munderover>\n<\/math>`;
+        const sumFixed = fixMathMLforWord(sumTestInput);
+        if (sumFixed && sumFixed.includes('movablelimits="true"') && sumFixed.includes('stretchy="false"')) {
+          console.log('✅ fixSumProdForWord applied in test');
+        }
+
+        // Test product conversion
+        const prodTestInput = `<math xmlns="http://www.w3.org/1998/Math/MathML">\n  <munder>\n    <mo>∏<\/mo>\n    <mi>k=1<\/mi>\n  <\/munder>\n<\/math>`;
+        const prodFixed = fixMathMLforWord(prodTestInput);
+        if (prodFixed && prodFixed.includes('movablelimits="true"') && prodFixed.includes('stretchy="false"')) {
+          console.log('✅ fixSumProdForWord applied to product in test');
+        }
+      });
+    </script>
      <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
+    <script>
+    /**
+     * Normalize \dot and \ddot accents in MathML so Word renders them correctly.
+     * - Ensures <mover accent="true">…</mover>
+     * - Converts top <mo> to combining marks:
+     *     \dot   -> &#x0307;  (COMBINING DOT ABOVE)
+     *     \ddot  -> &#x0308;  (COMBINING DIAERESIS)
+     *
+     * Use either the string transformer (fixDotAccentsInString) in your pipeline,
+     * or the DOM fixer (fixDotAccentsInDOM) to patch rendered MathML nodes.
+     */
+
+    /* ---------- STRING TRANSFORMER (use in your conversion pipeline) ---------- */
+    function fixDotAccentsInString(xml) {
+      if (!xml) return xml;
+
+      // 1) \ddot: diaeresis variants -> combining diaeresis U+0308, add accent="true"
+      xml = xml.replace(
+        /<mover\b(?![^>]*\baccent=)[^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x00?A8;|&#168;|&diaeresis;|&DoubleDot;|¨|&#x0308;|&#776;)\s*<\/mo>\s*<\/mover>/gi,
+        '<mover accent="true">$1<mo>&#x0308;</mo></mover>'
+      );
+
+      // 2) \dot: dot variants -> combining dot above U+0307, add accent="true"
+      xml = xml.replace(
+        /<mover\b(?![^>]*\baccent=)[^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x0?2D9;|&#729;|&#x0307;|&DotAbove;|˙)\s*<\/mo>\s*<\/mover>/gi,
+        '<mover accent="true">$1<mo>&#x0307;</mo></mover>'
+      );
+
+      // 3) (Optional) Strip MathJax ORD wrapper that can interfere downstream
+      xml = xml.replace(
+        /<mrow\b[^>]*\bdata-mjx-texclass=["']ORD["'][^>]*>\s*(<mover\b[\s\S]*?<\/mover>)\s*<\/mrow>/gi,
+        '$1'
+      );
+
+      // 4) If accent already present but wrong top mark, normalize the glyph
+      xml = xml
+        // ddot normalize inside existing accent="true"
+        .replace(
+          /<mover\b[^>]*\baccent=["']true["'][^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x00?A8;|&#168;|&diaeresis;|&DoubleDot;|¨|&#x0308;|&#776;)\s*<\/mo>\s*<\/mover>/gi,
+          '<mover accent="true">$1<mo>&#x0308;</mo></mover>'
+        )
+        // dot normalize inside existing accent="true"
+        .replace(
+          /<mover\b[^>]*\baccent=["']true["'][^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x0?2D9;|&#729;|&DotAbove;|˙)\s*<\/mo>\s*<\/mover>/gi,
+          '<mover accent="true">$1<mo>&#x0307;</mo></mover>'
+        );
+
+      return xml;
+    }
+
+    /* ---------- DOM FIXER (use after MathML is in the document) ---------- */
+    function fixDotAccentsInDOM(root = document) {
+      const movers = root.querySelectorAll('mover, MOVER'); // be tolerant of case
+
+      movers.forEach(mv => {
+        // Skip if not an element or has no children
+        if (!(mv instanceof Element)) return;
+
+        // Unwrap MathJax wrapper: <mrow data-mjx-texclass="ORD"><mover>…</mover></mrow>
+        if (mv.parentElement?.matches('mrow[data-mjx-texclass="ORD"]')) {
+          const wrapper = mv.parentElement;
+          wrapper.replaceWith(mv); // unwrap
+        }
+
+        // Find the top <mo> (accent glyph) – usually the last child of <mover>
+        // In canonical MathML it's the second child; be defensive:
+        const mo = Array.from(mv.children).find(el => el.tagName?.toLowerCase() === 'mo')
+               || mv.lastElementChild;
+
+        if (!mo || mo.tagName?.toLowerCase() !== 'mo') return;
+
+        const glyph = (mo.innerHTML || mo.textContent || '').trim();
+
+        // Determine if this is dot or diaeresis variant
+        const isDiaeresis = /^(?:&#x00?A8;|&#168;|&diaeresis;|&DoubleDot;|¨|&#x0308;|&#776;)$/.test(glyph);
+        const isDotAbove  = /^(?:&#x0?2D9;|&#729;|&DotAbove;|˙|&#x0307;)$/.test(glyph);
+
+        if (!isDiaeresis && !isDotAbove) return;
+
+        // Ensure accent="true"
+        mv.setAttribute('accent', 'true');
+
+        // Normalize glyph to combining form
+        mo.innerHTML = isDiaeresis ? '&#x0308;' : '&#x0307;';
+      });
+    }
+
+    /* ---------- Auto-run after DOM ready (covers rendered MathML) ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Patch any MathML currently in the DOM
+      try { fixDotAccentsInDOM(document); } catch (e) { /* no-op */ }
+
+      // Optional: observe future inserts (e.g., after conversions/renders)
+      const obs = new MutationObserver(muts => {
+        for (const m of muts) {
+          for (const node of m.addedNodes) {
+            if (node.nodeType === 1) { // ELEMENT_NODE
+              if (node.tagName && /^(mover|mrow|math)$/i.test(node.tagName)) {
+                fixDotAccentsInDOM(node);
+              } else {
+                const anyMover = node.querySelector?.('mover');
+                if (anyMover) fixDotAccentsInDOM(node);
+              }
+            }
+          }
+        }
+      });
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    });
+    </script>
+    <script>
+      // Append our fix to the existing callback
+      const _prevWhenReady = window.whenMathJaxReady || function(){};
+      window.whenMathJaxReady = function () {
+        _prevWhenReady();
+        fixNaryOperands();
+      };
+
+      function fixNaryOperands(root = document) {
+        const MML = "http://www.w3.org/1998/Math/MathML";
+        // All MathML <math> elements
+        const maths = root.querySelectorAll('math');
+
+        maths.forEach(math => {
+          // For each operator pattern, ensure the immediate operand is an <mrow>
+          wrapAfterLimits(math, 'munderover', '&#x2211;'); // ∑
+          wrapAfterLimits(math, 'munder',     '&#x2211;'); // ∑ (lower only)
+          wrapAfterLimits(math, 'munderover', '&#x220F;'); // ∏
+          wrapIntegral(math);                                 // ∫ with/without limits
+        });
+
+        function isWhitespace(node) {
+          return node && node.nodeType === Node.TEXT_NODE && !node.nodeValue.trim();
+        }
+
+        // Generic wrapper for ∑ and ∏ after <munderover>/<munder>
+        function wrapAfterLimits(math, limitsTag, entity) {
+          const limits = math.getElementsByTagName(limitsTag);
+          for (const lim of limits) {
+            const mo = lim.querySelector('mo');
+            if (!mo || mo.innerHTML.trim() !== entity) continue;
+
+            // Find the first meaningful sibling after limitsTag
+            let after = lim.nextSibling;
+            while (isWhitespace(after)) after = after.nextSibling;
+
+            // If already <mrow>, nothing to do
+            if (after && after.nodeType === 1 && after.localName === 'mrow') continue;
+
+            // Wrap the single following node (if any) into <mrow>
+            const mrow = document.createElementNS(MML, 'mrow');
+            if (after) {
+              math.insertBefore(mrow, after);
+              mrow.appendChild(after);
+            } else {
+              // No operand present: create empty mrow placeholder
+              math.appendChild(mrow);
+            }
+          }
+        }
+
+        // Integrals: either <msubsup><mo>&#x222B;</mo>…</msubsup> or bare <mo>&#x222B;</mo>
+        function wrapIntegral(math) {
+          // Case 1: with limits
+          const withLimits = math.getElementsByTagName('msubsup');
+          for (const box of withLimits) {
+            const mo = box.querySelector('mo');
+            if (!mo || mo.innerHTML.trim() !== '&#x222B;') continue;
+
+            let after = box.nextSibling;
+            while (isWhitespace(after)) after = after.nextSibling;
+            if (after && after.nodeType === 1 && after.localName === 'mrow') continue;
+
+            const mrow = document.createElementNS(MML, 'mrow');
+            if (after) {
+              math.insertBefore(mrow, after);
+              mrow.appendChild(after);
+            } else {
+              math.appendChild(mrow);
+            }
+          }
+
+          // Case 2: without limits (bare ∫)
+          const mos = math.getElementsByTagName('mo');
+          for (const mo of mos) {
+            if (mo.innerHTML.trim() !== '&#x222B;') continue;
+            // Only handle if next isn’t already mrow
+            let after = mo.nextSibling;
+            while (isWhitespace(after)) after = after.nextSibling;
+            if (!after) continue;
+            if (after.nodeType === 1 && after.localName === 'mrow') continue;
+
+            const mrow = document.createElementNS(MML, 'mrow');
+            mo.parentNode.insertBefore(mrow, after);
+            mrow.appendChild(after);
+          }
+        }
+      }
+    </script>
     
     <!-- ===== Blue gradient navigation bar styles ===== -->
     <style>
@@ -1421,6 +1533,31 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 14px 32px rgba(3,12,30,.58);
     }
 
+    /* Pure LaTeX button active state - follows tab design system */
+    .pure-latex-active {
+      background: var(--color-tab-active-bg) !important;
+      color: var(--color-tab-active-text) !important;
+      border-color: var(--color-tab-active-bg) !important;
+      animation: pureLatexGlow 2s ease-in-out infinite alternate !important;
+      box-shadow: 
+        0 0 20px rgba(37, 99, 235, 0.5), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    }
+
+    @keyframes pureLatexGlow {
+      0% {
+        box-shadow: 
+          0 0 20px rgba(37, 99, 235, 0.5), 
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+      100% {
+        box-shadow: 
+          0 0 25px rgba(37, 99, 235, 0.6), 
+          0 12px 22px rgba(15, 23, 42, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+    }
+
     .btn--symbol-skin:active{ transform: translateY(0) }
 
     .copyBtn.btn--symbol-skin,
@@ -1504,6 +1641,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+    }
+    
+    [data-theme="dark"] .io-labelbar {
+      background: #1e293b;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
     }
     .io-label {
       font-weight: 800;
@@ -1533,8 +1680,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     .io-rendered { grid-column: 1 / -1; }
-    .io-raw      { grid-column: 1 / 7;  }
-    .io-word     { grid-column: 7 / -1; }
+    .io-raw      { grid-column: 1 / -1; }
     .io-preview  { grid-column: 1 / -1; }
 
     .io-section {
@@ -1559,9 +1705,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     @media (max-width: 960px) {
-      .io-raw  { grid-column: 1 / -1; }
-      .io-word { grid-column: 1 / -1; }
-      .io-preview { grid-column: 1 / -1; }
+      /* All sections are now full width by default */
     }
     @media (max-width: 640px) {
       .io-grid  { gap: 16px; }
@@ -1585,7 +1729,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     /* Textarea min-height */
-    #ta, #wordOut { min-height: 56px; }
+    #ta { min-height: 20px; }
 
     /* ========== Preview Bar Styling ========== */
     .preview-bar {
@@ -1593,16 +1737,18 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: 10px;
-      min-height: 56px;
+      min-height: 120px;
+      height: auto;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.3rem;
-      overflow-x: auto;
+      overflow: auto;
       box-shadow: 0 1px 0 rgba(2,6,23,0.05);
       transition: border-color 0.2s ease;
       width: 100%;
       box-sizing: border-box;
+      max-width: 100%;
     }
 
     [data-theme="dark"] .preview-bar {
@@ -1954,13 +2100,67 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 0 60px rgba(59,130,246,0.25);
     }
     
-    /* === CodeCogs Toolbar Styling === */
-    #codecogsToolbarWrap { 
-      padding: 6px 0; 
+    /* === LaTeX Input Area (Ace Editor) === */
+    #ta {
+      width: 100%;
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+      box-sizing: border-box;
+      overflow: hidden;
+    }
+    
+    #ta .ace_editor {
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace !important;
+      font-size: 18px !important;
+      line-height: 1.6 !important;
+    }
+    
+    #ta:focus-within {
+      outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, var(--color-text));
+      outline-offset: 2px;
+      border-color: var(--color-tab-active-bg);
+      box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-tab-active-bg) 10%, transparent);
+    }
+    
+    /* Ace Editor theme overrides */
+    .ace_editor {
+      background: var(--color-surface) !important;
+    }
+    
+    .ace_gutter {
+      background: var(--color-surface-alt) !important;
+      color: var(--muted) !important;
+      border-right: 1px solid var(--color-border);
+    }
+    
+    .ace_content {
+      background: var(--color-surface) !important;
+      color: var(--color-text) !important;
+    }
+    
+    .ace_cursor {
+      color: var(--color-caret) !important;
+    }
+    
+    .ace_selection {
+      background: rgba(173, 216, 230, 0.5) !important; /* Light blue highlight */
+    }
+    
+    [data-theme="dark"] #ta {
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+    
+    [data-theme="dark"] #ta:focus-within {
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15);
+    }
+    
+    [data-theme="dark"] .ace_selection {
+      background: rgba(96, 165, 250, 0.3) !important;
     }
     
     /* === Screen-reader only / visually hidden utility === */
-    /* Hides element visually but keeps it focusable for accessibility and CodeCogs */
+    /* Hides element visually but keeps it focusable for accessibility */
     .sr-only-hidden {
       position: absolute !important;
       width: 1px; 
@@ -1983,19 +2183,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         </button>
 
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
-          <button class="header-copy" id="headerCopyLatex">
+          <button class="header-copy" id="copyBtn" title="Copy LaTeX">
             <i data-lucide="copy"></i> Copy LaTeX
-          </button>
-          <button class="header-copy" id="headerCopyWord">
-            <i data-lucide="file-text"></i> Copy Word Equation
           </button>
           <button class="header-copy" id="shortcutsBtn" title="View available inline shortcuts">
             <i data-lucide="keyboard"></i> Shortcuts
           </button>
-          <button class="header-copy" id="toggleToolbarBtn" title="Switch toolbar">
-            <i data-lucide="shuffle"></i> Toggle Toolbar
+          <button class="header-copy" id="pureLatexBtn" title="Pure LaTeX Mode">
+            <i data-lucide="terminal"></i> Pure LaTeX
           </button>
-        </div>
+            </div>
 
         <div class="h-right">
           <div class="theme-switch" role="group" aria-label="Theme">
@@ -2025,7 +2222,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const resolved = mode === 'system' ? (prefersDarkScheme.matches ? 'dark' : 'light') : mode;
         html.setAttribute('data-theme', resolved); 
         html.style.colorScheme = resolved === 'dark' ? 'dark' : 'light';
-        localStorage.setItem(THEME_STORAGE_KEY, mode); 
+        localStorage.setItem(THEME_STORAGE_KEY, mode);
       };
       
       const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
@@ -2067,35 +2264,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           <math-field id="mf2" smart-fence letter-shape-style="tex" virtual-keyboard-mode="manual" remove-extraneous-parentheses="on" menu-items="[]"></math-field>
       </div>
 
-        <!-- 2. Raw LaTeX -->
+        <!-- 2. Raw LaTeX Input -->
         <div class="io-section io-raw">
-          <div class="io-labelbar">
-            <label class="io-label" for="ta">Raw LaTeX Input (Syntax Highlighted)</label>
-          <button id="copyBtn" class="copyBtn">Copy LaTeX</button>
-      </div>
+          <label class="io-label" for="ta">Raw LaTeX Input</label>
           
-          <!-- NEW: CodeCogs toolbar holder (hidden by default) -->
-          <div id="codecogsToolbarWrap" style="display:none; margin-bottom: 8px;">
-            <div id="codecogsToolbar"></div>
-            <!-- Optional: If you want CodeCogs image output: -->
-            <!-- <img id="codecogsOutput" alt="CodeCogs preview" style="margin-top:8px;max-width:100%;"> -->
-          </div>
-          
-          <div id="latex-editor-container"></div>
-          <!-- Keep hidden textarea for backwards compatibility, but focusable for CodeCogs -->
-          <textarea id="ta" class="sr-only-hidden"></textarea>
+          <!-- Ace Editor container -->
+          <div id="ta" style="width: 100%;"></div>
         </div>
 
-        <!-- 3. Word Equation Output -->
-        <div class="io-section io-word">
-          <div class="io-labelbar">
-            <label class="io-label" for="wordOut">Word Equation Output</label>
-          <button id="copyWordBtn" class="copyBtn">Copy Word Equation</button>
-      </div>
-          <textarea id="wordOut" readonly></textarea>
-        </div>
-
-        <!-- 4. LaTeX Preview (full width like Rendered Input) -->
+        <!-- 3. LaTeX Preview (full width like Rendered Input) -->
         <div class="io-section io-preview">
           <label class="io-label">LaTeX Preview</label>
           <div class="preview-bar" id="latexPreview"></div>
@@ -2131,147 +2308,79 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
              }
          }
 
-        const ta=document.getElementById('ta');
+        const taContainer=document.getElementById('ta');
         const mf2=document.getElementById('mf2');
-        const wordOut=document.getElementById('wordOut');
-        let cmEditor = null; // CodeMirror editor instance
         let isSyncing = false; // Flag to prevent infinite sync loops
+        
+        // Initialize Ace Editor
+        const aceEditor = ace.edit(taContainer);
+        aceEditor.setTheme("ace/theme/github");
+        aceEditor.session.setMode("ace/mode/latex");
+        aceEditor.setOptions({
+            fontSize: "18px",
+            fontFamily: "'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace",
+            showPrintMargin: false,
+            highlightActiveLine: true,
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: false,
+            wrap: true,
+            tabSize: 2,
+            useSoftTabs: true,
+            showGutter: false,
+            showLineNumbers: false,
+            maxLines: Infinity,
+            minLines: 4
+        });
+        
+        // Create ta object that mimics textarea API for compatibility
+        const ta = {
+            get value() { return aceEditor.getValue(); },
+            set value(v) { 
+                const cursorPos = aceEditor.getCursorPosition();
+                aceEditor.setValue(v, -1); // -1 to move cursor to start
+                // Try to restore cursor position if reasonable
+                if (cursorPos.row < aceEditor.session.getLength()) {
+                    aceEditor.moveCursorTo(cursorPos.row, cursorPos.column);
+                }
+            },
+            addEventListener: (event, handler) => {
+                if (event === 'input') {
+                    aceEditor.on('change', handler);
+                } else if (event === 'paste') {
+                    aceEditor.on('paste', handler);
+                }
+            },
+            focus: () => aceEditor.focus()
+        };
+        
+        // Apply theme based on current theme setting
+        function updateAceTheme() {
+            const theme = document.documentElement.getAttribute('data-theme');
+            if (theme === 'dark') {
+                aceEditor.setTheme("ace/theme/github_dark");
+            } else {
+                aceEditor.setTheme("ace/theme/github");
+            }
+        }
+        
+        // Initial theme setup
+        updateAceTheme();
+        
+        // Watch for theme changes
+        const themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'data-theme') {
+                    updateAceTheme();
+                }
+            });
+        });
+        themeObserver.observe(document.documentElement, { attributes: true });
         
         // Theme handling is now done in the header script above
 
-        // Initialize CodeMirror editor when modules are ready
-        function initCodeMirrorEditor() {
-            if (!window.CodeMirrorModules || cmEditor) {
-                console.log('CodeMirror init skipped:', {
-                    modulesReady: !!window.CodeMirrorModules,
-                    editorExists: !!cmEditor
-                });
-                return;
-            }
-            
-            try {
-                const {EditorView, basicSetup, EditorState, StreamLanguage, stex} = window.CodeMirrorModules;
-                
-                const startState = EditorState.create({
-                    doc: ta.value || '',
-                    extensions: [
-                        basicSetup,
-                        StreamLanguage.define(stex),
-                        EditorView.updateListener.of((update) => {
-                            if (update.docChanged && !isSyncing) {
-                                const newValue = update.state.doc.toString();
-                                ta.value = newValue; // Keep textarea in sync
-                                syncFromTextArea();
-                            }
-                        }),
-                        EditorView.theme({
-                            "&": { 
-                                height: "100%",
-                                fontSize: "14px",
-                                backgroundColor: "var(--color-surface)"
-                            },
-                            ".cm-content": {
-                                padding: "12px 14px",
-                                minHeight: "200px"
-                            },
-                            ".cm-scroller": { 
-                                overflow: "auto",
-                                minHeight: "200px"
-                            },
-                            ".cm-gutters": {
-                                backgroundColor: "var(--color-surface-alt)",
-                                color: "var(--muted)",
-                                borderRight: "1px solid var(--color-border)"
-                            },
-                            ".cm-line": {
-                                padding: "0 2px"
-                            }
-                        }),
-                        EditorView.lineWrapping,
-                        EditorView.editable.of(true)
-                    ]
-                });
-
-                const container = document.getElementById('latex-editor-container');
-                if (!container) {
-                    console.error('Container element not found!');
-                    return;
-                }
-
-                cmEditor = new EditorView({
-                    state: startState,
-                    parent: container
-                });
-                
-                // Focus the editor on container click
-                container.addEventListener('click', () => {
-                    cmEditor.focus();
-                });
-                
-                // Add a test to verify the editor is editable
-                console.log('✅ CodeMirror LaTeX editor initialized');
-                console.log('   - Document length:', cmEditor.state.doc.length, 'characters');
-                console.log('   - Is editable:', !cmEditor.state.readOnly);
-                console.log('   - Container dimensions:', container.offsetWidth, 'x', container.offsetHeight);
-                console.log('   - Container computed style:', {
-                    pointerEvents: window.getComputedStyle(container).pointerEvents,
-                    display: window.getComputedStyle(container).display,
-                    visibility: window.getComputedStyle(container).visibility,
-                    zIndex: window.getComputedStyle(container).zIndex
-                });
-                
-                // Debug: Add click handler to container to see if clicks register
-                container.addEventListener('click', (e) => {
-                    console.log('🖱️ Container clicked!', {
-                        target: e.target,
-                        currentTarget: e.currentTarget,
-                        editorElement: cmEditor.dom
-                    });
-                }, true); // Use capture phase
-                
-                // Debug: Add mousedown handler
-                container.addEventListener('mousedown', (e) => {
-                    console.log('🖱️ Container mousedown!', e.target);
-                }, true);
-                
-                // Try to focus it immediately
-                setTimeout(() => {
-                    cmEditor.focus();
-                    console.log('   - Editor focused');
-                    console.log('   - Has focus:', cmEditor.hasFocus);
-                }, 100);
-            } catch (error) {
-                console.error('❌ Failed to initialize CodeMirror:', error);
-                console.error('Error stack:', error.stack);
-            }
+        function getLatex(){ 
+            return ta.value;
         }
-
-        // Listen for the codemirror-ready event
-        window.addEventListener('codemirror-ready', initCodeMirrorEditor);
-        
-        // Also try on DOMContentLoaded as a fallback
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(initCodeMirrorEditor, 100);
-        });
-        
-        // And immediate fallback for modules already loaded
-        if (window.CodeMirrorModules) {
-            initCodeMirrorEditor();
-        }
-        
-        // Debug: Global click handler to see what's getting clicked
-        document.addEventListener('click', (e) => {
-            const container = document.getElementById('latex-editor-container');
-            if (container && container.contains(e.target)) {
-                console.log('🖱️ Click inside latex-editor-container detected!', {
-                    target: e.target,
-                    classList: e.target.classList,
-                    tagName: e.target.tagName
-                });
-            }
-        }, true);
-
-        function getLatex(){ return ta.value; }
 
         /* ---------- LaTeX -> MathML conversion (using MathJax) ---------- */
         // MathML conversion uses MathJax's built-in tex2mml function
@@ -2282,15 +2391,35 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             const latexPreview = document.getElementById('latexPreview');
             const latex = ta.value.trim();
             if (latex) {
-                latexPreview.innerHTML = '\\[' + latex + '\\]';
+                latexPreview.innerHTML = '\\(' + latex + '\\)';
                 if (window.MathJax && window.MathJax.typesetPromise) {
-                    window.MathJax.typesetPromise([latexPreview]).catch(err => {
+                    window.MathJax.typesetPromise([latexPreview]).then(() => {
+                        // After MathJax renders, adjust height if content exceeds container
+                        adjustPreviewHeight();
+                    }).catch(err => {
                         console.warn('LaTeX preview typeset failed:', err);
                         latexPreview.innerHTML = '<span style="color: #ef4444; font-size: 0.9rem;">Invalid LaTeX</span>';
                     });
                 }
             } else {
                 latexPreview.innerHTML = '';
+            }
+        }
+
+        // Adjust preview bar height to match content if it exceeds default height
+        function adjustPreviewHeight() {
+            const latexPreview = document.getElementById('latexPreview');
+            
+            // Get the content's scroll height (actual content height)
+            const contentHeight = latexPreview.scrollHeight;
+            
+            // Only expand if content exceeds the current container height
+            // Otherwise, let CSS handle the default min-height (120px)
+            if (contentHeight > latexPreview.offsetHeight) {
+                latexPreview.style.minHeight = contentHeight + 'px';
+            } else {
+                // Reset to CSS default
+                latexPreview.style.minHeight = '';
             }
         }
         
@@ -2303,31 +2432,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 // Replace differentialD with 'd'
                 const cleanLatex = rawLatex.replace(/\\differentialD\s?/g, 'd');
                 
-                // Create version without \: for display and copying (clean LaTeX)
-                const displayLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
+                // Keep the LaTeX spaces (\:) in the output
+                const displayLatex = cleanLatex;
                 
-                // Update Raw LaTeX Input with clean version (no \:)
+                // Update Raw LaTeX Input
                 if (ta.value !== displayLatex) { ta.value = displayLatex; }
                 
-                // Update CodeMirror editor if it exists
-                if (cmEditor) {
-                    const currentDoc = cmEditor.state.doc.toString();
-                    if (currentDoc !== displayLatex) {
-                        cmEditor.dispatch({
-                            changes: { from: 0, to: currentDoc.length, insert: displayLatex }
-                        });
-                    }
-                }
-                
-                // Convert to MathML using MathJax
-                if (typeof convertLatexToMathML === 'function') {
-                    convertLatexToMathML(cleanLatex).then(mathml => {
-                        wordOut.value = mathml || '';
-                    });
-                } else {
-                    // Show loading message if converter not ready yet
-                    wordOut.value = '(Loading MathJax...)';
-                }
                 updateLatexPreview();
             } catch (error) {
                 console.error('Error in syncFromMathLive:', error);
@@ -2343,35 +2453,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             
             try {
                 let cleanLatex = ta.value;
-                // Remove \: spacing if present in pasted content (keep textarea clean)
-                cleanLatex = typeof removeWordSpaces === 'function' ? removeWordSpaces(cleanLatex) : cleanLatex.replace(/\\:/g, '');
+                // Keep LaTeX spaces in the input
                 
-                if (ta.value !== cleanLatex) { 
-                    ta.value = cleanLatex;
-                    // Update CodeMirror if it exists
-                    if (cmEditor) {
-                        const currentDoc = cmEditor.state.doc.toString();
-                        if (currentDoc !== cleanLatex) {
-                            cmEditor.dispatch({
-                                changes: { from: 0, to: currentDoc.length, insert: cleanLatex }
-                            });
-                        }
-                    }
-                }
                 if (mf2.getValue() !== cleanLatex) { mf2.setValue(cleanLatex); }
-                
-                // Get MathLive's processed version
-                let latexForWord = mf2.getValue('latex').replace(/\\differentialD\s?/g, 'd');
-                
-                // Convert to MathML using MathJax
-                if (typeof convertLatexToMathML === 'function') {
-                    convertLatexToMathML(latexForWord).then(mathml => {
-                        wordOut.value = mathml || '';
-                    });
-                } else {
-                    // Show loading message if converter not ready yet
-                    wordOut.value = '(Loading MathJax...)';
-                }
                 
                 updateLatexPreview();
                 // Adjust math field height after content changes
@@ -2385,10 +2469,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 }
             } catch (error) {
                 console.error('Error in syncFromTextArea:', error);
-                // Try to show error in Word output so user knows something went wrong
-                if (wordOut) {
-                    wordOut.value = '⚠️ Error processing LaTeX: ' + error.message;
-                }
             } finally {
                 isSyncing = false;
             }
@@ -2457,88 +2537,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         }, 500);
 
-        /* ===== CodeCogs integration + toolbar switcher ===== */
-
-        let cc = null;                 // CodeCogs link object
-        let activeToolbar = 'custom';  // 'custom' | 'codecogs'
-
-        // Show/hide the two toolbar systems
-        function setToolbar(mode) {
-          const tabsWrap    = document.getElementById('tabs_wrapper');    // existing tabs row
-          const expanded    = document.getElementById('expanded-area');   // existing expanded keys
-          const ccWrap      = document.getElementById('codecogsToolbarWrap');
-          const toggleBtn   = document.getElementById('toggleToolbarBtn');
-          const taEl        = document.getElementById('ta');
-
-          if (!tabsWrap || !expanded || !ccWrap || !toggleBtn) return;
-
-          if (mode === 'codecogs') {
-            tabsWrap.style.display = 'none';
-            expanded.style.display = 'none';
-            ccWrap.style.display = '';
-            
-            // Make #ta focusable for CodeCogs (remove sr-only-hidden class)
-            if (taEl) taEl.classList.remove('sr-only-hidden');
-            
-            toggleBtn.innerHTML = '<i data-lucide="shuffle"></i> Use Built-in Toolbar';
-          } else {
-            tabsWrap.style.display = '';
-            expanded.style.display = '';
-            ccWrap.style.display = 'none';
-            
-            // Hide #ta again (CodeMirror is the visible editor)
-            if (taEl) taEl.classList.add('sr-only-hidden');
-            
-            toggleBtn.innerHTML = '<i data-lucide="shuffle"></i> Use CodeCogs Toolbar';
-          }
-
-          // refresh icons
-          if (window.lucide && typeof lucide.createIcons === 'function') {
-            lucide.createIcons();
-          }
-          activeToolbar = mode;
-        }
-
-        // Initialize CodeCogs toolbar bound to the SAME raw input (#ta)
-        function initCodeCogsToolbar() {
-          if (cc || !window.EqEditor) return;
-
-          // Link CodeCogs to the hidden textarea (#ta)
-          cc = EqEditor.TextArea.link('ta')
-              .addToolbar(new EqEditor.Toolbar('codecogsToolbar'), true);
-
-          // Optional: render to an <img>, if you kept #codecogsOutput
-          // cc.addOutput(new EqEditor.Output('codecogsOutput'));
-
-          // When CodeCogs inserts/edits, make sure app sync runs
-          const taEl = document.getElementById('ta');
-          if (taEl) {
-            taEl.addEventListener('input', () => {
-              // Your existing function pushes to MathLive + preview + CodeMirror
-              if (typeof syncFromTextArea === 'function') syncFromTextArea();
-            });
-          }
-        }
-
-        // Wire up the header toggle button
-        const toggleBtn = document.getElementById('toggleToolbarBtn');
-        if (toggleBtn) {
-          toggleBtn.addEventListener('click', () => {
-            if (activeToolbar === 'custom') {
-              // First-time init when switching to CodeCogs
-              if (!cc) initCodeCogsToolbar();
-              setToolbar('codecogs');
-            } else {
-              setToolbar('custom');
-            }
-          });
-          // Button label on first load
-          setToolbar('custom');
-        }
-
-        // If you prefer the CodeCogs toolbar to be the default on load, uncomment:
-        // initCodeCogsToolbar(); setToolbar('codecogs');
-
         /* ---------- Cleanup: delete object when all boxes emptied ---------- */
         function normalizeLatexStr(L) {
             try {
@@ -2554,8 +2552,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 L = L.replace(rm('\\{', '\\\\}'), "");
                 L = L.replace(rm('\\|', '\\|'), "");
                 L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}(?:d[a-zA-Z]+)?`, "g"), "");
-                L = L.replace(new RegExp(String.raw`\\(sum|prod)_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
-                L = L.replace(new RegExp(String.raw`\\(sum|prod)_\{n=${EMPTY_SLOT}\}\^${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
@@ -2776,11 +2772,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 'Ω': '\\omega',
                 'Omega': '\\Omega',
                 '∫': '\\int',
-                '∑': '\\sum',
-                '∏': '\\prod',
-                'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
                 'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx',
-                'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
                 'sqrt': '\\sqrt{\\placeholder{}}',
                 'neg': '\\neg',
                 'liminf': '\\operatorname*{lim~inf}_{}',
@@ -2954,6 +2946,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
             vec:[
                 vectorKey('\\vec','v',['v','u','w','r','a']),
+                vectorKey('\\bar','z',['z','w','x','y','v','u']),
                 {...vectorKey('\\dot','x',['x','y','z','r','v']), syncGroup: 'derivatives'},
                 {...vectorKey('\\ddot','x',['x','y','z','r','a']), syncGroup: 'derivatives'},
                 {display:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}',insert:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}'},
@@ -3054,7 +3047,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             calc: [
                 { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{}\\: dx' },
                 { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx' },
-                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' }
+                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' },
+                { display: '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}', insert: '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}' },
+                { display: '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}', insert: '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}' }
             ],
             powers: [
                 { display: '{\\placeholder{}}^{\\placeholder{}}', insert: '{\\placeholder{}}^{\\placeholder{}}' },
@@ -3126,15 +3121,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     options: ['z', '\\omega', '\\placeholder{}'],
                     syncGroup: 'complex'
                 },
-                {
-                    isSelectable: true,
-                    keyType: 'conjugate',
-                    currentVar: 'z',
-                    display: '\\overline{z}',
-                    insert: '\\overline{z}',
-                    options: ['z', '\\omega', '\\placeholder{}'],
-                    syncGroup: 'complex'
-                }
             ],
             sets: [
                 { display: '\\in', insert: '\\in' },
@@ -3253,21 +3239,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         }
 
-        function latexTokenToUnicode(token){
-            const map = new Map([
-                ['\\alpha','α'],['\\beta','β'],['\\gamma','γ'],['\\delta','δ'],['\\epsilon','ε'],['\\zeta','ζ'],['\\eta','η'],['\\theta','θ'],['\\iota','ι'],['\\kappa','κ'],['\\lambda','λ'],['\\mu','μ'],['\\nu','ν'],['\\xi','ξ'],['\\omicron','ο'],['\\pi','π'],['\\rho','ρ'],['\\sigma','σ'],['\\tau','τ'],['\\upsilon','υ'],['\\phi','φ'],['\\chi','χ'],['\\psi','ψ'],['\\omega','ω'],
-                ['\\Gamma','Γ'],['\\Delta','Δ'],['\\Theta','Θ'],['\\Lambda','Λ'],['\\Xi','Ξ'],['\\Pi','Π'],['\\Sigma','Σ'],['\\Upsilon','Υ'],['\\Phi','Φ'],['\\Psi','Ψ'],['\\Omega','Ω']
-            ]);
-            if(token==='\\placeholder{}') return '□';
-            return map.get(token) || token;
-        }
 
         function formatSelectOptionLabel(value, providedText){
             if(typeof providedText==='string' && providedText.trim().length>0){
                 return providedText;
             }
             if(typeof value==='string'){
-                return latexTokenToUnicode(value);
+                return value;
             }
             return String(value);
         }
@@ -3646,21 +3624,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
         }
 
-        /* ---------------- Insert Word Equation helper ---------------- */
-        function insertWordEquation(wordText) {
-          const wordOutput = document.getElementById('wordOut');
-          const cursorPos = wordOutput.selectionStart || wordOutput.value.length;
-          const textBefore = wordOutput.value.substring(0, cursorPos);
-          const textAfter = wordOutput.value.substring(cursorPos);
-          
-          wordOutput.value = textBefore + wordText + textAfter;
-          
-          // Set cursor after inserted text
-          const newCursorPos = cursorPos + wordText.length;
-          wordOutput.setSelectionRange(newCursorPos, newCursorPos);
-          wordOutput.focus();
-        }
-
         /* ---------------- Copy buttons ---------------- */
         async function copyToClipboard(a, b) {
           const label = b || 'text';
@@ -3693,36 +3656,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
           showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
         }
-        document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
-        document.getElementById('copyWordBtn').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
+        document.getElementById('copyBtn').addEventListener('click',()=>copyToClipboard(getLatex()??'',isPureLatexMode ? 'Pure LaTeX' : 'LaTeX'));
         
         // Add hover expansion functionality to editor copy buttons
         document.getElementById('copyBtn').addEventListener('mouseenter', () => {
-            const expArea = document.getElementById('expanded-area');
-            if (expArea && expArea.getAttribute('data-tab-id')) {
-                const currentTabId = expArea.getAttribute('data-tab-id');
-                toggleExpand(currentTabId);
-            }
-        });
-        document.getElementById('copyWordBtn').addEventListener('mouseenter', () => {
-            const expArea = document.getElementById('expanded-area');
-            if (expArea && expArea.getAttribute('data-tab-id')) {
-                const currentTabId = expArea.getAttribute('data-tab-id');
-                toggleExpand(currentTabId);
-            }
-        });
-        document.getElementById('headerCopyLatex').addEventListener('click',()=>copyToClipboard(getLatex()??'','LaTeX'));
-        document.getElementById('headerCopyWord').addEventListener('click',()=>copyToClipboard(wordOut.value??'','Word Equation'));
-        
-        // Add hover expansion functionality to header buttons
-        document.getElementById('headerCopyLatex').addEventListener('mouseenter', () => {
-            const expArea = document.getElementById('expanded-area');
-            if (expArea && expArea.getAttribute('data-tab-id')) {
-                const currentTabId = expArea.getAttribute('data-tab-id');
-                toggleExpand(currentTabId);
-            }
-        });
-        document.getElementById('headerCopyWord').addEventListener('mouseenter', () => {
             const expArea = document.getElementById('expanded-area');
             if (expArea && expArea.getAttribute('data-tab-id')) {
                 const currentTabId = expArea.getAttribute('data-tab-id');
@@ -3746,19 +3683,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         
         // Simple, clear width enforcement
         function setTextareaWidths() {
-            const ta = document.getElementById('ta');
-            const wordOut = document.getElementById('wordOut');
+            const taContainer = document.getElementById('ta');
             
-            if (ta) {
-                ta.style.width = '100%';
-                ta.style.maxWidth = '100%';
-                console.log('Set #ta to 100% width');
-            }
-            
-            if (wordOut) {
-                wordOut.style.width = '100%';
-                wordOut.style.maxWidth = '100%';
-                console.log('Set #wordOut to 100% width');
+            if (taContainer) {
+                taContainer.style.width = '100%';
+                taContainer.style.maxWidth = '100%';
+                console.log('Set #ta container to 100% width');
+                
+                // Resize Ace Editor to fit container
+                if (typeof aceEditor !== 'undefined' && aceEditor.resize) {
+                    aceEditor.resize();
+                }
             }
         }
 
@@ -3868,8 +3803,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         
         // Operators
         'int': '∫',
-        'sum': '∑',
-        'prod': '∏',
         
         // Relations
         '>=': '≥',
@@ -4059,22 +3992,22 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     <script src="./js/latex-parser.js"></script>
     <script src="./js/ast-printer.js"></script>
     <script src="./js/postprocessor.js"></script>
-    <script src="./js/latex-converter.js"></script>
+    <script src="./js/mathml-normalizer.js"></script>
+    
+    <script src="./js/nary-operator-normalizer.js"></script>
     
     <script>
-        // The JS modules (latex-converter.js, postprocessor.js, latex-utils.js) 
+        // The JS modules (latex-utils.js) 
         // are loaded above and expose their functions to the global window object.
         // We just need to verify they're loaded and dispatch the ready event.
         
         // Wait for all scripts to be loaded
         window.addEventListener('load', () => {
-            if (window.LatexConverter && window.PostProcessor && window.LatexUtils) {
-                console.log('✅ LaTeX converter modules loaded');
+            if (window.LatexUtils) {
+                console.log('✅ LaTeX utility modules loaded');
                 window.dispatchEvent(new CustomEvent('latex-modules-ready'));
             } else {
-                console.error('❌ LaTeX converter modules not loaded properly', {
-                    LatexConverter: !!window.LatexConverter,
-                    PostProcessor: !!window.PostProcessor,
+                console.error('❌ LaTeX utility modules not loaded properly', {
                     LatexUtils: !!window.LatexUtils
                 });
             }
@@ -4087,35 +4020,459 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     window.addEventListener('latex-modules-ready', function() {
         // Debug: Check what modules are available
         console.log('🔍 Module check:');
-        console.log('  LatexConverter:', typeof window.LatexConverter, window.LatexConverter);
         console.log('  LatexUtils:', typeof window.LatexUtils, window.LatexUtils);
-        console.log('  PostProcessor:', typeof window.PostProcessor, window.PostProcessor);
         
         // Check if all required modules are loaded
-        if (!window.LatexConverter) {
-            console.error('❌ LatexConverter module not loaded!');
-            return;
-        }
         if (!window.LatexUtils) {
             console.error('❌ LatexUtils module not loaded!');
             return;
         }
         
         // Extract functions from namespaced modules
-        window.toWordEquation = window.LatexConverter.toWordEquation;
-        window.normalizeWordInput = window.LatexConverter.normalizeWordInput;
-        window.removeWordSpaces = window.LatexConverter.removeWordSpaces;
         window.normalizeLatexStr = window.LatexUtils.normalizeLatexStr;
         
         // Enable AST debugging (set to false in production)
         window.DEBUG_AST = false;
         
-        // Create convenience function for test suite
-        window.convertLatexToUnicodeMath = function(latex) {
-            return window.LatexConverter.toWordEquation(latex);
-        };
         
-        // LaTeX to MathML conversion using MathJax
+        /**
+         * Fixes n-ary operators in MathML to ensure proper display in Microsoft Word
+         * Uses regex patterns to wrap operands in <mrow> tags immediately after operators and their limits
+         * @param {string} mathmlString - The MathML string to fix
+         * @returns {string} Fixed MathML string
+         */
+        window.fixNaryOperatorsMathML = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return mathmlString;
+            }
+            
+            try {
+                let output = mathmlString;
+                
+                // 1. Summation (∑, U+2211) with <munderover>
+                // Support hex, decimal, and literal encodings
+                output = output.replace(
+                    /(<munderover>\s*<mo[^>]*>\s*(?:&#x2211;|&#8721;|∑)\s*<\/mo>.*?<\/munderover>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- summand -->\n</mrow>'
+                );
+                
+                // Summation with <munder> (lower limit only)
+                output = output.replace(
+                    /(<munder>\s*<mo[^>]*>\s*(?:&#x2211;|&#8721;|∑)\s*<\/mo>.*?<\/munder>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- summand -->\n</mrow>'
+                );
+                
+                // 2. Integral (∫, U+222B) with <msubsup>
+                // Ensure <msubsup> integrals are followed by a <mrow> block
+                output = output.replace(
+                    /(<msubsup>\s*<mo[^>]*>\s*(?:&#x222B;|&#8747;|∫)\s*<\/mo>.*?<\/msubsup>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- integrand -->\n</mrow>'
+                );
+                
+                // Integral without limits (standalone <mo>)
+                output = output.replace(
+                    /(<mo[^>]*>\s*(?:&#x222B;|&#8747;|∫)\s*<\/mo>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- integrand -->\n</mrow>'
+                );
+                
+                // Cleanup: if the standalone-integral rule above inserted an integrand <mrow>
+                // inside an <msubsup> block (i.e., right after the integral <mo>), remove it.
+                // We only want the operand wrapper AFTER the </msubsup> container, not inside it.
+                output = output.replace(
+                    /(<msubsup>\s*<mo[^>]*>\s*(?:&#x222B;|&#8747;|∫)\s*<\/mo>)\s*<mrow>\s*<!-- integrand -->\s*<\/mrow>/gs,
+                    '$1'
+                );
+                
+                // 3. Product (∏, U+220F) with <munderover>
+                // Same wrapping rule as summation
+                output = output.replace(
+                    /(<munderover>\s*<mo[^>]*>\s*(?:&#x220F;|&#8719;|∏)\s*<\/mo>.*?<\/munderover>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- multiplicand -->\n</mrow>'
+                );
+                
+                // Product with <munder> (lower limit only)
+                output = output.replace(
+                    /(<munder>\s*<mo[^>]*>\s*(?:&#x220F;|&#8719;|∏)\s*<\/mo>.*?<\/munder>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- multiplicand -->\n</mrow>'
+                );
+                
+                return output;
+                
+            } catch (error) {
+                console.error('Error fixing n-ary operators in MathML:', error);
+                return mathmlString; // Return original on error
+            }
+        };
+
+        /**
+         * Fixes arrow accents in MathML for Word compatibility
+         * Ensures <mover> elements with arrows have accent="true" and normalized arrow symbols
+         * @param {string} mathmlString - The MathML string to fix
+         * @returns {string} Fixed MathML string with proper arrow accents
+         */
+        window.fixArrowAccentsMathML = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return mathmlString;
+            }
+            
+            try {
+                // Parse MathML string into DOM
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(mathmlString, 'application/xml');
+                
+                // Check for parsing errors
+                if (doc.querySelector('parsererror')) {
+                    console.warn('MathML parsing error in fixArrowAccentsMathML, returning original string');
+                    return mathmlString;
+                }
+                
+                const mathElement = doc.querySelector('math');
+                if (!mathElement) {
+                    return mathmlString;
+                }
+                
+                // Arrow symbols to detect (various Unicode representations)
+                const rightArrows = [
+                    '→',           // U+2192 Rightwards Arrow
+                    '\u2192',      // U+2192
+                    '&#x2192;',    // HTML entity
+                    '&#8594;',     // Decimal entity
+                    '⟶',           // U+27F6 Long Rightwards Arrow
+                    '\u27F6'       // U+27F6
+                ];
+                
+                const leftArrows = [
+                    '←',           // U+2190 Leftwards Arrow
+                    '\u2190',      // U+2190
+                    '&#x2190;',    // HTML entity
+                    '&#8592;',     // Decimal entity
+                    '⟵',           // U+27F5 Long Leftwards Arrow
+                    '\u27F5'       // U+27F5
+                ];
+                
+                // Find all <mover> elements
+                const moverElements = mathElement.querySelectorAll('mover');
+                
+                moverElements.forEach(mover => {
+                    // Get the base element (first child) and the operator element (second child)
+                    const baseElement = mover.children[0];
+                    const operatorElement = mover.children[1];
+                    
+                    if (!baseElement || !operatorElement) {
+                        return; // Skip if structure is invalid
+                    }
+                    
+                    // Check if the operator is an arrow
+                    const operatorText = operatorElement.textContent.trim();
+                    const isRightArrow = rightArrows.some(arrow => 
+                        operatorText === arrow || 
+                        operatorText.includes('→') || 
+                        operatorText.includes('\u2192')
+                    );
+                    const isLeftArrow = leftArrows.some(arrow => 
+                        operatorText === arrow || 
+                        operatorText.includes('←') || 
+                        operatorText.includes('\u2190')
+                    );
+                    
+                    if (isRightArrow || isLeftArrow) {
+                        // Add accent="true" attribute if not present
+                        if (!mover.hasAttribute('accent')) {
+                            mover.setAttribute('accent', 'true');
+                        } else if (mover.getAttribute('accent') !== 'true') {
+                            // Update to true if set to something else
+                            mover.setAttribute('accent', 'true');
+                        }
+                        
+                        // Normalize the arrow symbol to standard Unicode
+                        if (operatorElement.tagName === 'mo') {
+                            if (isRightArrow) {
+                                // Use long rightwards arrow (U+27F6) for \overrightarrow
+                                // This provides better stretching across multi-character bases
+                                operatorElement.textContent = '⟶'; // U+27F6
+                            } else if (isLeftArrow) {
+                                // Use long leftwards arrow (U+27F5) for \overleftarrow
+                                operatorElement.textContent = '⟵'; // U+27F5
+                            }
+                        }
+                        
+                        // Ensure base is wrapped in <mrow> if it contains multiple <mi> elements
+                        // This ensures proper alignment across all characters
+                        if (baseElement.tagName !== 'mrow' && baseElement.children.length > 1) {
+                            const mrow = doc.createElement('mrow');
+                            // Move all children of base into mrow
+                            while (baseElement.firstChild) {
+                                mrow.appendChild(baseElement.firstChild);
+                            }
+                            baseElement.appendChild(mrow);
+                        }
+                    }
+                });
+                
+                // Serialize back to string
+                const serializer = new XMLSerializer();
+                const fixedMathML = serializer.serializeToString(mathElement);
+                
+                // Add namespace if missing
+                if (!fixedMathML.includes('xmlns=')) {
+                    return fixedMathML.replace('<math>', '<math xmlns="http://www.w3.org/1998/Math/MathML">');
+                }
+                
+                return fixedMathML;
+                
+            } catch (error) {
+                console.error('Error fixing arrow accents in MathML:', error);
+                return mathmlString; // Return original on error
+            }
+        };
+
+        /**
+         * Converts overbar notation in MathML to Unicode combining overline format
+         * Replaces <mover> elements with combining overline (U+0305) for Word compatibility
+         * @param {string} mathmlString - The MathML string to fix
+         * @returns {string} Fixed MathML string with combining overlines
+         */
+        window.fixOverbarMathML = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return mathmlString;
+            }
+            
+            try {
+                // Parse MathML string into DOM
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(mathmlString, 'application/xml');
+                
+                // Check for parsing errors
+                if (doc.querySelector('parsererror')) {
+                    console.warn('MathML parsing error in fixOverbarMathML, returning original string');
+                    return mathmlString;
+                }
+                
+                const mathElement = doc.querySelector('math');
+                if (!mathElement) {
+                    return mathmlString;
+                }
+                
+                // Find all <mover> elements
+                const moverElements = mathElement.querySelectorAll('mover');
+                
+                moverElements.forEach(mover => {
+                    // Check if this is an overbar (accent="true")
+                    const isAccent = mover.getAttribute('accent') === 'true';
+                    
+                    // Get the base element (first child) and the accent element (second child)
+                    const baseElement = mover.children[0];
+                    const accentElement = mover.children[1];
+                    
+                    if (!baseElement || !accentElement) {
+                        return; // Skip if structure is invalid
+                    }
+                    
+                    // Check if the accent is an arrow (skip these - they're handled by fixArrowAccentsMathML)
+                    const accentText = accentElement.textContent.trim();
+                    
+                    // Check for all possible arrow representations (including HTML entities)
+                    const rightArrowSymbols = ['→', '\u2192', '⟶', '\u27F6', '&#x2192;', '&#8594;', '&#x27F6;', '&#10230;'];
+                    const leftArrowSymbols = ['←', '\u2190', '⟵', '\u27F5', '&#x2190;', '&#8592;', '&#x27F5;', '&#10229;'];
+                    
+                    const isRightArrow = rightArrowSymbols.some(arrow => 
+                        accentText === arrow || accentText.includes(arrow) || accentText.includes('→') || accentText.includes('⟶')
+                    );
+                    const isLeftArrow = leftArrowSymbols.some(arrow => 
+                        accentText === arrow || accentText.includes(arrow) || accentText.includes('←') || accentText.includes('⟵')
+                    );
+                    
+                    if (isRightArrow || isLeftArrow) {
+                        console.log(`✓ Skipping arrow accent: "${accentText}" (handled by fixArrowAccentsMathML)`);
+                        return; // Skip arrow accents - they should remain as <mover> elements
+                    }
+                    
+                    // Check if the accent is an overbar (¯ or ‾)
+                    const isOverbar = accentText === '¯' ||       // U+00AF (Macron)
+                                     accentText === '\u00AF' ||   // U+00AF
+                                     accentText === '‾' ||         // U+203E (Overline)
+                                     accentText === '\u203E' ||   // U+203E
+                                     accentText === '―' ||         // U+2015 (Horizontal bar)
+                                     accentText === '\u2015' ||   // U+2015
+                                     accentElement.tagName === 'mo' && (
+                                         accentElement.textContent.trim() === '¯' ||
+                                         accentElement.textContent.trim() === '\u00AF'
+                                     );
+                    
+                    // Only convert if it's an overbar accent
+                    if (isAccent && isOverbar) {
+                        // Get the base content (should be a single character for best results)
+                        const baseText = baseElement.textContent.trim();
+                        
+                        // Check if base is a single character (Latin or Greek)
+                        if (baseText.length === 1) {
+                            // Create a new <mi> element with combining overline
+                            const miElement = doc.createElement('mi');
+                            miElement.textContent = baseText + '\u0305'; // Add combining overline
+                            
+                            // Replace the <mover> with the <mi>
+                            mover.parentNode.replaceChild(miElement, mover);
+                        } else {
+                            // Multi-character base: keep mover, but normalize accent for Word
+                            let macronMo = accentElement;
+                            if (accentElement.tagName !== 'mo') {
+                                macronMo = doc.createElement('mo');
+                                macronMo.textContent = '\u00AF';
+                                mover.replaceChild(macronMo, accentElement);
+                            } else {
+                                macronMo.textContent = '\u00AF';
+                            }
+                            macronMo.setAttribute('stretchy', 'true');
+                            if (macronMo.hasAttribute('accent')) {
+                                macronMo.removeAttribute('accent');
+                            }
+                            mover.setAttribute('accent', 'true');
+                        }
+                    }
+                });
+                
+                // Serialize back to string
+                const serializer = new XMLSerializer();
+                const fixedMathML = serializer.serializeToString(mathElement);
+                
+                // Add namespace if missing
+                if (!fixedMathML.includes('xmlns=')) {
+                    return fixedMathML.replace('<math>', '<math xmlns="http://www.w3.org/1998/Math/MathML">');
+                }
+                
+                return fixedMathML;
+                
+            } catch (error) {
+                console.error('Error fixing overbar in MathML:', error);
+                return mathmlString; // Return original on error
+            }
+        };
+
+        // MathML Normalizer: piecewise brace → mfenced(open="{" close="")
+        window.MathMLNormalizer = window.MathMLNormalizer || {};
+        window.MathMLNormalizer.normalizePiecewise = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return { mathml: mathmlString, didTransform: false };
+            }
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(mathmlString, 'application/xml');
+                if (doc.querySelector('parsererror')) {
+                    console.warn('MathML parsing error in normalizePiecewise, returning original string');
+                    return { mathml: mathmlString, didTransform: false };
+                }
+                const math = doc.querySelector('math');
+                if (!math) {
+                    return { mathml: mathmlString, didTransform: false };
+                }
+
+                let didTransform = false;
+
+                function isEl(n, name) {
+                    return n && n.nodeType === 1 && n.localName === name;
+                }
+                function isBraceMo(n) {
+                    return isEl(n, 'mo') && ((n.textContent || '').trim() === '{');
+                }
+                function alreadyMfencedOpenLeft(el) {
+                    return isEl(el, 'mfenced') && el.getAttribute('open') === '{' && (el.getAttribute('close') || '') === '';
+                }
+                function nextElementSiblingSkippingNonElements(nodes, startIdx) {
+                    for (let j = startIdx + 1; j < nodes.length; j++) {
+                        const n = nodes[j];
+                        if (n.nodeType === 1) return { node: n, index: j };
+                    }
+                    return { node: null, index: -1 };
+                }
+                function normalizeContainer(container) {
+                    const kids = Array.from(container.childNodes);
+                    for (let i = 0; i < kids.length; i++) {
+                        const k = kids[i];
+
+                        // Recurse into nested containers first
+                        if (isEl(k, 'mrow') || isEl(k, 'math')) {
+                            normalizeContainer(k);
+                        }
+
+                        if (!isBraceMo(k)) continue;
+
+                        // Find next element child (skip text/comments)
+                        const { node: nextEl, index: nextIdx } = nextElementSiblingSkippingNonElements(kids, i);
+                        if (!nextEl || !isEl(nextEl, 'mtable')) continue;
+
+                        // Avoid double-wrapping if the container itself is the mfenced already
+                        if (alreadyMfencedOpenLeft(container)) continue;
+
+                        // Optional trailing <mo> after the table
+                        const { node: maybeClose, index: closeIdx } = nextElementSiblingSkippingNonElements(kids, nextIdx);
+                        const hasTrailingMo = !!maybeClose && isEl(maybeClose, 'mo');
+
+                        // Build mfenced and move the existing <mtable> into it
+                        const mf = doc.createElementNS('http://www.w3.org/1998/Math/MathML', 'mfenced');
+                        mf.setAttribute('open', '{');
+                        mf.setAttribute('close', '');
+                        mf.appendChild(nextEl); // move node, not clone, to preserve attributes/children
+
+                        // Replace opening brace with mfenced
+                        container.replaceChild(mf, k);
+
+                        // Remove the optional trailing closing <mo>
+                        if (hasTrailingMo && maybeClose.parentNode === container) {
+                            container.removeChild(maybeClose);
+                        }
+
+                        // Update snapshot and restart scan for idempotency and cascading cases
+                        didTransform = true;
+                        return normalizeContainer(container);
+                    }
+                }
+
+                // Walk all mrow and math containers
+                normalizeContainer(math);
+
+                const serializer = new XMLSerializer();
+                let out = serializer.serializeToString(math);
+                if (!out.includes('xmlns=')) {
+                    out = out.replace('<math>', '<math xmlns="http://www.w3.org/1998/Math/MathML">');
+                }
+                return { mathml: out, didTransform };
+            } catch (e) {
+                console.error('Error in normalizePiecewise:', e);
+                return { mathml: mathmlString, didTransform: false };
+            }
+        };
+
+        // Convert single-letter overbars (LaTeX and MathML) to Word-friendly macron accents
+        function convertOverlines(input) {
+          if (!input) return input;
+          let out = input;
+          // Word compatibility: swap accent-based bars for stretchy macron form
+          const BAR_ENTITY_PATTERN = '(?:&#x2015;|&#8213;|&#x203E;|&#8254;|&#xAF;|&#x00AF;|&#x0305;|—|‾|¯)';
+          out = out.replace(
+            new RegExp(String.raw`<mo\b[^>]*\baccent\s*=\s*["'](?:true|1)["'][^>]*>\s*${BAR_ENTITY_PATTERN}\s*</mo>`, 'g'),
+            '<mo stretchy="true">&#xAF;</mo>'
+          );
+          // 1) LaTeX forms \bar{X}, \overline{X} for single symbol
+          const toMover = (symbol) => `<mover accent="true"><mi>${symbol}</mi><mo stretchy="true">&#xAF;</mo></mover>`;
+          out = out.replace(/\\bar\{\s*([A-Za-z\u0370-\u03FF])\s*\}/g, (_, sym) => toMover(sym));
+          out = out.replace(/\\overline\{\s*([A-Za-z\u0370-\u03FF])\s*\}/g, (_, sym) => toMover(sym));
+          // Entities inside braces
+          out = out.replace(/\\bar\{\s*(&#[xX][0-9A-Fa-f]+;|&[A-Za-z]+;)\s*\}/g, (_, entity) => toMover(entity));
+          out = out.replace(/\\overline\{\s*(&#[xX][0-9A-Fa-f]+;|&[A-Za-z]+;)\s*\}/g, (_, entity) => toMover(entity));
+          // 2) Normalize existing mover accents to ensure accent="true"
+          out = out.replace(/<mover\b([^>]*)>/g, (match, attrs = '') => {
+            let updated = attrs;
+            if (!/\baccent\s*=/.test(updated)) {
+              updated = `${updated.trim()} accent="true"`.trim();
+            } else {
+              updated = updated.replace(/\baccent\s*=\s*["'][^"']*["']/, 'accent="true"');
+            }
+            return `<mover ${updated}>`;
+          });
+          return out;
+        }
+
+        // LaTeX to MathML conversion using MathJax, then n-ary normalization (∫, ∑, ∏)
         window.convertLatexToMathML = async function(latex) {
             if (!window.MathJax || !window.MathJax.tex2mml) {
                 console.warn('MathJax tex2mml not available yet');
@@ -4128,6 +4485,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     ex: 8,
                     containerWidth: 80 * 16
                 });
+                // Post-process n-ary operators for Word compatibility
+                if (window.NaryOperatorNormalizer && typeof window.NaryOperatorNormalizer.normalizeMathML === 'function') {
+                    const { mathml: fixed } = window.NaryOperatorNormalizer.normalizeMathML(mathml);
+                    return fixed || mathml;
+                }
                 return mathml;
             } catch (error) {
                 console.error('MathML conversion error:', error);
@@ -4135,17 +4497,130 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         };
         
-        // Debug test for cases environment
-        window.debugCases = function() {
-            const testLatex = '|x|=\\begin{cases} x & \\text{if } x\\geq 0 \\\\ -x & \\text{if } x<0 \\end{cases}';
-            console.log('🧪 Testing cases environment:');
-            console.log('Input LaTeX:', testLatex);
-            const result = window.LatexConverter.toWordEquation(testLatex);
-            console.log('Output UnicodeMath:', result);
-            console.log('Expected:         |x|={█(x&if x≥0@-x&if x<0)┤');
-            const matches = result === '|x|={█(x&if x≥0@-x&if x<0)┤';
-            console.log(matches ? '✅ PASS' : '❌ FAIL');
-            return result;
+        // Debug test for \overrightarrow conversion
+        window.testOverrightarrow = async function() {
+            console.log('🧪 Testing \\overrightarrow MathML Conversion\n');
+            
+            const testCases = [
+                { latex: '\\overrightarrow{AB}', desc: 'Two-letter base (AB)' },
+                { latex: '\\overrightarrow{x}', desc: 'Single letter base (x)' },
+                { latex: '\\overrightarrow{CD}', desc: 'Another two-letter base (CD)' },
+                { latex: '\\overrightarrow{EFG}', desc: 'Three-letter base (EFG)' },
+                { latex: '\\dot{x}', desc: 'Dot accent (for comparison)' },
+                { latex: '\\ddot{x}', desc: 'Double dot accent (for comparison)' },
+            ];
+            
+            for (const test of testCases) {
+                console.log(`\n📝 Test: ${test.desc}`);
+                console.log(`   LaTeX Input:  ${test.latex}`);
+                
+                try {
+                    const mathml = await window.convertLatexToMathML(test.latex);
+                    console.log(`   MathML Output:\n${mathml}`);
+                    
+                    // Check for long rightwards arrow (U+27F6)
+                    if (test.latex.includes('overrightarrow')) {
+                        if (mathml.includes('⟶') || mathml.includes('&#x27F6;') || mathml.includes('&#10230;')) {
+                            console.log('   ✅ PASS - Contains long rightwards arrow (U+27F6)');
+                        } else if (mathml.includes('→') || mathml.includes('&#x2192;')) {
+                            console.log('   ⚠️  WARNING - Contains short arrow (U+2192) instead of long arrow (U+27F6)');
+                        } else {
+                            console.log('   ❌ FAIL - No arrow symbol found');
+                        }
+                        
+                        // Check for <mover> structure
+                        if (mathml.includes('<mover')) {
+                            console.log('   ✅ PASS - Uses <mover> element');
+                        } else {
+                            console.log('   ❌ FAIL - Missing <mover> element');
+                        }
+                        
+                        // Check for accent="true"
+                        if (mathml.includes('accent="true"')) {
+                            console.log('   ✅ PASS - Has accent="true" attribute');
+                        } else {
+                            console.log('   ⚠️  INFO - Missing accent="true" attribute (may be optional)');
+                        }
+                    }
+                } catch (error) {
+                    console.log(`   ❌ ERROR: ${error.message}`);
+                }
+            }
+            
+            console.log('\n✨ Test complete!\n');
+        };
+
+        // Rewire Word-specific MathML helpers to external module (keeps backward compatibility)
+        window.fixNaryOperatorsMathML = function(s){
+            return (window.WordMathML && typeof window.WordMathML.fixNaryOperatorsMathML==='function') ? window.WordMathML.fixNaryOperatorsMathML(s) : s;
+        };
+        window.fixArrowAccentsMathML = function(s){
+            return (window.WordMathML && typeof window.WordMathML.fixArrowAccentsMathML==='function') ? window.WordMathML.fixArrowAccentsMathML(s) : s;
+        };
+        window.fixOverbarMathML = function(s){
+            return (window.WordMathML && typeof window.WordMathML.fixOverbarMathML==='function') ? window.WordMathML.fixOverbarMathML(s) : s;
+        };
+        window.convertOverlines = function(s){
+            return (window.WordMathML && typeof window.WordMathML.convertOverlines==='function') ? window.WordMathML.convertOverlines(s) : s;
+        };
+        
+        
+        // Debug test for overbar combining conversion
+        window.debugOverbar = async function() {
+            console.log('🧪 Testing overbar combining conversion:');
+            console.log('');
+            
+            const testCases = [
+                { latex: '\\bar{z}', desc: 'Simple bar (Latin)', expectCombining: true },
+                { latex: '\\overline{z}', desc: 'Overline (Latin)', expectCombining: true },
+                { latex: '\\bar{x}', desc: 'Bar on x', expectCombining: true },
+                { latex: '\\bar{\\theta}', desc: 'Bar on Greek theta (θ)', expectCombining: true },
+                { latex: '\\overline{A}', desc: 'Overline on uppercase A', expectCombining: true },
+                { latex: '\\bar{z} + \\bar{w}', desc: 'Multiple bars', expectCombining: true },
+                { latex: 'z = \\bar{z}', desc: 'Bar in equation', expectCombining: true },
+                { latex: '\\overrightarrow{AB}', desc: 'Arrow accent (should NOT convert)', expectCombining: false }
+            ];
+            
+            for (const test of testCases) {
+                console.log(`\n📝 Test: ${test.desc}`);
+                console.log(`   Input:  ${test.latex}`);
+                
+                try {
+                    const mathml = await window.convertLatexToMathML(test.latex);
+                    console.log(`   Output: ${mathml}`);
+                    
+                    const hasCombining = mathml.includes('\u0305') || mathml.includes('&#x0305;') || mathml.includes('&#x305;');
+                    const hasMover = mathml.includes('<mover');
+                    
+                    if (test.expectCombining) {
+                        // Should be converted to combining overline
+                        if (hasCombining && !hasMover) {
+                            console.log('   ✅ PASS - Contains combining overline (no <mover>)');
+                        } else if (hasMover) {
+                            console.log('   ❌ FAIL - Still contains <mover> element');
+                        } else {
+                            console.log('   ⚠️  WARN - No overbar found');
+                        }
+                    } else {
+                        // Should NOT be converted (arrows should stay as <mover>)
+                        if (hasMover && !hasCombining) {
+                            console.log('   ✅ PASS - Correctly preserved as <mover> (arrow accent)');
+                        } else if (hasCombining) {
+                            console.log('   ❌ FAIL - Incorrectly converted to combining overline');
+                        } else {
+                            console.log('   ⚠️  WARN - No accent found');
+                        }
+                    }
+                } catch (error) {
+                    console.error('   ❌ ERROR:', error);
+                }
+            }
+            
+            console.log('\n' + '='.repeat(60));
+            console.log('📊 Summary:');
+            console.log('✅ Combining overline format: character + U+0305');
+            console.log('❌ Avoid: <mover> elements (unreliable in Word)');
+            console.log('');
         };
         
         // Helper function to remove spacing commands for clean LaTeX
@@ -4168,5 +4643,167 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }, 100);
     });
     </script>
+    <script>
+    /**
+     * MathML: normalize piecewise definitions so the left brace stretches.
+     * Rule: { + <mtable> + (optional closing <mo>)  =>  <mfenced open="{" close=""><mtable/></mfenced>
+     * Idempotent: running multiple times does nothing after first pass.
+     */
+    (function () {
+      function isEl(n, name) {
+        return n && n.nodeType === 1 && n.localName === name;
+      }
+      function isBraceMo(n) {
+        return isEl(n, 'mo') && (n.textContent || '').trim() === '{';
+      }
+      function isEmptyMo(n) {
+        // Many inputs have an empty <mo ...></mo> as a "closing" fence placeholder
+        return isEl(n, 'mo') && (n.textContent || '').trim() === '';
+      }
+      function alreadyMfencedOpenLeft(el) {
+        return isEl(el, 'mfenced')
+          && el.getAttribute('open') === '{'
+          && (el.getAttribute('close') || '') === '';
+      }
+      function normalizeContainer(container) {
+        // We will scan child nodes looking for the pattern: {  <mtable>  [optional closing <mo>]
+        const kids = Array.from(container.childNodes);
+        for (let i = 0; i < kids.length; i++) {
+          const k = kids[i];
+
+          // Recurse into nested rows first
+          if (isEl(k, 'mrow') || isEl(k, 'math')) {
+            normalizeContainer(k);
+          }
+
+          // Skip if not a "{"
+          if (!isBraceMo(k)) continue;
+
+          // Next sibling must be an <mtable>
+          const next = kids[i + 1];
+          if (!isEl(next, 'mtable')) continue;
+
+          // If the table is already inside the correct <mfenced>, skip
+          if (alreadyMfencedOpenLeft(container)) continue;
+
+          // Optional trailing closing <mo> (often empty or has fence attrs)
+          const maybeClose = kids[i + 2];
+          const hasTrailingMo = isEl(maybeClose, 'mo');
+
+          // Build <mfenced open="{" close="">
+          const mf = container.ownerDocument.createElementNS('http://www.w3.org/1998/Math/MathML', 'mfenced');
+          mf.setAttribute('open', '{');
+          mf.setAttribute('close', '');
+
+          // Move the <mtable> inside <mfenced> (preserve all attributes/children)
+          mf.appendChild(next.cloneNode(true));
+
+          // Replace the sequence in the DOM:
+          // remove the old nodes in order: {, <mtable>, (optional trailing <mo>)
+          // then insert <mfenced> at the position of the "{"
+          // We'll do in-place edits to avoid reflows on big docs.
+          const insertionPoint = k; // original "{"
+          // Remove <mtable> and optional closing <mo>
+          container.removeChild(next);
+          if (hasTrailingMo) container.removeChild(maybeClose);
+          // Replace the opening "{"
+          container.replaceChild(mf, insertionPoint);
+
+          // Because we cloned <mtable>, remove the original <mtable> that followed "{"
+          // (already removed above). Now we've inserted <mfenced> with its own <mtable>.
+          // Update the local kids snapshot around the new position.
+          return normalizeContainer(container); // restart scanning this container
+        }
+      }
+
+      function normalizeMath(root) {
+        // Find all MathML roots and normalize them
+        const mathNodes = root.querySelectorAll('math');
+        mathNodes.forEach((math) => {
+          // Walk all <mrow> and the <math> root itself, since some inputs omit <mrow>
+          const rows = [math, ...math.querySelectorAll('mrow')];
+          rows.forEach((row) => normalizeContainer(row));
+        });
+      }
+
+      // Expose for dynamic content, but also run once on load.
+      window.normalizePiecewiseBraces = normalizeMath;
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => normalizeMath(document));
+      } else {
+        normalizeMath(document);
+      }
+    })();
+    </script>
+
+    <script>
+    // ========== Pure LaTeX Mode ==========
+    (function() {
+      const PURE_LATEX_KEY = 'pureLatexMode';
+      const pureLatexBtn = document.getElementById('pureLatexBtn');
+      const tabsWrapper = document.getElementById('tabs_wrapper');
+      const expandedArea = document.getElementById('expanded-area');
+      const renderedSection = document.querySelector('.io-rendered');
+      
+      let isPureLatexMode = localStorage.getItem(PURE_LATEX_KEY) === 'true';
+
+      function updateButtonState() {
+        if (isPureLatexMode) {
+          pureLatexBtn.classList.add('pure-latex-active');
+        } else {
+          pureLatexBtn.classList.remove('pure-latex-active');
+        }
+      }
+
+      function applyPureLatexMode() {
+        if (isPureLatexMode) {
+          // Hide toolbar and rendered input
+          if (tabsWrapper) tabsWrapper.style.display = 'none';
+          if (expandedArea) expandedArea.style.display = 'none';
+          if (renderedSection) renderedSection.style.display = 'none';
+          
+          // Reorder sections: LaTeX Preview first, then Raw LaTeX Input
+          const ioGrid = document.querySelector('.io-grid');
+          if (ioGrid) {
+            const previewSection = document.querySelector('.io-preview');
+            const inputSection = document.querySelector('.io-input');
+            if (previewSection && inputSection) {
+              ioGrid.insertBefore(previewSection, inputSection);
+            }
+          }
+        } else {
+          // Show everything and restore original order
+          if (tabsWrapper) tabsWrapper.style.display = '';
+          if (expandedArea) expandedArea.style.display = '';
+          if (renderedSection) renderedSection.style.display = '';
+          
+          // Restore original order: Raw LaTeX Input first, then LaTeX Preview
+          const ioGrid = document.querySelector('.io-grid');
+          if (ioGrid) {
+            const previewSection = document.querySelector('.io-preview');
+            const inputSection = document.querySelector('.io-input');
+            if (previewSection && inputSection) {
+              ioGrid.insertBefore(inputSection, previewSection);
+            }
+          }
+
+        }
+        updateButtonState();
+      }
+
+      // Toggle Pure LaTeX mode
+      pureLatexBtn.addEventListener('click', () => {
+        isPureLatexMode = !isPureLatexMode;
+        localStorage.setItem(PURE_LATEX_KEY, isPureLatexMode);
+        applyPureLatexMode();
+        
+      });
+
+      // Apply mode on page load
+      applyPureLatexMode();
+    })();
+    </script>
 </body>
 </html>
+
