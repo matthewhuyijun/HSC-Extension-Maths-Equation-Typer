@@ -1,17 +1,16 @@
 # 📐 E2 MathsTyper - MathML Edition
 
-A clean, modern web app for typing LaTeX equations and converting them to MathML format.
+A specialized web app designed for **E2 students** to type LaTeX equations and convert them to MathML format, optimized for **Notion** and web-based platforms.
 
 ---
 
-## 🎯 Features
+## 🎯 E2-Specific Features
 
+- ✅ **E2-Optimized Buttons** - Custom button layout designed for E2 math curriculum
 - ✅ **Visual LaTeX Editor** - Type math using MathLive's interactive editor
 - ✅ **Live Preview** - See your equations rendered in real-time
-- ✅ **MathML Export** - Copy clean MathML code to clipboard
-- ✅ **Word-Compatible MathML** - Auto-fixes n-ary operators for Microsoft Word
-- ✅ **Piecewise Normalizer** - Auto-converts piecewise functions to stretchy braces
-- ✅ **LaTeX Export** - Copy raw LaTeX code
+- ✅ **MathML Export** - Copy clean MathML code for Notion and web platforms
+- ✅ **LaTeX Export** - Copy raw LaTeX code for various platforms
 - ✅ **Dark Mode** - System-aware theme with manual override
 - ✅ **Keyboard Shortcuts** - 100+ inline shortcuts for fast typing
 - ✅ **Mobile Friendly** - Responsive design works on all devices
@@ -23,37 +22,69 @@ A clean, modern web app for typing LaTeX equations and converting them to MathML
 1. **Open** `index.html` in any modern web browser (Chrome, Firefox, Safari, Edge)
 2. **Type** your LaTeX equation in the "Rendered Input" field
 3. **Copy** the generated MathML using the "Copy MathML" button
-4. **Paste** the MathML wherever you need it
+4. **Paste** the MathML into **Notion** or other web platforms
+
+## 📝 Platform Compatibility
+
+### ✅ **Notion** - Perfect Match
+- MathML works excellently in Notion
+- Clean, professional rendering
+- No compatibility issues
+
+### ⚠️ **Microsoft Word** - Use Native Equation Editor Instead
+**Important:** While LaTeX can be used in Word, it's **not recommended** for:
+- **Vectors** (complex arrow notation)
+- **Complex numbers** (imaginary unit notation)
+- **Advanced mathematical expressions**
+
+**Why MathML/LaTeX struggles in Word:**
+- I've tested multiple approaches: Unicode with regex, AST parsing, and MathML conversion
+- All methods failed to render complex mathematical notation properly in Word
+- Word's native equation editor handles these cases much better
+
+**Recommendation:** Use Word's **native equation editor** (Insert → Equation) for complex math in Word documents.
 
 ---
 
-## 💡 Usage Examples
+## 💡 E2 Usage Examples
 
-### Example 1: Simple Fraction
+### Example 1: Simple Fraction (Perfect for Notion)
 **Type:** `\frac{a}{b}`  
 **Get MathML:** 
 ```xml
 <math><mfrac><mi>a</mi><mi>b</mi></mfrac></math>
 ```
+**Use in:** Notion, web platforms
 
-### Example 2: Quadratic Formula
+### Example 2: Quadratic Formula (E2 Curriculum)
 **Type:** `x = \frac{-b \pm \sqrt{b^2-4ac}}{2a}`  
 **Get MathML:** Clean, standards-compliant MathML output
+**Use in:** Notion, web platforms
 
-### Example 3: Integral
+### Example 3: Integral (E2 Advanced)
 **Type:** `\int_{0}^{\infty} e^{-x} dx`  
-**Get MathML:** Ready to use in documents and web pages
+**Get MathML:** Ready to use in Notion and web platforms
+
+### Example 4: Vectors (Use Word's Native Editor Instead)
+**Type:** `\overrightarrow{AB}`  
+**Problem:** MathML/LaTeX struggles with vector notation in Word
+**Solution:** Use Word's Insert → Equation for vectors
 
 ---
 
-## 🎨 Interface
+## 🎨 E2-Optimized Interface
 
-The app has four main areas:
+The app has four main areas designed for E2 students:
 
 1. **Rendered Input (Editable)** - Interactive math field powered by MathLive
 2. **Raw LaTeX Input** - Plain text LaTeX code (editable)
-3. **MathML Output** - Generated MathML (read-only)
+3. **MathML Output** - Generated MathML for Notion/web platforms (read-only)
 4. **LaTeX Preview** - Visual preview rendered by MathJax
+
+### E2-Specific Button Layout
+- **Quick Access** to common E2 mathematical symbols
+- **Curriculum-Focused** shortcuts for E2 topics
+- **Mobile-Friendly** design for on-the-go studying
 
 ---
 
@@ -112,158 +143,45 @@ Fully responsive design with:
 
 ---
 
-## 📝 Microsoft Word Compatibility
+## 📝 Platform-Specific Recommendations
 
-The app automatically post-processes MathML output to ensure it displays correctly in Microsoft Word without dotted placeholders.
+### ✅ **Notion** - Primary Use Case
+- **Perfect for:** All mathematical expressions
+- **MathML works excellently** in Notion
+- **Clean rendering** for E2 assignments and notes
+- **No compatibility issues**
 
-**📘 See also:** 
-- [MathML Templates Guide](MATHML_TEMPLATES.md) - Copy-paste ready MathML templates
-- [Overbar Conversion Guide](OVERBAR_CONVERSION_GUIDE.md) - Combining overline format for Word compatibility
-- [Piecewise Normalizer Guide](PIECEWISE_NORMALIZER.md) - Full documentation on piecewise function normalization
-- [Piecewise Quick Start](PIECEWISE_QUICK_START.md) - Test piecewise functions immediately
+### ⚠️ **Microsoft Word** - Use Native Equation Editor
+**Why MathML/LaTeX struggles in Word:**
+- **Vectors:** Complex arrow notation doesn't render properly
+- **Complex Numbers:** Imaginary unit notation fails
+- **Advanced Expressions:** Many mathematical constructs break
 
-### What Gets Fixed:
+**My Testing Results:**
+- ❌ **Unicode with regex** - Failed for complex notation
+- ❌ **AST parsing** - Failed for vectors and complex numbers  
+- ❌ **MathML conversion** - Failed for advanced mathematical expressions
 
-**N-ary Operators** (integrals ∫, sums ∑, products ∏) require their operands to be wrapped in `<mrow>` tags for Word to recognize them properly. **The app automatically applies this fix** when generating MathML.
+**✅ Recommendation:** Use Word's **native equation editor** (Insert → Equation) for Word documents.
 
-**Before (causes dotted placeholder in Word):**
-```xml
-<msubsup>
-  <mo>∫</mo>
-  <mi>b</mi>
-  <mi>a</mi>
-</msubsup>
-<mi>f</mi>
-<mo>(</mo>
-<mi>x</mi>
-<mo>)</mo>
-```
-
-**After (Word-compatible):**
-```xml
-<msubsup>
-  <mo>∫</mo>
-  <mi>b</mi>
-  <mi>a</mi>
-</msubsup>
-<mrow>
-  <mi>f</mi>
-  <mo>(</mo>
-  <mi>x</mi>
-  <mo>)</mo>
-</mrow>
-```
-
-### Supported Operators:
-
-- **Integrals:** `∫` (U+222B) - with or without limits
-- **Summations:** `∑` (U+2211) - with `<munderover>`, `<munder>`, etc.
-- **Products:** `∏` (U+220F) - with `<munderover>`, `<munder>`, etc.
-
-**Overbar Notation** (bars and overlines) are automatically converted to Unicode combining overline format (`U+0305`) for better Word compatibility:
-
-**Before (causes issues in Word):**
-```xml
-<mover accent="true">
-  <mi>z</mi>
-  <mo>¯</mo>
-</mover>
-```
-
-**After (Word-compatible):**
-```xml
-<mi>z&#x0305;</mi>
-```
-
-**Supported commands:** `\bar{z}`, `\overline{x}`, works with Latin and Greek letters.
-
-**Arrow Accents** (vector notation) are automatically enhanced with the `accent="true"` attribute and **long arrow symbols** for proper stretching and Word rendering:
-
-**Before (renders incorrectly in Word):**
-```xml
-<mover>
-  <mi>A</mi><mi>B</mi>
-  <mo>→</mo>
-</mover>
-```
-
-**After (Word-compatible):**
-```xml
-<mover accent="true">
-  <mrow>
-    <mi>A</mi><mi>B</mi>
-  </mrow>
-  <mo>⟶</mo>
-</mover>
-```
-
-**Key improvements:**
-- Uses **long rightwards arrow** (U+27F6 ⟶) instead of short arrow (U+2192 →)
-- Wraps multi-character bases in `<mrow>` for proper arrow stretching
-- Adds `accent="true"` for correct Word interpretation
-
-**Piecewise Functions** (cases environment) are automatically normalized to use stretchy braces:
-
-**Before (non-stretchy brace):**
-```xml
-<mrow>
-  <mo>{</mo>
-  <mtable>
-    <mtr><mtd><mi>x</mi></mtd><mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr>
-    <mtr><mtd><mn>0</mn></mtd><mtd><mi>x</mi><mo>≤</mo><mn>0</mn></mtd></mtr>
-  </mtable>
-  <mo></mo>
-</mrow>
-```
-
-**After (stretchy brace):**
-```xml
-<mrow>
-  <mfenced open="{" close="">
-    <mtable>
-      <mtr><mtd><mi>x</mi></mtd><mtd><mi>x</mi><mo>&gt;</mo><mn>0</mn></mtd></mtr>
-      <mtr><mtd><mn>0</mn></mtd><mtd><mi>x</mi><mo>≤</mo><mn>0</mn></mtd></mtr>
-    </mtable>
-  </mfenced>
-</mrow>
-```
-
-**Benefits:**
-- Brace automatically stretches to span all table rows
-- Renders correctly in MathJax, KaTeX, and native MathML
-- Works perfectly in Microsoft Word
-- Use `\begin{cases}...\end{cases}` in LaTeX for automatic conversion
-
-**Supported commands:** `\overrightarrow{AB}`, `\overleftarrow{XY}`, works with any content.
-
-**📘 See also:** 
-- [Arrow Accent Quick Reference](ARROW_ACCENT_QUICK_REFERENCE.md) - Usage examples
-- [Arrow Accent Implementation](OVERRIGHTARROW_IMPLEMENTATION.md) - Technical details
-
-### Testing:
-
-Run these debug functions in the browser console:
-
-```javascript
-debugNaryOperators()       // Test n-ary operator wrapping (∫, ∑, ∏)
-debugOverbar()             // Test overbar combining conversion (\bar, \overline)
-await testOverrightarrow() // Test arrow accent conversion (\overrightarrow, \overleftarrow) - NEW
-```
-
-Or open the dedicated test pages:
-- `test_nary_operators.html` - N-ary operator tests
-- `test_overbar.html` - Overbar conversion tests
-- `test_overrightarrow.html` - Arrow accent tests (NEW)
+### 🌐 **Web Platforms** - MathML Works Great
+- **GitHub** - MathML renders in markdown
+- **Websites** - MathML works with proper CSS
+- **Online editors** - Most support MathML
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ Technical Architecture
 
 ### MathML Conversion
 - Uses MathLive's built-in `convertLatexToMathMl()` function
-- Standard MathML output
-- Word-compatible normalizations
+- Standard MathML output optimized for Notion
+- E2 curriculum-focused symbol support
 
+### E2-Specific Features
+- **Custom button layout** for E2 mathematical concepts
+- **Mobile-optimized** interface for studying on-the-go
+- **Notion-focused** MathML output formatting
 
 ---
 
@@ -287,13 +205,17 @@ Free to use and modify. Built with open-source libraries.
 
 ---
 
-## 🙏 Credits
+## 🙏 Credits & Acknowledgments
 
-- **MathLive** by Arno Gourdol - Interactive math editor
-- **MathJax** - Math rendering engine
-- **Lucide** - Beautiful icon set
+Thank you to all the amazing open-source projects that made this possible:
+
+- **MathLive** by Arno Gourdol - Interactive math editor that powers the equation input
+- **MathJax** - Math rendering engine for LaTeX preview
+- **Lucide** - Beautiful icon set for the interface
+- **Open Source Community** - For making tools like this accessible to E2 students
 
 ---
 
-**Version:** 2.2 (MathML Edition)  
-**Last Updated:** October 15, 2025
+**Version:** 2.2 (E2 MathML Edition)  
+**Last Updated:** October 15, 2025  
+**Designed for:** E2 Students & Notion Users
