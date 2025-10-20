@@ -2434,175 +2434,164 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         <div class="io-section io-raw">
           <label class="io-label" for="ta">Raw LaTeX Input</label>
           
-          <!-- Embedded LaTeXLive input bar -->
+          <!-- Embedded LaTeXLive Editor from Desktop -->
           <iframe 
             id="latexEnterFrame" 
             src="LaTeXLive/html/index.html"
-            style="width: 100%; height: 150px; border: 2px solid var(--color-border); border-radius: 10px; background: var(--color-surface); overflow: hidden; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);">
+            style="width: 100%; height: 180px; border: 2px solid var(--color-border); border-radius: 10px; background: var(--color-surface); overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
           </iframe>
           <script>
-            // Hide unnecessary parts of LaTeXLive when iframe loads
-            document.getElementById('latexEnterFrame').addEventListener('load', function() {
+            // Configure and style the embedded LaTeXLive editor
+            const latexFrame = document.getElementById('latexEnterFrame');
+            
+            latexFrame.addEventListener('load', function() {
               try {
                 const iframeDoc = this.contentDocument || this.contentWindow.document;
                 
-                // Remove body margin/padding and hide background
-                const body = iframeDoc.body;
-                if (body) {
-                  body.style.margin = '0';
-                  body.style.padding = '0';
-                  body.style.overflow = 'hidden';
-                  body.style.background = 'transparent';
+                // Clean up the iframe document structure
+                if (iframeDoc.body) {
+                  iframeDoc.body.style.cssText = 'margin:0;padding:0;overflow:hidden;background:transparent';
                 }
                 
-                // Hide the card header (快捷工具 and 编辑器设置 button)
-                const cardHeader = iframeDoc.querySelector('.card-header');
-                if (cardHeader) cardHeader.style.display = 'none';
+                // Hide all UI chrome - we only want the input field
+                const elementsToHide = [
+                  '.card-header',           // Header with tools/settings
+                  '#wrap_shortcut',         // Shortcut buttons
+                  '#wrap_immediate',        // Immediate input buttons  
+                  '#output-area',           // Output/preview panel
+                  '.navbar',                // Navigation bar if present
+                  '.footer'                 // Footer if present
+                ];
                 
-                // Hide shortcut buttons area
-                const shortcutArea = iframeDoc.querySelector('#wrap_shortcut');
-                if (shortcutArea) shortcutArea.style.display = 'none';
+                elementsToHide.forEach(selector => {
+                  const el = iframeDoc.querySelector(selector);
+                  if (el) el.style.display = 'none';
+                });
                 
-                // Hide immediate buttons area
-                const immediateArea = iframeDoc.querySelector('#wrap_immediate');
-                if (immediateArea) immediateArea.style.display = 'none';
+                // Make background transparent throughout
+                const transparentElements = [
+                  '.container-fluid',
+                  '.flat-container', 
+                  '.container.area',
+                  '.card',
+                  '.card-body'
+                ];
                 
-                // Hide the output area completely
-                const outputArea = iframeDoc.querySelector('#output-area');
-                if (outputArea) outputArea.style.display = 'none';
+                transparentElements.forEach(selector => {
+                  const el = iframeDoc.querySelector(selector);
+                  if (el) {
+                    el.style.background = 'transparent';
+                    el.style.border = 'none';
+                    el.style.boxShadow = 'none';
+                  }
+                });
                 
-                // Hide the container behind the input area
-                const containerFluid = iframeDoc.querySelector('.container-fluid');
-                if (containerFluid) {
-                  containerFluid.style.background = 'transparent';
-                }
+                // Remove all spacing to make the textarea fill the iframe
+                const spacingElements = [
+                  '.flat-container',
+                  '.flat-row',
+                  '.flat-col',
+                  '.container.area',
+                  '.card',
+                  '.card-body',
+                  '#input-area'
+                ];
                 
-                // Remove all padding/margin from containers - be very aggressive
-                const flatContainer = iframeDoc.querySelector('.flat-container');
-                if (flatContainer) {
-                  flatContainer.style.padding = '0';
-                  flatContainer.style.margin = '0';
-                  flatContainer.style.width = '100%';
-                  flatContainer.style.maxWidth = '100%';
-                }
+                spacingElements.forEach(selector => {
+                  const el = iframeDoc.querySelector(selector);
+                  if (el) {
+                    el.style.cssText += 'margin:0!important;padding:0!important;width:100%!important;max-width:100%!important';
+                  }
+                });
                 
-                const flatRow = iframeDoc.querySelector('.flat-row');
-                if (flatRow) {
-                  flatRow.style.padding = '0';
-                  flatRow.style.margin = '0';
-                  flatRow.style.marginLeft = '0';
-                  flatRow.style.marginRight = '0';
-                }
-                
-                // Make the input area full width with no padding
-                const inputCol = iframeDoc.querySelector('.flat-col');
-                if (inputCol) {
-                  inputCol.style.maxWidth = '100%';
-                  inputCol.style.flex = '0 0 100%';
-                  inputCol.style.padding = '0';
-                  inputCol.style.paddingLeft = '0';
-                  inputCol.style.paddingRight = '0';
-                  inputCol.style.margin = '0';
-                }
-                
-                // Remove padding from container area
-                const containerArea = iframeDoc.querySelector('.container.area');
-                if (containerArea) {
-                  containerArea.style.padding = '0';
-                  containerArea.style.margin = '0';
-                  containerArea.style.maxWidth = '100%';
-                  containerArea.style.width = '100%';
-                }
-                
-                // Remove card margins/borders for seamless look
-                const card = iframeDoc.querySelector('.card');
-                if (card) {
-                  card.style.margin = '0';
-                  card.style.border = 'none';
-                  card.style.borderRadius = '0';
-                  card.style.background = 'transparent';
-                  card.style.boxShadow = 'none';
-                  card.style.width = '100%';
-                }
-                
-                // Adjust card body padding to zero
-                const cardBody = iframeDoc.querySelector('.card-body');
-                if (cardBody) {
-                  cardBody.style.padding = '0';
-                  cardBody.style.paddingLeft = '0';
-                  cardBody.style.paddingRight = '0';
-                  cardBody.style.margin = '0';
-                  cardBody.style.background = 'transparent';
-                  cardBody.style.width = '100%';
-                }
-                
-                // Make textarea fill available space completely
+                // Style the main textarea
                 const textarea = iframeDoc.querySelector('#txta_input');
+                const divCopy = iframeDoc.querySelector('#div_copy');
+
+                const sharedFieldStyles = {
+                  width: '100%',
+                  maxWidth: '100%',
+                  minHeight: '180px',
+                  margin: '0',
+                  padding: '12px',
+                  boxSizing: 'border-box'
+                };
+
                 if (textarea) {
-                  textarea.style.minHeight = '150px';
-                  textarea.style.margin = '0';
-                  textarea.style.width = '100%';
-                  textarea.style.maxWidth = '100%';
-                  textarea.style.boxSizing = 'border-box';
+                  Object.assign(textarea.style, sharedFieldStyles, {
+                    border: 'none',
+                    borderRadius: '0',
+                    resize: 'none',
+                    outline: 'none',
+                    background: 'transparent',
+                    color: 'inherit'
+                  });
+                  // Ensure the textarea remains the interactive layer
+                  textarea.style.position = 'absolute';
+                  textarea.style.top = '0';
+                  textarea.style.left = '0';
+                  textarea.style.height = '100%';
+                  textarea.style.overflow = 'auto';
+                  // Make cursor more visible
+                  textarea.style.caretColor = 'currentColor';
+                }
+
+                if (divCopy) {
+                  Object.assign(divCopy.style, sharedFieldStyles, {
+                    position: 'relative',
+                    zIndex: '1',
+                    pointerEvents: 'none',
+                    whiteSpace: 'pre-wrap',
+                    overflowWrap: 'anywhere',
+                    background: 'transparent'
+                  });
                 }
                 
-                // Force input area to full width
-                const inputArea = iframeDoc.querySelector('#input-area');
-                if (inputArea) {
-                  inputArea.style.width = '100%';
-                  inputArea.style.maxWidth = '100%';
-                  inputArea.style.margin = '0';
-                  inputArea.style.padding = '0';
-                }
-                
-                // Apply dark mode styling to iframe elements
-                const applyIframeDarkMode = () => {
+                // Dark mode support
+                const applyTheme = () => {
                   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
                   const textarea = iframeDoc.querySelector('#txta_input');
                   const divCopy = iframeDoc.querySelector('#div_copy');
                   
-                  if (textarea) {
-                    if (isDark) {
-                      textarea.style.backgroundColor = '#1e293b';
-                      textarea.style.color = '#f3f4f6';
-                      textarea.style.borderColor = '#374151';
-                      textarea.style.caretColor = '#60a5fa';
-                    } else {
-                      textarea.style.backgroundColor = '';
-                      textarea.style.color = '';
-                      textarea.style.borderColor = '';
-                      textarea.style.caretColor = '';
-                    }
+                  const darkStyles = {
+                    backgroundColor: '#1e293b',
+                    color: '#f3f4f6',
+                    borderColor: '#374151',
+                    caretColor: '#60a5fa'
+                  };
+                  
+                  const lightStyles = {
+                    backgroundColor: '#ffffff',
+                    color: '#1f2937',
+                    borderColor: '#d1d5db',
+                    caretColor: '#3b82f6'
+                  };
+                  
+                  const styles = isDark ? darkStyles : lightStyles;
+                  
+                if (textarea) {
+                    Object.assign(textarea.style, styles);
                   }
                   
                   if (divCopy) {
-                    if (isDark) {
-                      divCopy.style.backgroundColor = '#1e293b';
-                      divCopy.style.color = '#f3f4f6';
-                      divCopy.style.borderColor = '#374151';
-                    } else {
-                      divCopy.style.backgroundColor = '';
-                      divCopy.style.color = '';
-                      divCopy.style.borderColor = '';
-                    }
+                    Object.assign(divCopy.style, styles);
                   }
                 };
                 
-                // Apply initial dark mode
-                applyIframeDarkMode();
+                // Apply theme immediately and listen for changes
+                applyTheme();
+                window.__latexIframeApplyDarkMode = applyTheme;
                 
-                // Listen for theme changes
-                window.__latexIframeApplyDarkMode = applyIframeDarkMode;
-                
-                const broadcastIframeTheme = window.__broadcastLatexIframeTheme;
-                const getPendingIframeTheme = window.__getPendingLatexIframeTheme;
-                if (typeof broadcastIframeTheme === 'function') {
-                  const pendingTheme = typeof getPendingIframeTheme === 'function' ? getPendingIframeTheme() : null;
-                  const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
-                  broadcastIframeTheme(pendingTheme || currentTheme);
+                // Sync theme with parent
+                if (window.__broadcastLatexIframeTheme) {
+                  const theme = window.__getPendingLatexIframeTheme?.() || 
+                               document.documentElement.getAttribute('data-theme') || 
+                               'light';
+                  window.__broadcastLatexIframeTheme(theme);
                 }
+                
               } catch (e) {
-                console.log('无法访问iframe内容（跨域限制）:', e);
+                console.error('Failed to configure LaTeXLive iframe:', e);
               }
             });
           </script>
@@ -2672,11 +2661,19 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
          * Event Flow:
          * -----------
          * User types in MathLive → 'input' event → syncFromMathLive() → 
-         *   → Updates ta.value → Updates preview
+         *   → Updates ta.value → Preserves cursor position → Updates preview
          * 
          * User types in Raw LaTeX → 'input' event (in iframe) → debounce → 
          *   → syncFromTextArea() → Updates mf2.setValue() → Updates preview → 
          *   → Adjusts height
+         * 
+         * Cursor Position Tracking:
+         * ------------------------
+         * • The `ta` object provides selectionStart, selectionEnd, and setSelectionRange()
+         * • When syncing from MathLive, we map the visual cursor position to LaTeX offset
+         * • MathLive's position is converted to raw LaTeX string position
+         * • Cursor is restored after updating textarea to maintain typing position
+         * • This prevents cursor jumping to end when typing in MathLive
          * 
          * ========================================================================== */
         
@@ -2797,10 +2794,32 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 const textarea = resolveLatexLiveTextarea();
                 if (textarea) {
                     textarea.focus();
+                    // Move cursor to end of text
                     const length = textarea.value.length;
                     if (typeof textarea.setSelectionRange === 'function') {
                         textarea.setSelectionRange(length, length);
                     }
+                    // Scroll to cursor position
+                    textarea.scrollTop = textarea.scrollHeight;
+                }
+            },
+            get selectionStart() {
+                const textarea = resolveLatexLiveTextarea();
+                return textarea ? textarea.selectionStart : 0;
+            },
+            get selectionEnd() {
+                const textarea = resolveLatexLiveTextarea();
+                return textarea ? textarea.selectionEnd : 0;
+            },
+            setSelectionRange: (start, end, silent = false) => {
+                const textarea = resolveLatexLiveTextarea();
+                if (textarea && typeof textarea.setSelectionRange === 'function') {
+                    // Only focus if not in silent mode (when user manually interacts with textarea)
+                    // Silent mode is used when syncing from MathLive to avoid stealing focus
+                    if (!silent) {
+                        textarea.focus();
+                    }
+                    textarea.setSelectionRange(start, end);
                 }
             }
         };

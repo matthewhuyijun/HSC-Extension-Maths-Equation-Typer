@@ -62,3 +62,4 @@ echo "   https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer/ac
 echo ""
 echo "════════════════════════════════════════════════════════════════"
 
+
