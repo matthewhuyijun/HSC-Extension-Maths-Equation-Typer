@@ -3468,6 +3468,24 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const tabs=[{id:'calc',label:'Calculus'},{id:'powers',label:'Powers'},{id:'trigs',label:'Trigs'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'},{id:'special',label:'More'}];
         const tabRowConfig={};
         const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
+        
+        // LaTeX to Unicode mapping for dropdown display
+        const latexToUnicode = {
+            '\\theta': 'θ',
+            '\\alpha': 'α',
+            '\\beta': 'β',
+            '\\gamma': 'γ',
+            '\\delta': 'δ',
+            '\\lambda': 'λ',
+            '\\mu': 'μ',
+            '\\sigma': 'σ',
+            '\\omega': 'ω',
+            '\\Omega': 'Ω',
+            '\\Delta': 'Δ',
+            'z': 'z',
+            '\\placeholder{}': '\u25a1' // empty square
+        };
+        
         function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
         
         const buttonSyncGroups = {
@@ -3556,7 +3574,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: '\\theta',
                     display: '\\operatorname{cis}(\\theta)',
                     insert: '\\cos{\\theta}+i\\sin{\\theta}',
-                    options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+                    options: [
+                        { value: '\\theta', text: 'θ' },
+                        { value: '\\alpha', text: 'α' },
+                        { value: '\\beta', text: 'β' },
+                        { value: '\\gamma', text: 'γ' }
+                    ]
                 },
                 {
                     isSelectable: true,
@@ -3564,7 +3587,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: '\\theta',
                     display: '\\cos{\\theta}+i\\sin{\\theta}',
                     insert: '\\cos{\\theta}+i\\sin{\\theta}',
-                    options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+                    options: [
+                        { value: '\\theta', text: 'θ' },
+                        { value: '\\alpha', text: 'α' },
+                        { value: '\\beta', text: 'β' },
+                        { value: '\\gamma', text: 'γ' }
+                    ]
                 },
                 {
                     isSelectable: true,
@@ -3572,7 +3600,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: '|z|',
                     insert: '|z|',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 },
                 {
@@ -3581,7 +3613,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: 'arg(z)',
                     insert: 'arg(z)',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 },
                 {
@@ -3590,7 +3626,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: '\\overline{z}',
                     insert: '\\overline{z}',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 },
                 {
@@ -3599,7 +3639,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: 'Re(z)',
                     insert: 'Re(z)',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 },
                 {
@@ -3608,7 +3652,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: 'Im(z)',
                     insert: 'Im(z)',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 }
                 
@@ -3680,7 +3728,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: '\\theta',
                     display: '\\cos{\\theta}+i\\sin{\\theta}',
                     insert: '\\cos{\\theta}+i\\sin{\\theta}',
-                    options: ['\\theta', '\\alpha', '\\beta', '\\gamma']
+                    options: [
+                        { value: '\\theta', text: 'θ' },
+                        { value: '\\alpha', text: 'α' },
+                        { value: '\\beta', text: 'β' },
+                        { value: '\\gamma', text: 'γ' }
+                    ]
                 },
                 {
                     isSelectable: true,
@@ -3688,7 +3741,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: '|z|',
                     insert: '|z|',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 },
                 {
@@ -3697,7 +3754,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     currentVar: 'z',
                     display: 'arg(z)',
                     insert: 'arg(z)',
-                    options: ['z', '\\omega', '\\placeholder{}'],
+                    options: [
+                        { value: 'z', text: 'z' },
+                        { value: '\\omega', text: 'ω' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
                     syncGroup: 'complex'
                 },
             ],
