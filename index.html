@@ -507,12 +507,12 @@
         }
 
         /* Make the small variable selector dropdowns always layer above tabs/expanded area */
-        .selector { font-size: 14px; position: absolute; top: 2px; right: 2px; z-index: 1000; background: var(--color-control-bg); color: var(--color-control-text); border: 1px solid var(--color-border); border-radius: 6px; padding: 2px 10px; min-height: 28px; min-width: 64px; }
+        .selector { font-family: "Latin Modern Math", "Latin Modern Roman", serif; font-size: 14px; position: absolute; top: 2px; right: 2px; z-index: 1000; background: var(--color-control-bg); color: var(--color-control-text); border: 1px solid var(--color-border); border-radius: 6px; padding: 2px 10px; min-height: 28px; min-width: 64px; }
         /* Reserve space at the top of keys that have a selector to prevent overlap */
         .key.has-selector { padding-top: 36px; }
         /* Ensure math content within keys wraps and centers nicely below selector */
         .key.has-selector .math-display { display: flex; align-items: center; justify-content: center; text-align: center; }
-        .selector option { font-size: 14px; }
+        .selector option { font-family: "Latin Modern Math", "Latin Modern Roman", serif; font-size: 14px; }
         .tooltip { display: none; position: absolute; background: var(--color-tooltip-bg); color: var(--color-tooltip-text); padding: 4px 8px; border-radius: 4px; font-size: 12px; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 900; box-shadow: 0 6px 16px rgba(15,23,42,0.25); }
 
         /* (removed) hint corner and popover styles */
