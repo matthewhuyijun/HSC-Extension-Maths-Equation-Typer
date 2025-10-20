@@ -65,6 +65,8 @@ A specialized web app designed for **E2 students** to type LaTeX equations and c
 
 Thank you to all the amazing open-source projects that made this possible:
 
+• **LaTeXLive** by QianJianTech - LaTeX equation editor interface ([GitHub](https://github.com/QianJianTech/LaTeXLive))
+
 • **MathLive** by Arno Gourdol - Interactive math editor that powers the equation input
 
 • **MathJax** - Math rendering engine for LaTeX preview
@@ -72,3 +74,11 @@ Thank you to all the amazing open-source projects that made this possible:
 • **Lucide** - Beautiful icon set for the interface
 
 • **Open Source Community** - For making tools like this accessible to E2 students
+
+---
+
+## 📄 License
+
+This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
+
+This project includes code from [LaTeXLive](https://github.com/QianJianTech/LaTeXLive), which is also licensed under Apache-2.0. See [NOTICE](NOTICE) file for attribution details.

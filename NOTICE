@@ -1,0 +1,19 @@
+HSC Extension Maths Equation Typer
+Copyright (c) 2025 Matthew Hu
+
+This project includes code from LaTeXLive:
+https://github.com/QianJianTech/LaTeXLive
+Copyright (c) QianJianTech
+Licensed under the Apache License 2.0
+
+The LaTeXLive folder contains the original LaTeX equation editor interface
+and functionality from the LaTeXLive project. This project adapts and
+integrates it for HSC Extension Mathematics students.
+
+Modifications made to the original LaTeXLive code:
+- Integrated into a single-page application
+- Added Latin Modern Math font support
+- Customized UI/UX for HSC mathematics workflows
+- Added dark mode support
+- Integrated with MathLive library
+
