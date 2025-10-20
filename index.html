@@ -2435,10 +2435,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           <label class="io-label" for="ta">Raw LaTeX Input</label>
           
           <!-- Embedded LaTeXLive Editor from Desktop -->
-          <iframe 
-            id="latexEnterFrame" 
+          <iframe
+            id="latexEnterFrame"
             src="./LaTeXLive/html/index.html"
-            style="width: 100%; height: 135px; border: 2px solid var(--color-border); border-radius: 10px; background: var(--color-surface); overflow: hidden; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
+            style="width: 100%; height: 135px; border: 2px solid var(--color-border); border-radius: 10px; background: var(--color-surface); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);">
           </iframe>
           <script>
             // Configure and style the embedded LaTeXLive editor
@@ -2450,14 +2450,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 
                 // Clean up the iframe document structure
                 if (iframeDoc.body) {
-                  iframeDoc.body.style.cssText = 'margin:0;padding:0;overflow:hidden;background:transparent';
+                  iframeDoc.body.style.cssText = 'margin:0;padding:0;background:transparent';
                 }
                 
                 // Hide all UI chrome - we only want the input field
                 const elementsToHide = [
                   '.card-header',           // Header with tools/settings
                   '#wrap_shortcut',         // Shortcut buttons
-                  '#wrap_immediate',        // Immediate input buttons  
                   '#output-area',           // Output/preview panel
                   '.navbar',                // Navigation bar if present
                   '.footer'                 // Footer if present
@@ -2507,6 +2506,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 // Style the main textarea
                 const textarea = iframeDoc.querySelector('#txta_input');
                 const divCopy = iframeDoc.querySelector('#div_copy');
+                const wrapImmediate = iframeDoc.getElementById('wrap_immediate');
 
                 const sharedFieldStyles = {
                   width: '100%',
@@ -2524,16 +2524,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     resize: 'none',
                     outline: 'none',
                     background: 'transparent',
-                    color: 'inherit'
+                    color: 'inherit',
+                    position: 'relative',
+                    height: '100%',
+                    overflow: 'auto',
+                    zIndex: '2',
+                    caretColor: 'currentColor'
                   });
-                  // Ensure the textarea remains the interactive layer
-                  textarea.style.position = 'absolute';
-                  textarea.style.top = '0';
-                  textarea.style.left = '0';
-                  textarea.style.height = '100%';
-                  textarea.style.overflow = 'auto';
-                  // Make cursor more visible
-                  textarea.style.caretColor = 'currentColor';
                 }
 
                 if (divCopy) {
@@ -2546,12 +2543,21 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     background: 'transparent'
                   });
                 }
+
+                if (wrapImmediate) {
+                  wrapImmediate.style.margin = '0';
+                  wrapImmediate.style.padding = '4px 0 0 0';
+                  wrapImmediate.style.position = 'relative';
+                  wrapImmediate.style.zIndex = '3';
+                  wrapImmediate.style.background = 'transparent';
+                }
                 
                 // Dark mode support
                 const applyTheme = () => {
                   const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
                   const textarea = iframeDoc.querySelector('#txta_input');
                   const divCopy = iframeDoc.querySelector('#div_copy');
+                  const immediate = iframeDoc.getElementById('wrap_immediate');
                   
                   const darkStyles = {
                     backgroundColor: '#1e293b',
@@ -2568,13 +2574,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                   };
                   
                   const styles = isDark ? darkStyles : lightStyles;
-                  
-                if (textarea) {
+
+                  if (textarea) {
                     Object.assign(textarea.style, styles);
                   }
-                  
+
                   if (divCopy) {
                     Object.assign(divCopy.style, styles);
+                  }
+
+                  if (immediate) {
+                    immediate.style.color = styles.color;
                   }
                 };
                 
