@@ -5387,39 +5387,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           if (tabsWrapper) tabsWrapper.style.display = 'none';
           if (expandedArea) expandedArea.style.display = 'none';
           if (renderedSection) renderedSection.style.display = 'none';
-          // Set iframe height to full 180px in pure LaTeX mode
-          if (latexFrame) {
-            latexFrame.style.height = '180px';
-            // Update internal textarea minHeight
-            try {
-              const iframeDoc = latexFrame.contentDocument || latexFrame.contentWindow.document;
-              const textarea = iframeDoc.querySelector('#txta_input');
-              const divCopy = iframeDoc.querySelector('#div_copy');
-              if (textarea) textarea.style.minHeight = '180px';
-              if (divCopy) divCopy.style.minHeight = '180px';
-            } catch (e) {
-              console.warn('Could not access iframe content:', e);
-            }
-          }
         } else {
           // Show everything
           if (tabsWrapper) tabsWrapper.style.display = '';
           if (expandedArea) expandedArea.style.display = '';
           if (renderedSection) renderedSection.style.display = '';
-          // Set iframe height to 75% (135px) in normal mode
-          if (latexFrame) {
-            latexFrame.style.height = '135px';
-            // Update internal textarea minHeight
-            try {
-              const iframeDoc = latexFrame.contentDocument || latexFrame.contentWindow.document;
-              const textarea = iframeDoc.querySelector('#txta_input');
-              const divCopy = iframeDoc.querySelector('#div_copy');
-              if (textarea) textarea.style.minHeight = '135px';
-              if (divCopy) divCopy.style.minHeight = '135px';
-            } catch (e) {
-              console.warn('Could not access iframe content:', e);
-            }
-          }
         }
         updateButtonState();
       }
