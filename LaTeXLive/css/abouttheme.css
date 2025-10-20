@@ -1,0 +1,176 @@
+/* #region 主题相关  */
+  
+.theme-list-dontuse {
+    color: #5e5e5e;
+    color: #e8e8e8;
+    color: #363636;
+    color: #3e3e3e;
+    color: #2e2e2e;
+    color: #1e1e1e;
+  
+    color: #e2edf7;
+    color: #cce1f3;
+    color: #9cc2e2;
+    color: #77a2c7;
+    color: #325f86;
+  
+    color: #f8eaf8;
+    color: #ecdaec;
+    color: #ddb9dd;
+    color: #d49cd4;
+    color: #be64be;
+  }
+  /* 默认 */
+  .btn-light:hover p {
+    color: #5ebcff;
+  }
+  .btn-light:hover img:not(.control-color) {
+    filter: brightness(120%);
+  }
+  .btn-light:hover .control-color {
+    filter: brightness(130%);
+  }
+  /* 黑色 */
+  /* 暗色模式 - 主背景 */
+  body.theme-dark-scroll {
+    background-color: #1a1a1a;
+  }
+  body.theme-dark-scroll .card {
+    background-color: #242424;
+    border-color: #3a3a3a;
+    color: #e8e8e8;
+  }
+  body.theme-dark-scroll .card-header {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+    color: #e8e8e8;
+  }
+  body.theme-dark-scroll .card-body {
+    background-color: #242424;
+    color: #e8e8e8;
+  }
+  body.theme-dark-scroll #div_copy {
+    background-color: #2e2e2e;
+    color: #e8e8e8;
+    border-color: #3e3e3e;
+  }
+  body.theme-dark-scroll #txta_input {
+    caret-color: #5ebcff;
+  }
+  body.theme-dark-scroll .form-control {
+    background-color: #2e2e2e;
+    color: #e8e8e8;
+    border-color: #3e3e3e;
+  }
+  body.theme-dark-scroll .form-control::placeholder {
+    color: #888;
+  }
+  body.theme-dark-scroll .screenmodal {
+    background-color: #242424;
+    color: #e8e8e8;
+  }
+  body.theme-dark-scroll .modal-content {
+    background-color: #242424;
+    color: #e8e8e8;
+    border-color: #3a3a3a;
+  }
+  body.theme-dark-scroll .modal-header {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+    color: #e8e8e8;
+  }
+  body.theme-dark-scroll .modal-body {
+    color: #e8e8e8;
+  }
+  body.theme-dark-scroll .modal-footer {
+    background-color: #2a2a2a;
+    border-color: #3a3a3a;
+  }
+  
+  .theme-dark-autocomp-main {
+    background-color: #363636;
+    color: #e8e8e8;
+  }
+  .theme-dark-autocomp-ico {
+    color: #b8b8b8;
+  }
+  .theme-dark-autocomp-active {
+    /* border: 1px solid #fff; */
+    background-color: #e8e8e8;
+  }
+  .theme-dark-autocomp-active .autocomp-tg {
+    background-color: transparent;
+    color: #363636;
+    font-weight: bold;
+  }
+  .theme-dark-autocomp-active .autocomp-ico {
+    color: #363636;
+  }
+  
+  .theme-dark-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #3e3e3e #5e5e5e;
+    /* cursor: default; */
+  }
+  .theme-dark-scroll::-webkit-scrollbar {
+    width: 18px;
+    /* cursor: default; */
+  }
+  .theme-dark-scroll::-webkit-scrollbar-track {
+    background: #3e3e3e;
+    cursor: default;
+  }
+  .theme-dark-scroll::-webkit-scrollbar-thumb {
+    background-color: #5e5e5e;
+    border-radius: 2px;
+    border: 1px solid #3e3e3e;
+    cursor: default;
+  }
+  
+  .theme-dark-button {
+    color: #e8e8e8;
+    background-color: #2e2e2e;
+    border-color: #2e2e2e;
+  }
+  .theme-dark-button img:not(.control-color) {
+    filter: none;
+  }
+  .theme-dark-button p {
+    color: #e8e8e8;
+  }
+  .theme-dark-button:hover {
+    color: #fff;
+    background-color: #1e1e1e;
+    border-color: #0e0e0e;
+  }
+  .theme-dark-button:hover img:not(.control-color) {
+    filter: brightness(120%);
+  }
+  .theme-dark-button:hover .control-color {
+    filter: brightness(130%);
+  }
+  .theme-dark-button:hover p {
+    color: #5ebcff;
+  }
+  .theme-dark-button .layer2-img {
+    filter: invert(100%) brightness(200%);
+  }
+  .theme-dark-button:hover .layer2-img,
+  .theme-dark-button:focus .layer2-img,
+  .dropdown.show > .theme-dark-button .layer2-img {
+    filter: invert(100%) brightness(220%);
+  }
+  .dropdown-menu .theme-dark-button img:not(.control-color) {
+    filter: invert(100%) brightness(220%);
+  }
+  .theme-dark-outline-button {
+    color: #5ebcff;
+    border-color: #5ebcff;
+  }
+  .theme-dark-outline-button:hover {
+    color: #0b1f33;
+    background-color: #5ebcff;
+    border-color: #5ebcff;
+  }
+  
+  /* #endregion */
