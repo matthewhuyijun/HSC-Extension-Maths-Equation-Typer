@@ -1728,7 +1728,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
     
     [data-theme="dark"] .io-labelbar {
-      background: #1e293b;
+      background: #1f2937;
+      border-color: #1f2937;
       box-shadow: 0 1px 0 rgba(2,6,23,0.05);
     }
     .io-label {
@@ -1819,7 +1820,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     [data-theme="dark"] .io-grid textarea {
       background: var(--color-surface) !important;
       color: var(--color-text) !important;
-      border: 2px solid var(--color-border) !important;
+      border: 2px solid #1f2937 !important;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
     }
 
@@ -1830,7 +1831,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
     /* Dark mode styling for math-field */
     [data-theme="dark"] .io-grid math-field {
-      border: 2px solid var(--color-border) !important;
+      border: 2px solid #1f2937 !important;
       background: var(--color-surface) !important;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
     }
@@ -1858,7 +1859,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
     .header-actions .header-copy:hover {
-      background-color: #f1f5f9;
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, #ffffff);
+      border-color: var(--color-tab-active-bg);
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
     }
@@ -1885,8 +1887,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
     
     [data-theme="dark"] .header-actions .header-copy:hover {
-      background-color: #334155;
-      border-color: rgba(255, 255, 255, 0.2);
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, #1e293b);
+      border-color: var(--color-tab-active-bg);
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
     }
