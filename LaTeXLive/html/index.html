@@ -114,8 +114,13 @@
       font-size: 1.05rem;
       letter-spacing: -0.01em;
       color: var(--iframe-title-color);
-      margin: 0 0 12px 2px;
+      margin: 20px 0 12px 2px;    /* Increased top margin for more space from input area */
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+    }
+    
+    /* Reduce top margin for Raw LaTeX Input label to bring it closer to rendered output */
+    #input-area .io-label {
+      margin-top: 2px;
     }
 
     /* Keep textarea transparent so syntax highlight overlay shines through */
