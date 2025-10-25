@@ -223,6 +223,11 @@ body {
   margin: 2rem auto 1.5rem auto;
   text-align: center;
   min-height: 200px;
+  background-color: #ffffff;
+  transition: background-color 0.3s ease;
+}
+body[data-theme="dark"] #wrap_output {
+  background-color: #1a1a1a;
 }
 #wrap_output img {
   opacity: 0.05;
