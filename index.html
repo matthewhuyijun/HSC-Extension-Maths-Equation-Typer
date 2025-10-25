@@ -1318,6 +1318,19 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       gap: 14px;
       grid-area: actions;
     }
+    
+    /* Header separator - visual divider between button groups */
+    .header-separator {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.25);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    
+    [data-theme="dark"] .header-separator {
+      background: rgba(255, 255, 255, 0.2);
+    }
     /* White pill buttons - semi-transparent with blue hover */
     .chip-btn{
       appearance: none;
@@ -1538,6 +1551,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         box-shadow: 0 8px 24px rgba(15,23,42,.25);
         border-top: 1px solid var(--color-border);
         z-index: 50;
+      }
+      
+      /* Hide separators in mobile menu */
+      .header-separator {
+        display: none;
       }
       
       .h-actions.menu-open {
@@ -2198,18 +2216,27 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         </button>
 
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
+          <!-- Group 1: External Resources -->
           <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="github-btn" title="View on GitHub">
             <i data-lucide="github"></i>
           </a>
+          
+          <span class="header-separator" aria-hidden="true"></span>
+          
+          <!-- Group 2: Input Helpers -->
           <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="header-copy" title="Image Recognition - Convert math images to LaTeX" style="text-decoration: none;">
             <i data-lucide="scan"></i> Image Recognition
           </a>
-          <button class="header-copy" id="copyBtn" title="Copy LaTeX">
-            <i data-lucide="copy"></i> Copy LaTeX
-          </button>
           <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="header-copy" title="View available inline shortcuts" style="text-decoration: none;">
             <i data-lucide="keyboard"></i> Shortcuts
           </a>
+          
+          <span class="header-separator" aria-hidden="true"></span>
+          
+          <!-- Group 3: Output Actions -->
+          <button class="header-copy" id="copyBtn" title="Copy LaTeX">
+            <i data-lucide="copy"></i> Copy LaTeX
+          </button>
           <button class="header-copy" id="pureLatexBtn" title="Pure LaTeX Mode">
             <i data-lucide="terminal"></i> Pure LaTeX
           </button>
