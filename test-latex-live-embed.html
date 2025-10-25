@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test LaTeXLive Embed Path</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 2rem;
+    }
+    .test-section {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    iframe {
+      width: 100%;
+      height: 600px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+    }
+    .path-info {
+      background: #f9fafb;
+      padding: 1rem;
+      border-left: 4px solid #667eea;
+      margin-bottom: 1rem;
+      font-family: monospace;
+      font-size: 14px;
+    }
+    .status {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .info {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 LaTeXLive Path Test</h1>
+  
+  <div class="test-section">
+    <h2>Path Configuration</h2>
+    <div class="path-info">
+      <strong>Current File:</strong> /Users/matthew/Desktop/HSC-Extension-Maths-Equation-Typer-main/test-latex-live-embed.html<br>
+      <strong>Target File:</strong> /Users/matthew/Desktop/LaTeXLive-main/html/index.html<br>
+      <strong>Relative Path:</strong> ../LaTeXLive-main/html/index.html
+    </div>
+  </div>
+  
+  <div class="test-section">
+    <h2>Iframe Embed Test <span class="status info">Testing Path</span></h2>
+    <p>If you see the LaTeXLive editor below, the path is correct:</p>
+    <iframe src="../LaTeXLive-main/html/index.html" title="LaTeXLive Editor"></iframe>
+  </div>
+  
+  <div class="test-section">
+    <h2>Instructions</h2>
+    <p>✅ <strong>If the iframe loads correctly:</strong> The path is working! Your main index.html should work perfectly.</p>
+    <p>❌ <strong>If you see an error:</strong> You may need to adjust the path in index.html based on your actual folder structure.</p>
+    <ul>
+      <li>Both folders should be in: <code>/Users/matthew/Desktop/</code></li>
+      <li>HSC folder: <code>HSC-Extension-Maths-Equation-Typer-main</code></li>
+      <li>LaTeX folder: <code>LaTeXLive-main</code></li>
+    </ul>
+  </div>
+  
+  <div class="test-section">
+    <h2>Alternative: Using Absolute Path</h2>
+    <p>If relative paths don't work, you can use an absolute file path:</p>
+    <div class="path-info">
+      file:///Users/matthew/Desktop/LaTeXLive-main/html/index.html
+    </div>
+    <p>Update line 4812 in index.html to use this absolute path if needed.</p>
+  </div>
+  
+  <div class="test-section">
+    <h2>Server Running</h2>
+    <p>HTTP server is running at <code>http://localhost:8080</code></p>
+    <p>You can also test via HTTP URLs:</p>
+    <ul>
+      <li><strong>This test file:</strong> <a href="http://localhost:8080/../HSC-Extension-Maths-Equation-Typer-main/test-latex-live-embed.html" target="_blank">http://localhost:8080/test-latex-live-embed.html</a></li>
+      <li><strong>Main index:</strong> <a href="http://localhost:8080/../HSC-Extension-Maths-Equation-Typer-main/index.html" target="_blank">http://localhost:8080/index.html</a></li>
+      <li><strong>LaTeXLive:</strong> <a href="http://localhost:8080/html/index.html" target="_blank">http://localhost:8080/html/index.html</a></li>
+    </ul>
+  </div>
+</body>
+</html>
+

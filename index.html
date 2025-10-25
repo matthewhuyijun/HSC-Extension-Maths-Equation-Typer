@@ -1,0 +1,4623 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="system">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HSC MathsTyper 💯</title>
+<!-- Custom favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E💯%3C/text%3E%3C/svg%3E">
+<!-- Instant theme detection to prevent flash -->
+<script>
+(function() {
+  const saved = localStorage.getItem('theme-preference') || 'system';
+  const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const resolved = saved === 'system' ? (prefersDark ? 'dark' : 'light') : saved;
+  document.documentElement.setAttribute('data-theme', resolved);
+  document.documentElement.style.colorScheme = resolved;
+})();
+</script>
+<!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<!-- Latin Modern fonts for LaTeX-style typography -->
+<link href="https://cdn.jsdelivr.net/npm/lmwebfont@latest/lmroman.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/lmwebfont@latest/lmmath.css" rel="stylesheet">
+<style>
+        /* ============================================
+           🎨 MATHLIVE DEMO COLOR SCHEME 🎨
+           Matching mathlive.io/mathfield/demo
+           ============================================ */
+        
+        :root {
+            color-scheme: light;
+            /* Light mode - clean white background like demo */
+            --color-bg: #ffffff;
+            --color-text: #1f2937;
+            --ink: #1f2937;
+            --muted: #6b7280;
+            --color-header-bg: #2563eb;
+            --color-header-text: #ffffff;
+            --color-toolbar-bg: #f3f4f6;
+            --color-surface: #ffffff;
+            --color-surface-alt: #f9fafb;
+            --color-border: #e5e7eb;
+            --color-border-strong: #d1d5db;
+            --color-tab-bg: #ffffff;
+            --color-tab-text: #1f2937;
+            --color-tab-active-bg: #2563eb;
+            --color-tab-active-text: #ffffff;
+            --color-tooltip-bg: rgba(31, 41, 55, 0.95);
+            --color-tooltip-text: #ffffff;
+            --color-control-bg: #ffffff;
+            --color-control-text: #1f2937;
+            --color-caret: #3b82f6;
+            /* Copy button palette */
+            --copy-bg: #ffffff;
+            --copy-border: rgba(15, 23, 42, 0.15);
+            --copy-ink: #0f172a;
+            --copy-hover-bg: var(--color-tab-active-bg);
+            --copy-hover-ink: var(--color-tab-active-text);
+            --copy-hover-border: rgba(37, 99, 235, 0.65);
+        }
+
+        [data-theme="dark"] {
+            color-scheme: dark;
+            /* Dark mode - deep dark background like demo */
+            --color-bg: #111827;
+            --color-text: #f3f4f6;
+            --ink: #f3f4f6;
+            --muted: #9ca3af;
+            --color-header-bg: #1d4ed8;
+            --color-header-text: #f3f4f6;
+            --color-toolbar-bg: #1f2937;
+            --color-surface: #1f2937;
+            --color-surface-alt: #0f172a;
+            --color-border: #374151;
+            --color-border-strong: #4b5563;
+            --color-tab-bg: #1f2937;
+            --color-tab-text: #f3f4f6;
+            --color-tab-active-bg: #2563eb;
+            --color-tab-active-text: #f3f4f6;
+            --color-tooltip-bg: rgba(15, 23, 42, 0.95);
+            --color-tooltip-text: #f9fafb;
+            --color-control-bg: #1f2937;
+            --color-control-text: #f3f4f6;
+            --color-caret: #60a5fa;
+            /* Copy button palette */
+            --copy-bg: rgba(31, 41, 55, 0.85);
+            --copy-border: rgba(148, 163, 184, 0.45);
+            --copy-ink: #f9fafb;
+            --copy-hover-bg: var(--color-tab-active-bg);
+            --copy-hover-ink: var(--color-tab-active-text);
+            --copy-hover-border: rgba(37, 99, 235, 0.65);
+        }
+
+        * { box-sizing: border-box; }
+        html, body { overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-y; height: 100vh; }
+        body { font-family: "Latin Modern Math", "Latin Modern Roman", serif; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; height: 100vh; }
+        .header-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+        header h1 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 600; }
+        .header-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        /* Copy buttons - Pure LaTeX Document Style */
+        .copyBtn {
+            appearance: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 28px;
+            border-radius: 3px;
+            border: 2px solid #2c2c2c;
+            background: #ffffff;
+            color: #1a1a1a;
+            font-weight: 600;
+            font-size: 16px;
+            font-family: "Latin Modern Roman", "Computer Modern", serif;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            cursor: pointer;
+            box-shadow: 
+                inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                0 4px 8px rgba(0, 0, 0, 0.05);
+            transition: all .18s ease;
+            position: relative;
+        }
+        
+        .copyBtn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 1px;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.01) 2px,
+                rgba(0, 0, 0, 0.01) 4px
+            );
+            pointer-events: none;
+            opacity: 0.5;
+        }
+        
+        .copyBtn:hover,
+        .copyBtn:focus-visible {
+            background: #f8f8f8;
+            border-color: #1a1a1a;
+            box-shadow: 
+                inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+                0 3px 6px rgba(0, 0, 0, 0.15),
+                0 6px 12px rgba(0, 0, 0, 0.08);
+            transform: translateY(-1px);
+        }
+        .copyBtn:focus-visible { 
+            outline: 2px solid #2c2c2c; 
+            outline-offset: 3px; 
+        }
+        .copyBtn:active { 
+            transform: translateY(1px);
+            box-shadow: 
+                inset 0 1px 3px rgba(0, 0, 0, 0.15),
+                0 1px 2px rgba(0, 0, 0, 0.08); 
+        }
+        
+        /* Dark mode buttons */
+        [data-theme="dark"] .copyBtn {
+            background: #1a1a1a;
+            border-color: #4a4a4a;
+            color: #e8e8e8;
+            box-shadow: 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+                0 2px 4px rgba(0, 0, 0, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        [data-theme="dark"] .copyBtn::before {
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 2px,
+                rgba(255, 255, 255, 0.02) 2px,
+                rgba(255, 255, 255, 0.02) 4px
+            );
+        }
+        
+        [data-theme="dark"] .copyBtn:hover,
+        [data-theme="dark"] .copyBtn:focus-visible {
+            background: #252525;
+            border-color: #6a6a6a;
+            box-shadow: 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.12),
+                0 3px 6px rgba(0, 0, 0, 0.4),
+                0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+        .header-controls { display: flex; align-items: center; gap: 12px; }
+        #status { font-size: 12px; color: var(--color-header-text); font-weight: 600; }
+        .theme-switcher { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--color-header-text); }
+        .theme-switcher select { padding: 2px 6px; }
+        .visually-hidden { position: absolute !important; height: 1px; width: 1px; overflow: hidden; clip: rect(1px, 1px, 1px, 1px); white-space: nowrap; border: 0; padding: 0; margin: -1px; }
+        .theme-segmented { display: inline-flex; align-items: center; gap: 6px; padding: 4px; background: var(--key-surface); border: 1px solid var(--key-border); border-radius: 12px; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); min-height: 36px; }
+        .theme-segmented input { position: absolute; opacity: 0; pointer-events: none; }
+        .theme-segmented label { cursor: pointer; display: inline-flex; align-items: center; justify-content: center; min-width: 36px; height: 28px; padding: 0 8px; border-radius: 8px; color: var(--color-text); opacity: 0.7; user-select: none; transition: opacity 0.2s ease, background 0.2s ease; }
+        .theme-segmented input:checked + label { background: var(--color-surface); opacity: 1; box-shadow: 0 1px 1px rgba(15, 23, 42, 0.08), inset 0 0 0 1px var(--key-border); }
+        .theme-segmented label:hover { opacity: 0.9; background: color-mix(in srgb, var(--color-tab-active-bg) 15%, transparent); }
+
+        /* --- LAYOUT/STACKING FIXES --- */
+        /* The select dropdowns on the 2nd row of the toolbar were getting covered by the tabs below. */
+        /* Create clear stacking order: toolbar above tabs, and selectors above everything. */
+        /* Keys need a stacking context so their absolutely positioned children (selectors/tooltips) can layer */
+        .key { position: relative; border-radius: 14px; border: 1px solid var(--key-border); background: var(--key-surface); color: var(--color-text); display: flex; align-items: center; justify-content: center; padding: 12px; width: 100%; box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12); transition: transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease; --key-content-max-height: calc(100% - 16px); }
+        .key:active { transform: translateY(1px); box-shadow: 0 1px 3px rgba(15, 23, 42, 0.1); }
+        .key:hover { background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface)); border-color: var(--color-tab-active-bg); }
+        /* Better expanded area sizing - FIXED HEIGHT FOR ALL TABS */
+        #expanded-area .key {
+            height: 120px !important;
+            min-height: 120px !important;
+            max-height: 120px !important;
+            width: 100%;
+            padding: 12px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #expanded-area .key > div {
+            max-height: var(--key-content-max-height);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        /* Container wrapper for perfect alignment */
+        #tabs_wrapper {
+            margin: 16px 5% 0 5%;
+            padding: 0 24px;
+            box-sizing: border-box;
+        }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 0;
+            flex-wrap: nowrap;
+            width: 100%;
+            justify-content: space-between;
+        }
+        .tab {
+            padding: 10px 16px;
+            border: 1px solid var(--color-border);
+            border-radius: 12px;
+            cursor: pointer;
+            background: var(--color-tab-bg);
+            color: var(--color-tab-text);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+            transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+            flex: 1;
+            min-width: 0;
+            text-align: center;
+            width: 100%;
+            max-width: none;
+            box-shadow: 0 0 0 rgba(59,130,246,0);
+        }
+        .tab:hover {
+            background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--color-tab-bg));
+            border-color: var(--color-tab-active-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 0 20px rgba(59,130,246,0.4), 0 12px 22px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .tab::after { content: ''; }
+        .tab[data-expanded="true"] { 
+            background: var(--color-tab-active-bg); 
+            color: var(--color-tab-active-text); 
+            border-color: var(--color-tab-active-bg);
+            box-shadow: 0 0 20px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
+        }
+        .tab[data-expanded="true"]::after { content: ''; }
+        .tab[data-expanded="true"]:hover {
+            background: var(--color-tab-active-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 0 25px rgba(59,130,246,0.6), 0 12px 22px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.2);
+        }
+        .tab:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; transform: translateY(-1px); }
+
+        button,
+        select {
+            background: var(--key-surface);
+            color: var(--color-text);
+            border: 1px solid var(--key-border);
+            border-radius: 8px;
+            font-size: 12px;
+            padding: 6px 12px;
+            line-height: 1.25;
+            cursor: pointer;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+            transition: all 0.2s ease;
+        }
+        button:hover {
+            background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--key-surface));
+            border-color: var(--color-tab-active-bg);
+            transform: translateY(-1px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.18);
+        }
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+        }
+        button:focus-visible, select:focus-visible { outline: 2px solid var(--color-tab-active-bg); outline-offset: 2px; }
+        .hover-area { position: relative; display: block; width: 100%; }
+        #expanded-area {
+            --expanded-columns: 1;
+            display: grid;
+            grid-template-columns: repeat(var(--expanded-columns), minmax(0, 1fr));
+            gap: 16px;
+            padding: 20px 24px;
+            margin: 16px 5% 12px 5%;
+            box-sizing: border-box;
+        }
+        #expanded-area { 
+            background: var(--color-bg); 
+            border-radius: 16px;
+        }
+        #expanded-area:hover { background: var(--color-bg); }
+        .hidden { display: none; }
+
+        .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
+        .key-row .key { 
+            height: 100%; 
+            min-height: 120px !important;
+            max-height: 120px !important;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 12px;
+            border-radius: 14px;
+        }
+        
+        .key-row .key > * {
+            max-height: 100%;
+            overflow: hidden;
+        }
+
+        /* Clean MathLive-style layout - no card backgrounds */
+        .section-card { background: transparent; border: none; border-radius: 0; overflow: visible; box-shadow: none; }
+        .section-card .card-body { padding: 0; }
+        .section-card:last-of-type { margin-top: auto; }
+        .card { background: transparent; border: none; border-radius: 0; box-shadow: none; overflow: visible; }
+        .body { padding: 0; }
+        .stack { display: flex; flex-direction: column; gap: 24px; }
+
+        
+        /* === CLEAR WIDTH SYSTEM === */
+
+        /* Base styling for textareas only */
+        textarea {
+            font-size: 18px; 
+            padding: 12px; 
+            border: 1px solid var(--color-border); 
+            border-radius: 6px; 
+            display: block; 
+            background: var(--color-surface); 
+            color: var(--color-text); 
+            margin: 0; 
+            transition: border-color .2s ease, box-shadow .2s ease; 
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); 
+            box-sizing: border-box;
+            resize: none;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--color-tab-active-bg);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        /* 🎯 MathField styled exactly like MathLive demo using CSS variables */
+        #mf2 {
+            width: 100%;
+            --background: #ffffff;
+            background: var(--background);
+            --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
+            --hue: 211;
+            --border-radius: 8px;
+            --padding: 12px 16px;
+            font-size: 1.2rem;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Focus state - clean blue ring like demo */
+        #mf2:focus-within {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+            outline: none;
+        }
+
+        /* Allow content to wrap naturally */
+        #mf2::part(content) {
+            white-space: normal;
+        }
+
+
+        /* All buttons */
+        button, .copyBtn {
+            width: auto; /* Let buttons size naturally */
+        }
+
+        /* 100% WIDTH ELEMENTS - ALL TEXT AREAS SAME WIDTH */
+
+        /* CONTAINER WIDTHS */
+        /* Ensure containers don't constrain their children */
+        .editor {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Dark mode mathfield - matching demo style */
+        [data-theme="dark"] #mf2 {
+            --background: #1e293b;
+            background: var(--background);
+            --color: #f3f4f6;
+            color: var(--color);
+            --text-font-family: "STIX Two Math", "Cambria Math", "Latin Modern Math", serif;
+            border-color: #334155;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            font-size: 1.2rem;
+            --border-radius: 8px;
+            --padding: 12px 16px;
+        }
+        
+        [data-theme="dark"] #mf2:focus-within {
+            border-color: #60a5fa;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .editor label {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--ink);
+            margin-bottom: 0;
+        }
+
+        .editor label strong {
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .editor .copyBtn {
+            margin-left: auto;
+            flex-shrink: 0;
+        }
+
+        #editorWrap {
+            width: 100%;
+            padding: 0; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px; 
+            background: transparent; 
+            border: none; 
+            border-radius: 0;
+        }
+
+        .section-card, .card-body, .stack {
+            width: 100%;
+        }
+
+        /* Main content area */
+        #mainContent {
+            margin: 0 5%; 
+            padding: 12px 24px 48px 24px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px;
+            box-sizing: border-box;
+        }
+        /* ============================================
+           🎨 MATHLIVE GLOBAL SETTINGS
+           ============================================ */
+        
+        math-field {
+            /* Core colors matching demo */
+            --caret-color: #3b82f6;
+            --selection-background-color: rgba(59, 130, 246, 0.2);
+            --selection-color: currentColor;
+            --contains-highlight-background-color: rgba(59, 130, 246, 0.1);
+            --primary-color: #3b82f6;
+            
+            /* Placeholder */
+            --placeholder-color: #9ca3af;
+            --placeholder-opacity: 0.6;
+        }
+        
+        /* Dark theme adjustments */
+        [data-theme="dark"] math-field {
+            --caret-color: #60a5fa;
+            --selection-background-color: rgba(96, 165, 250, 0.25);
+            --selection-color: currentColor;
+            --contains-highlight-background-color: rgba(96, 165, 250, 0.12);
+            --primary-color: #60a5fa;
+        }
+        
+        /* Matrix/parenthesis sizing */
+        math-field .ML__paren.ML__delim { min-height: 100% !important; }
+        math-field .ML__matrix { position: relative; }
+        math-field .ML__matrix .ML__delim { height: 100% !important; }
+
+        /* Fix placeholder/square color to match theme */
+        math-field .ML__placeholder,
+        math-field .ML__square,
+        math-field .ML__char[data-char="□"],
+        math-field .ML__char[data-char="■"] {
+            background: transparent !important;
+            color: var(--color-border) !important;
+        }
+        
+        /* Dark mode placeholders */
+        [data-theme="dark"] math-field .ML__placeholder {
+            background: rgba(156, 163, 175, 0.1) !important;
+            border: 1px dashed rgba(156, 163, 175, 0.3) !important;
+            opacity: 0.7;
+        }
+
+        /* Make the small variable selector dropdowns always layer above tabs/expanded area */
+        .selector { font-family: "Latin Modern Math", "Latin Modern Roman", serif; font-size: 16px; font-style: italic; position: absolute; top: 2px; right: 2px; z-index: 1000; background: var(--color-control-bg); color: var(--color-control-text); border: 1px solid var(--color-border); border-radius: 6px; padding: 2px 10px; min-height: 28px; min-width: 64px; }
+        /* Reserve space at the top of keys that have a selector to prevent overlap */
+        .key.has-selector { padding-top: 36px; }
+        /* Ensure math content within keys wraps and centers nicely below selector */
+        .key.has-selector .math-display { display: flex; align-items: center; justify-content: center; text-align: center; }
+        .selector option { font-family: "Latin Modern Math", "Latin Modern Roman", serif; font-size: 16px; font-style: italic; }
+        .tooltip { display: none; position: absolute; background: var(--color-tooltip-bg); color: var(--color-tooltip-text); padding: 4px 8px; border-radius: 4px; font-size: 12px; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 900; box-shadow: 0 6px 16px rgba(15,23,42,0.25); }
+
+        /* (removed) hint corner and popover styles */
+
+        math-field::part(virtual-keyboard-toggle) { display: none !important; visibility: hidden !important; }
+        math-field::part(menu-toggle) { display: none !important; visibility: hidden !important; }
+
+        /* Shrink MathJax output inside keys */
+        /* Default: make symbols larger in non-vector tabs */
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key > div {
+            max-height: 100%;
+        }
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container {
+            font-size: clamp(1.05rem, 3.6vw, 1.6rem) !important;
+            max-height: 100% !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            line-height: 1.05 !important;
+        }
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container svg {
+            max-height: 100% !important;
+            max-width: 100% !important;
+            width: auto !important;
+            height: 100% !important;
+        }
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container mjx-math,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-container *,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mrow,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mi,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mo,
+        #expanded-area[data-tab-id]:not([data-tab-id="vec"]) .key mjx-mn {
+            font-size: clamp(0.9rem, 3vw, 1.2rem) !important;
+            line-height: 1.06 !important;
+        }
+        /* Vector tab: keep more compact to fit large constructs */
+        #expanded-area[data-tab-id="vec"] .key mjx-container {
+            font-size: clamp(0.8rem, 2.6vw, 1.1rem) !important;
+            max-height: 100% !important;
+            max-width: 100% !important;
+            overflow: hidden !important;
+            line-height: 1.05 !important;
+        }
+        #expanded-area[data-tab-id="vec"] .key mjx-container svg {
+            max-height: 100% !important;
+            max-width: 100% !important;
+            width: auto !important;
+            height: 100% !important;
+        }
+        #expanded-area[data-tab-id="vec"] .key mjx-container mjx-math,
+        #expanded-area[data-tab-id="vec"] .key mjx-container *,
+        #expanded-area[data-tab-id="vec"] .key mjx-mrow,
+        #expanded-area[data-tab-id="vec"] .key mjx-mi,
+        #expanded-area[data-tab-id="vec"] .key mjx-mo,
+        #expanded-area[data-tab-id="vec"] .key mjx-mn {
+            font-size: clamp(0.6rem, 2vw, 0.85rem) !important;
+            line-height: 1.06 !important;
+        }
+
+        /* Ans tab: reduce iframe and embed height to 75% in normal mode only */
+        #expanded-area[data-tab-id="ans"] .key iframe,
+        #expanded-area[data-tab-id="ans"] .key embed {
+            height: 68px !important;
+            max-height: 68px !important;
+        }
+
+        .math-display-text {
+            font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+            font-size: 0.75rem;
+            white-space: nowrap;
+        }
+
+/* === Pretty-up pack (drop-in overrides) === */
+
+/* Font + smoother text */
+html, body { font-family: "Latin Modern Math", "Latin Modern Roman", serif; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+/* Subtle gradient background */
+:root {
+  --bg-grad-1: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.10), transparent 60%),
+               radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,.10), transparent 60%);
+  --panel-surface: rgba(244, 247, 255, 0.9);
+  --panel-border: rgba(148, 163, 184, 0.35);
+  --panel-shadow: rgba(30, 41, 59, 0.18);
+  --key-surface: rgba(255, 255, 255, 0.96);
+  --key-border: rgba(148, 163, 184, 0.38);
+}
+[data-theme="dark"] {
+  --bg-grad-1: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.18), transparent 60%),
+               radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,.18), transparent 60%);
+  --panel-surface: rgba(23, 33, 58, 0.88);
+  --panel-border: rgba(63, 76, 110, 0.55);
+  --panel-shadow: rgba(2, 6, 23, 0.32);
+  --key-surface: rgba(30, 44, 76, 0.92);
+  --key-border: rgba(84, 105, 150, 0.55);
+}
+body { background-image: var(--bg-grad-1); }
+
+/* Header: soft gradient + nicer title */
+header {
+  background: linear-gradient(135deg, #2563eb, #3b82f6 60%, #6366f1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  color: #ffffff;
+}
+header h1 {
+  letter-spacing: -0.01em;
+  font-size: 20px;
+  line-height: 1.2;
+  position: relative;
+  color: #ffffff;
+  font-weight: 700;
+}
+header h1::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -6px;
+  width: 100px; height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffffffaa, #c7d2fe 60%, transparent);
+  filter: blur(.3px);
+}
+
+/* Clean layout - no card styling */
+.section-card {
+  border-radius: 0;
+  backdrop-filter: none;
+  background: transparent;
+  border: none;
+  transition: none;
+}
+.section-card:hover {
+  transform: none;
+  box-shadow: none;
+  background: transparent;
+}
+
+/* Tabs: pill-ish, floatier */
+.tab {
+  border-radius: 999px;
+  padding: 8px 14px;
+  box-shadow: 0 6px 14px rgba(2, 6, 23, 0.12);
+}
+#tabs { gap: 8px; padding: 0; }
+
+/* Expanded keys: tighter look + lift on hover */
+#expanded-area { 
+  gap: 14px; 
+  border-radius: 16px;
+  background: var(--color-bg);
+}
+.key {
+  border-radius: 14px;
+  box-shadow: 0 10px 22px rgba(2, 6, 23, 0.12);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .2s ease, border-color .2s ease;
+}
+.key:hover { transform: translateY(-1px); }
+
+/* Textarea focus ring */
+textarea {
+  border-radius: 10px;
+  box-shadow: 0 1px 0 rgba(2, 6, 23, 0.04);
+}
+textarea:focus {
+  outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, white);
+  outline-offset: 2px;
+  border-color: var(--color-tab-active-bg);
+}
+
+/* Content area copy buttons - override to match header style */
+.copyBtn {
+  letter-spacing: -0.01em;
+  border-radius: 9999px;
+  padding: 10px 24px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+/* Theme toggle chip: crisper */
+.theme-segmented {
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(2, 6, 23, 0.18);
+}
+.theme-segmented input:checked + label {
+  background: color-mix(in srgb, var(--color-surface) 85%, transparent);
+}
+
+/* Small motion for MathJax renders */
+.math-render svg { transition: transform .12s ease; }
+.key:hover .math-render svg { transform: translateY(-1px); }
+
+/* === Subtle auto light/dark SVG wallpaper === */
+:root {
+  /* tiny dot grid for light mode */
+  --wallpaper-light: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>\
+<rect width='100%' height='100%' fill='none'/>\
+<circle cx='14' cy='14' r='0.75' fill='%23cbd5e1' opacity='0.55'/>\
+</svg>");
+  /* tiny dot grid for dark mode */
+  --wallpaper-dark: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'>\
+<rect width='100%' height='100%' fill='none'/>\
+<circle cx='14' cy='14' r='0.75' fill='%23334155' opacity='0.55'/>\
+</svg>");
+  --wallpaper: var(--wallpaper-light);
+}
+
+/* your script already toggles data-theme on <html> */
+[data-theme="dark"] {
+  --wallpaper: var(--wallpaper-dark);
+}
+
+/* layer the wallpaper under any existing gradient/background */
+body {
+  background-image: var(--bg-grad-1, none), var(--wallpaper);
+  background-size: auto, 28px 28px;          /* keep your gradient size as-is; dot grid at 28px */
+  background-attachment: fixed, fixed;        /* subtle parallax feel, also prevents seams */
+  background-position: center, center;
+  background-repeat: no-repeat, repeat;
+}
+
+/* === Copy toast styles === */
+#toast {
+  position: fixed;
+  left: 50%;
+  bottom: 40px;
+  transform: translateX(-50%) translateY(40px);
+  background: rgba(34,197,94,0.95); /* green success */
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 12px 28px rgba(2,6,23,0.25);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  z-index: 9999;
+}
+#toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* === Dark mode overrides removed - using main theme definitions above === */
+
+/* Input / math-field focus - using CSS variables */
+
+/* Segmented control - using CSS variables */
+
+/* === Dark mode styling - using CSS variables === */
+
+/* Selected / active pills */
+html[data-theme="dark"] .segmented .pill[aria-selected="true"],
+html[data-theme="dark"] .segmented .pill.is-active {
+  background-color: #686868 !important;   /* slightly brighter for selected */
+  color: #ffffff !important;
+  border-color: #777777 !important;
+}
+
+/* Inputs, math fields, LaTeX areas */
+html[data-theme="dark"] input[type="text"],
+html[data-theme="dark"] .math-field,
+html[data-theme="dark"] .output-box,
+html[data-theme="dark"] .latex-preview,
+html[data-theme="dark"] .raw-latex {
+  background: var(--color-surface) !important;
+  color: var(--color-text) !important;
+  border: 1px solid var(--color-border) !important;
+  box-shadow: none !important;
+}
+
+/* Textareas in .io-grid get their own styling below - don't override here */
+
+/* Rendered input needs white background in dark mode for LaTeX readability */
+html[data-theme="dark"] .rendered-input {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid var(--color-border) !important;
+}
+
+/* Highlight when active or hovered - using blue theme */
+html[data-theme="dark"] input[type="text"]:focus {
+  border-color: #60a5fa !important;
+  box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+}
+
+/* Textareas in .io-grid get their own focus styling below - don't override here */
+
+/* Theme toggle buttons (sun/moon/monitor icons) */
+html[data-theme="dark"] .theme-toggle button {
+  background: var(--color-surface) !important;
+  border: 1px solid var(--color-border) !important;
+  color: var(--color-text) !important;
+}
+
+html[data-theme="dark"] .theme-toggle button.active,
+html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
+  background: var(--color-tab-active-bg) !important;
+  border-color: var(--color-tab-active-bg) !important;
+  color: #ffffff !important;
+}
+
+/* ============================================
+   🎨 BLUE THEME - Using definitions from top of file
+   ============================================ */
+
+/* Dark mode focus handled in main #mf2 styles above */
+
+/* Key buttons */
+.key {
+  background-color: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.key:hover {
+  background-color: #e0ecff;
+  border-color: #3b82f6;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.15);
+}
+
+[data-theme="dark"] .key {
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+[data-theme="dark"] .key:hover {
+  background-color: #374151;
+  border-color: #60a5fa;
+}
+    </style>
+    <script>
+        window.MathJax = { 
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                displayMath: [['$$', '$$'], ['\\[', '\\]']],
+                packages: {'[+]': ['physics', 'mhchem', 'cancel', 'ams', 'amsCd', 'unicode', 'bbox', 'newcommand']},
+                tags: 'ams'  // Enable AMS-style equation numbering
+            }, 
+            svg: { fontCache: 'global' },
+            loader: {
+                load: ['[tex]/physics', '[tex]/mhchem', '[tex]/cancel', '[tex]/ams', '[tex]/amsCd', '[tex]/unicode', '[tex]/bbox', '[tex]/newcommand']
+            }
+        };
+        window.whenMathJaxReady = window.whenMathJaxReady || function(){};
+    </script>
+    <script>
+      /* ========= Word-Compatible MathML Conversion =========
+         Fixes <mo accent="false">&#xAF;</mo> → <mo stretchy="true">&#xAF;</mo>
+         and other accent/overbar issues when exporting MathML for Word
+      ======================================================== */
+      function fixMathMLforWord(mathmlString) {
+        if (!mathmlString) return "";
+
+        // Rule 1: accent="false" macron → stretchy="true"
+        mathmlString = mathmlString.replace(
+          /<mo\b[^>]*\baccent\s*=\s*["']false["'][^>]*>\s*&#xAF;\s*<\/mo>/g,
+          '<mo stretchy="true">&#xAF;</mo>'
+        );
+
+        // Rule 2: horizontal bars (—, &#x2015;) → macron
+        mathmlString = mathmlString.replace(
+          /<mo\b[^>]*\baccent\s*=\s*["'](?:true|1)["'][^>]*>\s*(?:&#x2015;|&#8213;|—)\s*<\/mo>/g,
+          '<mo stretchy="true">&#xAF;</mo>'
+        );
+
+        // Rule 3: Fix sum (∑) and product (∏) operators for Word compatibility
+        mathmlString = fixSumProdForWord(mathmlString);
+
+        // Rule 4: Fix arrow accents (overrightarrow, overleftarrow)
+        if (typeof window.fixArrowAccentsMathML === 'function') {
+          mathmlString = window.fixArrowAccentsMathML(mathmlString);
+        }
+
+        // Rule 5: Normalize piecewise definitions (brace + table → mfenced)
+        if (typeof window.MathMLNormalizer !== 'undefined' && 
+            typeof window.MathMLNormalizer.normalizePiecewise === 'function') {
+          const result = window.MathMLNormalizer.normalizePiecewise(mathmlString);
+          if (result && result.mathml) {
+            mathmlString = result.mathml;
+          }
+        }
+
+        return mathmlString;
+      }
+
+      /**
+       * Fixes sum (∑) and product (∏) operators in MathML to ensure proper display in Microsoft Word
+       * Adds movablelimits="true" and stretchy="false" attributes to make Word recognize them as operators
+       * @param {string} mathmlString - The MathML string to fix
+       * @returns {string} Fixed MathML string
+       */
+      function fixSumProdForWord(mathmlString) {
+        if (!mathmlString) return "";
+
+        // Replace any <mo> for "∑" or "∏" (including entity forms) with Word-compatible attributes
+        // This handles standalone operators and those within munder/munderover/mover
+        // Match various forms: ∑, &#x2211;, &#8721; for sum and ∏, &#x220F;, &#8719; for product
+        return mathmlString.replace(
+          /<mo[^>]*>\s*(?:∑|&#x2211;|&#8721;|∏|&#x220F;|&#8719;)\s*<\/mo>/g,
+          function(match) {
+            // Extract the operator symbol from the match
+            const symbolMatch = match.match(/>\s*(∑|&#x2211;|&#8721;|∏|&#x220F;|&#8719;)\s*</);
+            if (symbolMatch) {
+              const symbol = symbolMatch[1];
+              return '<mo movablelimits="true" stretchy="false">' + symbol + '</mo>';
+            }
+            return match;
+          }
+        );
+      }
+
+      // Quick console test
+      document.addEventListener('DOMContentLoaded', () => {
+        const testInput = `<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">\n  <mover>\n    <mi>z<\/mi>\n    <mo accent="false">&#xAF;<\/mo>\n  <\/mover>\n<\/math>`;
+        const fixed = fixMathMLforWord(testInput);
+        if (fixed && fixed.includes('stretchy="true"')) {
+          console.log('✅ fixMathMLforWord applied in test');
+        }
+
+        // Test sum/prod conversion
+        const sumTestInput = `<math xmlns="http://www.w3.org/1998/Math/MathML">\n  <munderover>\n    <mo>∑<\/mo>\n    <mi>i=1<\/mi>\n    <mi>n<\/mi>\n  <\/munderover>\n<\/math>`;
+        const sumFixed = fixMathMLforWord(sumTestInput);
+        if (sumFixed && sumFixed.includes('movablelimits="true"') && sumFixed.includes('stretchy="false"')) {
+          console.log('✅ fixSumProdForWord applied in test');
+        }
+
+        // Test product conversion
+        const prodTestInput = `<math xmlns="http://www.w3.org/1998/Math/MathML">\n  <munder>\n    <mo>∏<\/mo>\n    <mi>k=1<\/mi>\n  <\/munder>\n<\/math>`;
+        const prodFixed = fixMathMLforWord(prodTestInput);
+        if (prodFixed && prodFixed.includes('movablelimits="true"') && prodFixed.includes('stretchy="false"')) {
+          console.log('✅ fixSumProdForWord applied to product in test');
+        }
+      });
+    </script>
+     <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js" defer onload="whenMathJaxReady()"></script>
+    <script>
+    /**
+     * Normalize \dot and \ddot accents in MathML so Word renders them correctly.
+     * - Ensures <mover accent="true">…</mover>
+     * - Converts top <mo> to combining marks:
+     *     \dot   -> &#x0307;  (COMBINING DOT ABOVE)
+     *     \ddot  -> &#x0308;  (COMBINING DIAERESIS)
+     *
+     * Use either the string transformer (fixDotAccentsInString) in your pipeline,
+     * or the DOM fixer (fixDotAccentsInDOM) to patch rendered MathML nodes.
+     */
+
+    /* ---------- STRING TRANSFORMER (use in your conversion pipeline) ---------- */
+    function fixDotAccentsInString(xml) {
+      if (!xml) return xml;
+
+      // 1) \ddot: diaeresis variants -> combining diaeresis U+0308, add accent="true"
+      xml = xml.replace(
+        /<mover\b(?![^>]*\baccent=)[^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x00?A8;|&#168;|&diaeresis;|&DoubleDot;|¨|&#x0308;|&#776;)\s*<\/mo>\s*<\/mover>/gi,
+        '<mover accent="true">$1<mo>&#x0308;</mo></mover>'
+      );
+
+      // 2) \dot: dot variants -> combining dot above U+0307, add accent="true"
+      xml = xml.replace(
+        /<mover\b(?![^>]*\baccent=)[^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x0?2D9;|&#729;|&#x0307;|&DotAbove;|˙)\s*<\/mo>\s*<\/mover>/gi,
+        '<mover accent="true">$1<mo>&#x0307;</mo></mover>'
+      );
+
+      // 3) (Optional) Strip MathJax ORD wrapper that can interfere downstream
+      xml = xml.replace(
+        /<mrow\b[^>]*\bdata-mjx-texclass=["']ORD["'][^>]*>\s*(<mover\b[\s\S]*?<\/mover>)\s*<\/mrow>/gi,
+        '$1'
+      );
+
+      // 4) If accent already present but wrong top mark, normalize the glyph
+      xml = xml
+        // ddot normalize inside existing accent="true"
+        .replace(
+          /<mover\b[^>]*\baccent=["']true["'][^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x00?A8;|&#168;|&diaeresis;|&DoubleDot;|¨|&#x0308;|&#776;)\s*<\/mo>\s*<\/mover>/gi,
+          '<mover accent="true">$1<mo>&#x0308;</mo></mover>'
+        )
+        // dot normalize inside existing accent="true"
+        .replace(
+          /<mover\b[^>]*\baccent=["']true["'][^>]*>\s*([\s\S]*?)\s*<mo\b[^>]*>\s*(?:&#x0?2D9;|&#729;|&DotAbove;|˙)\s*<\/mo>\s*<\/mover>/gi,
+          '<mover accent="true">$1<mo>&#x0307;</mo></mover>'
+        );
+
+      return xml;
+    }
+
+    /* ---------- DOM FIXER (use after MathML is in the document) ---------- */
+    function fixDotAccentsInDOM(root = document) {
+      const movers = root.querySelectorAll('mover, MOVER'); // be tolerant of case
+
+      movers.forEach(mv => {
+        // Skip if not an element or has no children
+        if (!(mv instanceof Element)) return;
+
+        // Unwrap MathJax wrapper: <mrow data-mjx-texclass="ORD"><mover>…</mover></mrow>
+        if (mv.parentElement?.matches('mrow[data-mjx-texclass="ORD"]')) {
+          const wrapper = mv.parentElement;
+          wrapper.replaceWith(mv); // unwrap
+        }
+
+        // Find the top <mo> (accent glyph) – usually the last child of <mover>
+        // In canonical MathML it's the second child; be defensive:
+        const mo = Array.from(mv.children).find(el => el.tagName?.toLowerCase() === 'mo')
+               || mv.lastElementChild;
+
+        if (!mo || mo.tagName?.toLowerCase() !== 'mo') return;
+
+        const glyph = (mo.innerHTML || mo.textContent || '').trim();
+
+        // Determine if this is dot or diaeresis variant
+        const isDiaeresis = /^(?:&#x00?A8;|&#168;|&diaeresis;|&DoubleDot;|¨|&#x0308;|&#776;)$/.test(glyph);
+        const isDotAbove  = /^(?:&#x0?2D9;|&#729;|&DotAbove;|˙|&#x0307;)$/.test(glyph);
+
+        if (!isDiaeresis && !isDotAbove) return;
+
+        // Ensure accent="true"
+        mv.setAttribute('accent', 'true');
+
+        // Normalize glyph to combining form
+        mo.innerHTML = isDiaeresis ? '&#x0308;' : '&#x0307;';
+      });
+    }
+
+    /* ---------- Auto-run after DOM ready (covers rendered MathML) ---------- */
+    document.addEventListener('DOMContentLoaded', () => {
+      // Patch any MathML currently in the DOM
+      try { fixDotAccentsInDOM(document); } catch (e) { /* no-op */ }
+
+      // Optional: observe future inserts (e.g., after conversions/renders)
+      const obs = new MutationObserver(muts => {
+        for (const m of muts) {
+          for (const node of m.addedNodes) {
+            if (node.nodeType === 1) { // ELEMENT_NODE
+              if (node.tagName && /^(mover|mrow|math)$/i.test(node.tagName)) {
+                fixDotAccentsInDOM(node);
+              } else {
+                const anyMover = node.querySelector?.('mover');
+                if (anyMover) fixDotAccentsInDOM(node);
+              }
+            }
+          }
+        }
+      });
+      obs.observe(document.documentElement, { childList: true, subtree: true });
+    });
+    </script>
+    <script>
+      // Append our fix to the existing callback
+      const _prevWhenReady = window.whenMathJaxReady || function(){};
+      window.whenMathJaxReady = function () {
+        _prevWhenReady();
+        fixNaryOperands();
+      };
+
+      function fixNaryOperands(root = document) {
+        const MML = "http://www.w3.org/1998/Math/MathML";
+        // All MathML <math> elements
+        const maths = root.querySelectorAll('math');
+
+        maths.forEach(math => {
+          // For each operator pattern, ensure the immediate operand is an <mrow>
+          wrapAfterLimits(math, 'munderover', '&#x2211;'); // ∑
+          wrapAfterLimits(math, 'munder',     '&#x2211;'); // ∑ (lower only)
+          wrapAfterLimits(math, 'munderover', '&#x220F;'); // ∏
+          wrapIntegral(math);                                 // ∫ with/without limits
+        });
+
+        function isWhitespace(node) {
+          return node && node.nodeType === Node.TEXT_NODE && !node.nodeValue.trim();
+        }
+
+        // Generic wrapper for ∑ and ∏ after <munderover>/<munder>
+        function wrapAfterLimits(math, limitsTag, entity) {
+          const limits = math.getElementsByTagName(limitsTag);
+          for (const lim of limits) {
+            const mo = lim.querySelector('mo');
+            if (!mo || mo.innerHTML.trim() !== entity) continue;
+
+            // Find the first meaningful sibling after limitsTag
+            let after = lim.nextSibling;
+            while (isWhitespace(after)) after = after.nextSibling;
+
+            // If already <mrow>, nothing to do
+            if (after && after.nodeType === 1 && after.localName === 'mrow') continue;
+
+            // Wrap the single following node (if any) into <mrow>
+            const mrow = document.createElementNS(MML, 'mrow');
+            if (after) {
+              math.insertBefore(mrow, after);
+              mrow.appendChild(after);
+            } else {
+              // No operand present: create empty mrow placeholder
+              math.appendChild(mrow);
+            }
+          }
+        }
+
+        // Integrals: either <msubsup><mo>&#x222B;</mo>…</msubsup> or bare <mo>&#x222B;</mo>
+        function wrapIntegral(math) {
+          // Case 1: with limits
+          const withLimits = math.getElementsByTagName('msubsup');
+          for (const box of withLimits) {
+            const mo = box.querySelector('mo');
+            if (!mo || mo.innerHTML.trim() !== '&#x222B;') continue;
+
+            let after = box.nextSibling;
+            while (isWhitespace(after)) after = after.nextSibling;
+            if (after && after.nodeType === 1 && after.localName === 'mrow') continue;
+
+            const mrow = document.createElementNS(MML, 'mrow');
+            if (after) {
+              math.insertBefore(mrow, after);
+              mrow.appendChild(after);
+            } else {
+              math.appendChild(mrow);
+            }
+          }
+
+          // Case 2: without limits (bare ∫)
+          const mos = math.getElementsByTagName('mo');
+          for (const mo of mos) {
+            if (mo.innerHTML.trim() !== '&#x222B;') continue;
+            // Only handle if next isn’t already mrow
+            let after = mo.nextSibling;
+            while (isWhitespace(after)) after = after.nextSibling;
+            if (!after) continue;
+            if (after.nodeType === 1 && after.localName === 'mrow') continue;
+
+            const mrow = document.createElementNS(MML, 'mrow');
+            mo.parentNode.insertBefore(mrow, after);
+            mrow.appendChild(after);
+          }
+        }
+      }
+    </script>
+    
+    <!-- ===== Blue gradient navigation bar styles ===== -->
+    <style>
+    :root{
+      /* ============================================
+         🎯 EXACT MATHLIVE DEMO HEADER COLORS
+         Matching https://mathlive.io/mathfield/demo/
+         ============================================ */
+      --page-max-width: 2280px;
+      --page-pad-x: 24px;
+
+      /* MathLive demo header - solid blue (#4f7df9) */
+      --bar-from: #4f7df9;
+      --bar-to:   #4f7df9;
+      --bar-h: 64px;
+      --bar-pad-x: var(--page-pad-x);
+      --maxw: var(--page-max-width);
+
+      /* White pill buttons exactly like demo */
+      --chip-bg: #ffffff;
+      --chip-ink: #1e293b;
+      --chip-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+
+      --label-ink: rgba(255, 255, 255, 0.9);
+      --underline: rgba(255,255,255,.95);
+      --underline-glow: rgba(255,255,255,.35);
+    }
+
+    /* Header bar - exact MathLive demo style */
+    .header-bar{
+      position: sticky; top: 0; z-index: 60;
+      width: 100%;
+      height: var(--bar-h);
+      min-height: var(--bar-h);
+      max-height: var(--bar-h);
+      overflow: hidden;
+      background: #4f7df9;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+      color: #ffffff;
+      transition: background 0.2s ease;
+    }
+    
+    /* Dark mode header */
+    [data-theme="dark"] .header-bar{
+      background: #2d4a9e;
+    }
+
+    /* Header inner layout: three sections (title | actions | theme) */
+    .header-row{
+      height: 100%;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-areas: "title actions right";
+      align-items: center;
+      gap: 16px;
+      padding: 0 var(--bar-pad-x);
+      max-width: var(--maxw);
+      margin: 0 auto;
+      position: relative;
+    }
+
+    /* Title - exact MathLive demo style */
+    .h-title{
+      position: relative;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      line-height: 1.2;
+      white-space: nowrap;
+      color: #ffffff;
+      text-decoration: none;
+      grid-area: title;
+    }
+    
+    .hamburger-btn {
+      display: none;
+      appearance: none;
+      border: 0;
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+      grid-area: title;
+      justify-self: end;
+      margin-left: auto;
+    }
+    
+    .hamburger-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+    
+    .hamburger-btn svg {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
+    /* Action buttons area - keep to the left */
+    .h-actions{ 
+      display: flex; 
+      align-items: center; 
+      gap: 14px;
+      grid-area: actions;
+    }
+    
+    /* Header separator - visual divider between button groups */
+    .header-separator {
+      width: 1px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.25);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+    
+    [data-theme="dark"] .header-separator {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    /* White pill buttons - semi-transparent with blue hover */
+    .chip-btn{
+      appearance: none;
+      border: 0;
+      cursor: pointer;
+      padding: 8px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      flex-shrink: 0;
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 14px;
+      letter-spacing: -0.01em;
+      box-shadow: none;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .chip-btn:hover{
+      background: rgba(255, 255, 255, 0.25);
+      transform: translateY(-1px);
+    }
+    .chip-btn:active{
+      background: rgba(255, 255, 255, 0.2);
+      transform: translateY(0);
+    }
+    
+    /* Dark mode adjustments for chip buttons */
+    [data-theme="dark"] .chip-btn{
+      background: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+    }
+    [data-theme="dark"] .chip-btn:hover{
+      background: rgba(255, 255, 255, 0.2);
+    }
+    [data-theme="dark"] .chip-btn:active{
+      background: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Right side: theme toggle */
+    .h-right{ 
+      display: flex; 
+      align-items: center; 
+      gap: 14px;
+      grid-area: right;
+    }
+
+    /* Theme toggle buttons - white rounded capsule style */
+    .theme-switch{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px;
+      background: #fff;
+      border-radius: 999px;
+      box-shadow: 0 6px 18px rgba(2,6,23,.18), 0 1px 0 rgba(255,255,255,.6) inset;
+      height: 46px;
+    }
+    .theme-opt {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      color: #111;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: background .15s ease, box-shadow .15s ease, transform .08s ease;
+    }
+    .theme-opt.is-active {
+      background: #eef3ff;
+      box-shadow: 0 1px 0 rgba(15,23,42,.04) inset, inset 0 0 0 2px #3b82f6, 0 0 0 3px rgba(99,102,241,.22);
+    }
+    .theme-opt:hover {
+      background: rgba(238, 243, 255, 0.6);
+      box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+      transform: translateY(-1px);
+    }
+
+    /* Dark theme adjustments */
+    [data-theme="dark"] .theme-switch {
+      background: linear-gradient(180deg, #1e1e1e 0%, #1a1a1a 100%);
+      box-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 8px 22px rgba(0,0,0,.4);
+    }
+
+    [data-theme="dark"] .theme-opt {
+      color: #f3f4f6;
+    }
+
+    [data-theme="dark"] .theme-opt:hover {
+      background: rgba(59, 130, 246, 0.15);
+      transform: translateY(-1px);
+    }
+
+    [data-theme="dark"] .theme-opt.is-active {
+      background: rgba(59, 130, 246, 0.2);
+      box-shadow: 0 1px 0 rgba(255,255,255,.02) inset, inset 0 0 0 2px #60a5fa, 0 0 0 3px rgba(96, 165, 250, .15);
+    }
+    
+    [data-theme="dark"] .theme-opt:not(.is-active) {
+      opacity: 0.5;
+    }
+
+    .content-wrapper {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ============================================
+       🎨 MATHLIVE DEMO EXACT STYLING
+       Matching https://mathlive.io/mathfield/demo/
+       ============================================ */
+
+    /* Dark mode header - darker blue */
+    [data-theme="dark"] .header-bar{
+      background: #3b6dd9;
+    }
+
+
+    /* Theme toggle icon styling */
+    .theme-opt svg {
+      width: 20px;
+      height: 20px;
+      display: block;
+      stroke: #64748b;
+      stroke-width: 2;
+      fill: none;
+      transition: stroke .15s ease, transform .12s ease;
+    }
+
+    .theme-opt:hover svg {
+      stroke: #3b82f6;
+      transform: scale(1.08);
+    }
+
+    .theme-opt.is-active svg {
+      stroke: #3b82f6;
+    }
+
+    [data-theme="dark"] .theme-opt svg {
+      stroke: #cbd5e1;
+    }
+
+    [data-theme="dark"] .theme-opt.is-active svg {
+      stroke: #60a5fa;
+    }
+
+    :root {
+      --content-max: var(--page-max-width);
+      --content-pad-x: var(--page-pad-x);
+    }
+
+    *, *::before, *::after { 
+      box-sizing: border-box; 
+    }
+
+    #tabs_wrapper,
+    #expanded-area,
+    #mainContent {
+      width: 100%;
+      max-width: var(--content-max);
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding-left: var(--content-pad-x) !important;
+      padding-right: var(--content-pad-x) !important;
+    }
+
+    #tabs_wrapper {
+      margin-top: 16px !important;
+      margin-bottom: 0 !important;
+    }
+
+    #expanded-area {
+      margin-top: 16px !important;
+      margin-bottom: 0px !important;
+      padding-top: 20px !important;
+      padding-bottom: 20px !important;
+    }
+
+    #mainContent {
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      padding-top: 12px !important;
+      padding-bottom: 48px !important;
+    }
+
+    @media (max-width: 640px) {
+      :root {
+        --page-pad-x: 16px;
+        --content-pad-x: var(--page-pad-x);
+        --bar-pad-x: var(--page-pad-x);
+      }
+      
+      .header-row {
+        grid-template-columns: 1fr auto;
+        grid-template-areas: "title right";
+      }
+      
+      .hamburger-btn {
+        display: block;
+      }
+      
+      .h-actions {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--color-header-bg);
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px var(--bar-pad-x);
+        box-shadow: 0 8px 24px rgba(15,23,42,.25);
+        border-top: 1px solid var(--color-border);
+        z-index: 50;
+      }
+      
+      /* Hide separators in mobile menu */
+      .header-separator {
+        display: none;
+      }
+      
+      .h-actions.menu-open {
+        display: flex;
+      }
+      
+      .h-actions .header-copy {
+        width: 100%;
+        text-align: left;
+        padding: 12px 20px;
+        margin: 4px 0;
+        font-size: 15px;
+        font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+        border-radius: 999px;
+        background-color: #ffffff;
+        border: none;
+        color: #1e293b;
+        font-weight: 700;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      .h-actions .header-copy:hover {
+        transform: translateY(-1px);
+      }
+      
+      .h-actions .header-copy:active {
+        background-color: #e2e8f0;
+        transform: translateY(0);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+      
+      /* Dark mode mobile buttons */
+      [data-theme="dark"] .h-actions .header-copy {
+        background-color: #ffffff;
+        border: none;
+        color: #1e293b;
+      }
+      
+      [data-theme="dark"] .h-actions .header-copy:hover {
+        transform: translateY(-1px);
+      }
+      
+      .h-title { 
+        font-size: 18px;
+      }
+      
+      .h-status {
+        display: none;
+      }
+
+      #mf2 {
+        font-size: 1.1rem;
+        --padding: 10px 14px;
+      }
+
+      .editor:has(#mf2) {
+        padding: 12px;
+      }
+    }
+
+    :root{
+      --pill-bg-top: #1c2740;
+      --pill-bg-btm: #152034;
+      --pill-stroke: #6aa2ff;
+      --pill-ink: #e6eefc;
+      --pill-shadow: 0 10px 24px rgba(3,12,30,.45);
+      --pill-inner: 0 1px 0 rgba(255,255,255,.06) inset;
+      --pill-stroke-soft: rgba(106,162,255,.36);
+    }
+
+    .btn--symbol-skin{
+      appearance:none;
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:.5rem; padding:.9rem 1.2rem;
+      border-radius:22px;
+      background:linear-gradient(180deg,var(--pill-bg-top),var(--pill-bg-btm));
+      color:var(--pill-ink);
+      border:1px solid rgba(106,162,255,.35);
+      box-shadow: var(--pill-inner), var(--pill-shadow);
+      font-weight:800; letter-spacing:.2px;
+      transition: transform .12s ease, box-shadow .18s ease, border-color .18s ease, color .18s ease, background .18s ease;
+    }
+
+    .btn--symbol-skin:hover{
+      transform: translateY(-2px);
+      border-color: var(--pill-stroke);
+      box-shadow:
+        var(--pill-inner),
+        0 0 0 2px var(--pill-stroke-soft),
+        0 14px 32px rgba(3,12,30,.58);
+    }
+
+    /* Pure LaTeX button active state - follows tab design system */
+    .pure-latex-active {
+      background: var(--color-tab-active-bg) !important;
+      color: var(--color-tab-active-text) !important;
+      border-color: var(--color-tab-active-bg) !important;
+      animation: pureLatexGlow 2s ease-in-out infinite alternate !important;
+      box-shadow: 
+        0 0 20px rgba(37, 99, 235, 0.5), 
+        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    }
+
+    @keyframes pureLatexGlow {
+      0% {
+        box-shadow: 
+          0 0 20px rgba(37, 99, 235, 0.5), 
+          inset 0 1px 0 rgba(255, 255, 255, 0.15);
+      }
+      100% {
+        box-shadow: 
+          0 0 25px rgba(37, 99, 235, 0.6), 
+          0 12px 22px rgba(15, 23, 42, 0.18),
+          inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+    }
+
+    .btn--symbol-skin:active{ transform: translateY(0) }
+
+    .copyBtn.btn--symbol-skin,
+    .chip-btn.btn--symbol-skin{
+      background: linear-gradient(180deg,var(--pill-bg-top),var(--pill-bg-btm)) !important;
+      border: 1px solid rgba(106,162,255,.35) !important;
+      box-shadow: var(--pill-inner), var(--pill-shadow) !important;
+      color: var(--pill-ink) !important;
+    }
+
+    /* Header buttons - white pill style */
+    .header-actions .header-copy {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 999px;
+      background-color: #ffffff;
+      border: none;
+      color: #1e293b;
+      font-weight: 700;
+      font-size: 15px;
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-actions .header-copy:hover {
+      transform: translateY(-1px);
+    }
+
+    .header-actions .header-copy:active {
+      background-color: #e2e8f0;
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-actions .header-copy:focus-visible {
+      background-color: #f8fafc;
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+      transform: translateY(-1px);
+    }
+    
+    /* Dark mode header buttons */
+    [data-theme="dark"] .header-actions .header-copy {
+      background-color: #ffffff;
+      border: none;
+      color: #1e293b;
+    }
+    
+    [data-theme="dark"] .header-actions .header-copy:hover {
+      transform: translateY(-1px);
+    }
+    
+    .header-actions .header-copy svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    html, body {
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+    }
+
+
+    .io-labelbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+    }
+    
+    [data-theme="dark"] .io-labelbar {
+      background: #1f2937;
+      border-color: #1f2937;
+      box-shadow: 0 1px 0 rgba(2,6,23,0.05);
+    }
+    .io-label {
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      margin: 0 0 0 2px;    /* No bottom margin - gap handled by .io-section */
+    }
+
+    .io-rendered > .io-label {
+      display: block;
+      margin: 0 0 0 2px;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+
+    .io-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: start;
+      overflow: visible;
+    }
+
+    /* Control visual order without moving DOM elements (prevents iframe reload) */
+    .io-grid .io-rendered { order: 1; }
+
+    .io-rendered { 
+      width: 100%;
+      align-self: stretch;
+    }
+
+    .io-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: visible;
+    }
+
+    .io-grid textarea {
+      width: 100%;
+      padding: 16px 18px;
+      background: var(--color-surface);
+      color: var(--color-text);
+      border: 2px solid var(--color-border);
+      border-radius: 10px;
+      font-size: 1.1rem;
+      min-height: 80px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+      line-height: 1.6;
+      resize: vertical;
+    }
+    
+    .io-grid textarea:focus {
+      border-color: var(--color-tab-active-bg);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      outline: none;
+    }
+    
+    /* MathField styling to match https://mathlive.io/mathfield/demo/ */
+    .io-grid math-field {
+      width: 100%;
+      border: 2px solid #2c2c2c;
+      border-radius: 2px;
+      box-shadow: 
+        inset 0 0 0 1px rgba(0, 0, 0, 0.05),
+        0 1px 3px rgba(0, 0, 0, 0.08),
+        0 4px 8px rgba(0, 0, 0, 0.04);
+    }
+
+
+    @media (max-width: 960px) {
+      /* All sections are now full width by default */
+    }
+    @media (max-width: 640px) {
+      .io-grid  { gap: 16px; }
+      .io-label { font-size: 1rem; }
+      .io-grid textarea { padding: 12px 14px; font-size: 1rem; }
+      /* MathField mobile padding handled in #mf2 section */
+    }
+
+    #mf2::part(content){ white-space: normal; }
+
+    [data-theme="dark"] .io-grid textarea {
+      background: var(--color-surface) !important;
+      color: var(--color-text) !important;
+      border: 2px solid #1f2937 !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    [data-theme="dark"] .io-grid textarea:focus {
+      border-color: var(--color-tab-active-bg) !important;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+    }
+
+    /* Dark mode styling for math-field */
+    [data-theme="dark"] .io-grid math-field {
+      border: 2px solid #1f2937 !important;
+      background: var(--color-surface) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    }
+
+
+    /* === Header buttons: theme-aware pill style === */
+    .header-actions .header-copy {
+      appearance: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 11px 24px;
+      border-radius: 999px;
+      background-color: #ffffff;
+      border: none;
+      color: #1e293b;
+      font-weight: 700;
+      font-size: 15px;
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+      transition: all 0.2s ease;
+    }
+
+    .header-actions .header-copy:hover {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, #ffffff);
+      border-color: var(--color-tab-active-bg);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    .header-actions .header-copy:active {
+      background-color: #e2e8f0;
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-actions .header-copy:focus-visible {
+      background-color: #f8fafc;
+      outline: 2px solid rgba(255, 255, 255, 0.5);
+      outline-offset: 2px;
+      transform: translateY(-1px);
+    }
+    
+    /* Dark mode header buttons - darker pill style */
+    [data-theme="dark"] .header-actions .header-copy {
+      background-color: #1e293b;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #e2e8f0;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    }
+    
+    [data-theme="dark"] .header-actions .header-copy:hover {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, #1e293b);
+      border-color: var(--color-tab-active-bg);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
+    }
+
+    [data-theme="dark"] .header-actions .header-copy:active {
+      background-color: #0f172a;
+      transform: translateY(0);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    }
+    
+    [data-theme="dark"] .header-actions .header-copy:focus-visible {
+      background-color: #334155;
+      outline: 2px solid rgba(255, 255, 255, 0.2);
+      outline-offset: 2px;
+    }
+
+    /* GitHub button - match pill button effects */
+    .github-btn,
+    .pro-mode-btn {
+      text-decoration: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 40px !important;
+      height: 40px !important;
+      padding: 0 !important;
+      background: #ffffff !important;
+      border: none !important;
+      color: #1e293b !important;
+      border-radius: 50% !important;
+      cursor: pointer !important;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15) !important;
+      transition: all 0.2s ease !important;
+    }
+
+    .github-btn:hover,
+    .github-btn:focus-visible,
+    .pro-mode-btn:hover,
+    .pro-mode-btn:focus-visible {
+      background: #f1f5f9 !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25) !important;
+    }
+
+    .github-btn:active,
+    .pro-mode-btn:active {
+      background: #e2e8f0 !important;
+      transform: translateY(0) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+    }
+    
+    /* Dark mode GitHub button */
+    [data-theme="dark"] .github-btn,
+    [data-theme="dark"] .pro-mode-btn {
+      background: #1e293b !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      color: #e2e8f0 !important;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    [data-theme="dark"] .github-btn:hover,
+    [data-theme="dark"] .github-btn:focus-visible,
+    [data-theme="dark"] .pro-mode-btn:hover,
+    [data-theme="dark"] .pro-mode-btn:focus-visible {
+      background: #334155 !important;
+      border-color: rgba(255, 255, 255, 0.2) !important;
+      transform: translateY(-1px) !important;
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25) !important;
+    }
+    
+    [data-theme="dark"] .github-btn:active,
+    [data-theme="dark"] .pro-mode-btn:active {
+      background: #0f172a !important;
+      transform: translateY(0) !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    .github-btn svg {
+      width: 18px !important;
+      height: 18px !important;
+      stroke-width: 2 !important;
+      transition: color .18s ease, stroke .18s ease !important;
+    }
+    
+    /* === LaTeX Input Area (Direct textarea) === */
+    #ta {
+      border-radius: 12px;
+      background: var(--color-surface);
+    }
+    
+    /* === Screen-reader only / visually hidden utility === */
+    /* Hides element visually but keeps it focusable for accessibility */
+    .sr-only-hidden {
+      position: absolute !important;
+      width: 1px; 
+      height: 1px;
+      padding: 0; 
+      margin: -1px;
+      overflow: hidden; 
+      clip: rect(0, 0, 1px, 1px);
+      white-space: nowrap; 
+      border: 0;
+    }
+
+    /* Loading Screen Styles */
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: var(--color-bg);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    #loading-screen.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    /* Hide math-field until fully loaded to prevent flash */
+    #mf2:not(.mathlive-ready) {
+      opacity: 0;
+      pointer-events: none;
+    }
+    
+    #mf2.mathlive-ready {
+      opacity: 1;
+      transition: opacity 0.3s ease;
+    }
+
+
+    .loading-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+    }
+
+    .spinner-svg {
+      animation: rotate 2s linear infinite;
+      width: 100%;
+      height: 100%;
+    }
+
+    .spinner-path {
+      stroke: var(--color-tab-active-bg);
+      stroke-linecap: round;
+      animation: dash 1.5s ease-in-out infinite;
+    }
+
+    @keyframes rotate {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes dash {
+      0% {
+        stroke-dasharray: 1, 150;
+        stroke-dashoffset: 0;
+      }
+      50% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -35;
+      }
+      100% {
+        stroke-dasharray: 90, 150;
+        stroke-dashoffset: -124;
+      }
+    }
+
+    .loading-text {
+      font-size: 1.125rem;
+      font-weight: 500;
+      color: var(--color-text);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    </style>
+</head>
+<body>
+    <!-- Loading Animation -->
+    <div id="loading-screen">
+      <div class="loading-content">
+        <div class="loading-spinner">
+          <svg class="spinner-svg" viewBox="0 0 50 50">
+            <circle class="spinner-path" cx="25" cy="25" r="20" fill="none" stroke-width="4"></circle>
+          </svg>
+        </div>
+        <div class="loading-text">Loading HSC MathsTyper...</div>
+      </div>
+    </div>
+    
+    <header class="header-bar" role="banner">
+      <div class="header-row">
+
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
+          <i data-lucide="menu"></i>
+        </button>
+
+        <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
+          <!-- Group 1: External Resources -->
+          <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="github-btn" title="View on GitHub">
+            <i data-lucide="github"></i>
+          </a>
+          
+          <span class="header-separator" aria-hidden="true"></span>
+          
+          <!-- Group 2: Input Helpers -->
+          <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="header-copy" title="Image Recognition - Convert math images to LaTeX" style="text-decoration: none;">
+            <i data-lucide="scan"></i> Image Recognition
+          </a>
+          <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="header-copy" title="View available inline shortcuts" style="text-decoration: none;">
+            <i data-lucide="keyboard"></i> Shortcuts
+          </a>
+          
+          <span class="header-separator" aria-hidden="true"></span>
+          
+          <!-- Group 3: Output Actions -->
+          <button class="header-copy" id="copyBtn" title="Copy LaTeX">
+            <i data-lucide="copy"></i> Copy LaTeX
+          </button>
+          <button class="header-copy" id="pureLatexBtn" title="Pure LaTeX Mode">
+            <i data-lucide="terminal"></i> Pure LaTeX
+          </button>
+            </div>
+
+        <div class="h-right">
+          <div class="theme-switch" role="group" aria-label="Theme">
+            <button class="theme-opt" data-theme="light" title="Light" aria-label="Switch to light theme">
+              <i data-lucide="sun"></i>
+            </button>
+            <button class="theme-opt" data-theme="dark" title="Dark" aria-label="Switch to dark theme">
+              <i data-lucide="moon"></i>
+            </button>
+            <button class="theme-opt is-active" data-theme="system" title="System" aria-label="Use system theme">
+              <i data-lucide="monitor"></i>
+            </button>
+        </div>
+                </div>
+        </div>
+    </header>
+
+    <script>
+    (function(){
+      const html = document.documentElement;
+      const opts = document.querySelectorAll('.theme-opt');
+      const THEME_STORAGE_KEY = 'theme-preference';
+      const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+      const MESSAGE_SOURCE = 'mathstyper-theme';
+      let currentMode = 'system';
+      let flushTimer = null;
+      
+      const resolveTheme = (mode)=>{
+        if(mode === 'system'){
+          return prefersDarkScheme.matches ? 'dark' : 'light';
+        }
+        return mode === 'dark' ? 'dark' : 'light';
+      };
+      
+      const findLatexIframe = ()=>{
+        return document.querySelector('iframe[src^="LaTeXLive"]');
+      };
+
+      const postThemeToIframe = (mode)=>{
+        const iframe = findLatexIframe();
+        if(!iframe || !iframe.contentWindow){ return false; }
+        const payloadMode = mode || currentMode;
+        const message = {
+          source: MESSAGE_SOURCE,
+          type: 'theme',
+          mode: payloadMode,
+          resolved: resolveTheme(payloadMode),
+          issuedAt: Date.now()
+        };
+        try{
+          iframe.contentWindow.postMessage(message, '*');
+          return true;
+        }catch(err){
+          console.warn('Unable to post theme to LaTeX Live iframe', err);
+          return false;
+        }
+      };
+
+      const flushIframeTheme = ()=>{
+        if(!postThemeToIframe(currentMode)){
+          if(flushTimer === null){
+            flushTimer = window.setTimeout(()=>{
+              flushTimer = null;
+              flushIframeTheme();
+            }, 300);
+          }
+        }
+      };
+
+      const broadcastIframeTheme = (mode)=>{
+        currentMode = mode;
+        flushIframeTheme();
+      };
+
+      window.__broadcastLatexIframeTheme = broadcastIframeTheme;
+
+      window.addEventListener('message', (event)=>{
+        const data = event && event.data;
+        if(!data || data.source !== MESSAGE_SOURCE){ return; }
+        if(data.type === 'iframe-ready'){
+          flushIframeTheme();
+        }
+      });
+
+      window.addEventListener('load', flushIframeTheme);
+      
+      const apply = (mode)=>{
+        opts.forEach(o=>o.classList.toggle('is-active', o.dataset.theme===mode));
+        const resolved = resolveTheme(mode);
+        html.setAttribute('data-theme', resolved);
+        html.style.colorScheme = resolved;
+        localStorage.setItem(THEME_STORAGE_KEY, mode);
+        broadcastIframeTheme(mode);
+      };
+      
+      const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
+      apply(saved);
+      
+      opts.forEach(btn => btn.addEventListener('click', ()=> apply(btn.dataset.theme)));
+      
+      const handleSystemChange = () => {
+        const current = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
+        if(current === 'system'){ apply('system'); }
+      };
+      if(typeof prefersDarkScheme.addEventListener === 'function'){
+        prefersDarkScheme.addEventListener('change', handleSystemChange);
+      } else if(typeof prefersDarkScheme.addListener === 'function'){
+        prefersDarkScheme.addListener(handleSystemChange);
+      }
+    })();
+
+    // Global helper function to initialize Lucide icons
+    window.initLucideIcons = function() {
+      if (window.lucide && typeof window.lucide.createIcons === 'function') {
+        try {
+          window.lucide.createIcons({
+            attrs: {
+              'stroke-width': 2,
+              'stroke-linecap': 'round',
+              'stroke-linejoin': 'round'
+            }
+          });
+          console.log('✅ Lucide icons initialized successfully');
+        } catch (e) {
+          console.error('❌ Lucide icons initialization failed:', e);
+        }
+      } else {
+        console.warn('⚠️ Lucide library not loaded yet');
+      }
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Initialize Lucide icons on page load
+      setTimeout(() => {
+        window.initLucideIcons();
+      }, 100); // Small delay to ensure Lucide is fully loaded
+      
+      const broadcast = window.__broadcastLatexIframeTheme;
+      if (typeof broadcast === 'function') {
+        const storedMode = localStorage.getItem('theme-preference') || 'system';
+        broadcast(storedMode);
+      }
+    });
+    </script>
+
+    <div class="content-wrapper">
+    <div id="tabs_wrapper">
+        <div class="tabs" id="tabs"></div>
+    </div>
+    
+    <!-- Expanded area for full tab keys -->
+    <div id="expanded-area"></div>
+
+<div id="mainContent">
+        <div class="section-card card">
+            <div class="card-body body stack" id="editorWrap">
+      <div class="io-grid">
+        <!-- 1. Rendered -->
+        <div class="io-section io-rendered">
+          <label class="io-label" for="mf2">Rendered Input (Editable)</label>
+          <math-field id="mf2"></math-field>
+      </div>
+      </div>
+
+      <!-- LaTeXLive Embed - Full Width Below -->
+      <div style="width: 100%; margin-top: 0; margin-left: 0; margin-right: 0; padding: 0;">
+        <iframe id="latexLiveIframe"
+                src="LaTeXLive/index.html" 
+                style="width: 100%; height: 800px; border: none; display: block; margin: 0; padding: 0; overflow: hidden;"
+                scrolling="no"
+                title="LaTeX Live Editor">
+        </iframe>
+      </div>
+        </div>
+    </div>
+    </div><!-- end content-wrapper -->
+    
+    <div id="toast" role="status" aria-live="polite"></div>
+    <script>
+         function mjxTypeset(el, tries=0){
+             if(!window.MathJax){ 
+                 if(tries<200) { 
+                     setTimeout(()=>mjxTypeset(el,tries+1),25); 
+                     return; 
+                 } else { 
+                     console.warn('MathJax not available after 200 attempts');
+                     return; 
+                 } 
+             }
+             const MJ=window.MathJax;
+             try {
+                 if(MJ && typeof MJ.typeset==='function') { 
+                     MJ.typeset([el]); 
+                 } else if(MJ && typeof MJ.typesetPromise==='function') { 
+                     MJ.typesetPromise([el]); 
+                 } else if(tries<200) { 
+                     setTimeout(()=>mjxTypeset(el,tries+1),25); 
+                 }
+             } catch(e) {
+                 console.warn('MathJax typeset failed', e);
+             }
+         }
+
+         /* Bidirectional sync between math-field and iframe */
+        const mf2=document.getElementById('mf2');
+        const latexLiveIframe = document.getElementById('latexLiveIframe');
+        const ta = { value: '' };
+        let syncInProgress = false; // Prevent circular updates
+        
+        function getLatex(){ 
+            return mf2 ? mf2.getValue('latex') : '';
+        }
+
+        /* ---------- LaTeX -> MathML conversion (using MathJax) ---------- */
+        // MathML conversion uses MathJax's built-in tex2mml function
+        // The convertLatexToMathML wrapper function is defined at the end of this file
+        
+        // Sync from math-field to iframe textarea
+        function syncFromMathLive() {
+            if (syncInProgress) return;
+            syncInProgress = true;
+            
+            const latex = getLatex();
+            if (latexLiveIframe && latexLiveIframe.contentWindow) {
+                try {
+                    latexLiveIframe.contentWindow.postMessage({
+                        source: 'mathstyper-sync',
+                        type: 'updateLatex',
+                        latex: latex
+                    }, '*');
+                } catch (e) {
+                    console.warn('Failed to sync to iframe:', e);
+                }
+            }
+            
+            setTimeout(() => { syncInProgress = false; }, 50);
+        }
+
+        // Sync from iframe textarea to math-field
+        function syncFromTextArea(latex) {
+            if (syncInProgress) return;
+            syncInProgress = true;
+            
+            if (mf2 && typeof latex === 'string') {
+                try {
+                    mf2.setValue(latex);
+                } catch (e) {
+                    console.warn('Failed to update math-field:', e);
+                }
+            }
+            
+            setTimeout(() => { syncInProgress = false; }, 50);
+        }
+
+        // Listen for changes from math-field
+        if (mf2) {
+            mf2.addEventListener('input', syncFromMathLive);
+        }
+
+        // Listen for messages from iframe
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            if (data && data.source === 'mathstyper-sync') {
+                if (data.type === 'latexChanged') {
+                    syncFromTextArea(data.latex);
+                }
+            }
+        });
+        
+        function render(){ syncFromMathLive(); }
+
+        function insertLatex(x){
+            try{
+                if(mf2.executeCommand){ mf2.executeCommand('insert', x); }
+                else if(mf2.insert){ mf2.insert(x); }
+                else { mf2.value = (mf2.value||'') + x; }
+            }catch(e){}
+            syncFromMathLive();
+            try{ mf2.focus(); }catch(e){}
+        }
+        
+        /* ========== Event Listener Setup ========== */
+        
+        // MathLive input changes → sync to Raw LaTeX
+        mf2.addEventListener('input', syncFromMathLive);
+        
+        // Note: Raw LaTeX (ta) input listener is set up in ensureLatexTextareaMonitoring()
+        // This is because ta is an iframe textarea that needs special handling
+        
+        // Paste event for MathLive (rendered input)
+        mf2.addEventListener('paste', () => {
+            // Wait for MathLive to process the pasted content
+            setTimeout(() => {
+                syncFromMathLive();
+                
+                // Adjust height multiple times to ensure proper sizing
+                if (typeof adjustMathFieldHeight === 'function') {
+                    requestAnimationFrame(() => {
+                        adjustMathFieldHeight();
+                        setTimeout(adjustMathFieldHeight, 100);
+                        setTimeout(adjustMathFieldHeight, 300);
+                        setTimeout(adjustMathFieldHeight, 500);
+                    });
+                }
+            }, 10);
+        });
+        
+        // Listen for module loading completion and trigger initial sync
+        window.addEventListener('e2ModulesReady', () => {
+            console.log('🔄 Modules ready, performing initial sync');
+            if (mf2 && typeof mf2.getValue === 'function' && mf2.getValue()) {
+                syncFromMathLive();
+            }
+        });
+        
+        // Also try initial sync after a delay (in case modules are already loaded)
+        setTimeout(() => {
+            if (window.e2ModulesLoaded && mf2 && typeof mf2.getValue === 'function' && mf2.getValue()) {
+                syncFromMathLive();
+            }
+        }, 500);
+
+        /* ---------- Cleanup: delete object when all boxes emptied ---------- */
+        function normalizeLatexStr(L) {
+            try {
+                const EMPTY_SLOT = String.raw`\s*(?:\\placeholder\{\})?\s*`;
+                const EMPTY_BRACE = String.raw`\{${EMPTY_SLOT}\}`;
+                L = L.replace(new RegExp(String.raw`\\frac${EMPTY_BRACE}${EMPTY_BRACE}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\sqrt${EMPTY_BRACE}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\sqrt\[${EMPTY_SLOT}\]${EMPTY_BRACE}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\(dot|ddot)${EMPTY_BRACE}`, "g"), "");
+                const rm = (open, close) => new RegExp(String.raw`\\left\s*${open}${EMPTY_SLOT}\\right\s*${close}`, 'g');
+                L = L.replace(rm('\\(', '\\)'), "");
+                L = L.replace(rm('\\[', '\\]'), "");
+                L = L.replace(rm('\\{', '\\\\}'), "");
+                L = L.replace(rm('\\|', '\\|'), "");
+                L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}(?:d[a-zA-Z]+)?`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
+            } catch (e) {
+                console.warn('normalizeLatexStr normalization failed', e);
+            }
+            return L;
+        }
+
+        function cleanupEmptyStructures(){ try{ const b=mf2.getValue('latex')||''; if(typeof normalizeLatexStr === 'function'){ const a=normalizeLatexStr(b); if(a!==b){ mf2.setValue(a); syncFromMathLive(); } } }catch(e){console.warn('cleanup failed',e)} }
+        
+        function configureMathLive() {
+            if (!window.MathfieldElement || !mf2) return;
+            
+            /* ============================================
+               MATHLIVE CONFIGURATION
+               Matching: https://mathlive.io/mathfield/demo/
+               Documentation: https://cortexjs.io/mathlive/guides/integration/
+               GitHub: https://github.com/arnog/mathlive
+               ============================================ */
+            
+            // Core math rendering settings
+            mf2.mathModeSpace = '\\:';              // Use \: for spaces in math mode
+            mf2.letterShapeStyle = 'tex';           // Use TeX letter shapes (italic variables)
+            mf2.smartMode = false;                  // Disable automatic text/math mode switching
+            mf2.smartFence = true;                  // Auto-scale parentheses/brackets
+            mf2.removeExtraneousParentheses = true; // Clean up unnecessary parentheses
+            
+            // Virtual keyboard configuration
+            mf2.virtualKeyboardMode = 'manual';     // Don't auto-show virtual keyboard
+            
+            // UI customization - disable unwanted features
+            mf2.inlineShortcutToolbar = false;      // No inline shortcut suggestions
+            try { mf2.menuItems = []; } catch(_) {} // Disable context menu
+            
+            // Keybindings - filter out text mode commands
+            mf2.keybindings = [
+                { key: 'Enter', command: 'complete' },
+                { key: 'Return', command: 'complete' },
+                { key: 'Tab', command: 'complete' },
+                ...mf2.keybindings.filter(kb => 
+                    kb.command !== 'applyTextMode' && 
+                    kb.command !== 'toggleMathTextMode' &&
+                    !((kb.key === 'Enter' || kb.key === 'Return' || kb.key === 'Tab') && kb.command === 'complete')
+                )
+            ];
+            
+            // Inline shortcuts matching MathLive demo
+            // Reference: https://mathlive.io/mathfield/reference/keybindings/
+            mf2.inlineShortcuts = {
+                'infty': '\\infty',
+                'infin': '\\infty',
+                '∞': '\\infty',
+                'NN': '\\mathbb{N}',
+                'ZZ': '\\mathbb{Z}',
+                'QQ': '\\mathbb{Q}',
+                'RR': '\\mathbb{R}',
+                'CC': '\\mathbb{C}',
+                'PP': '\\mathbb{P}',
+                'forall': '\\forall',
+                'exists': '\\exists',
+                '!exists': '\\nexists',
+                '$': '\\char"24',
+                '%': '\\%',
+                '#': '\\#',
+                'diamond': '\\diamond',
+                'square': '\\square',
+                'TT': '\\top',
+                'nabla': '\\nabla',
+                'grad': '\\nabla',
+                'del': '\\partial',
+                'partial': '\\partial',
+                '∆': '\\differentialD',
+                'dx': '\\differentialD x',
+                'dy': '\\differentialD y',
+                'dt': '\\differentialD t',
+                'aleph': '\\aleph',
+                'arcsin': '\\sin^{-1}\\placeholder{}',
+                'arccos': '\\cos^{-1}\\placeholder{}',
+                'arctan': '\\tan^{-1}\\placeholder{}',
+                'arccot': '\\cot^{-1}\\placeholder{}',
+                'arcsec': '\\sec^{-1}\\placeholder{}',
+                'arccsc': '\\csc^{-1}\\placeholder{}',
+                'sin': '\\sin\\placeholder{}',
+                'sinh': '\\sinh\\placeholder{}',
+                'cos': '\\cos\\placeholder{}',
+                'cosh': '\\cosh\\placeholder{}',
+                'tan': '\\tan\\placeholder{}',
+                'tanh': '\\tanh\\placeholder{}',
+                'sec': '\\sec\\placeholder{}',
+                'csc': '\\csc\\placeholder{}',
+                'cot': '\\cot\\placeholder{}',
+                'log': '\\log_{\\placeholder{}}\\placeholder{}',
+                'ln': '\\ln',
+                'exp': '\\exp',
+                'lim': '\\lim_{x\\to\\placeholder{}} \\placeholder{}',
+                'det': '\\det',
+                'mod': '\\mod',
+                'max': '\\max',
+                'min': '\\min',
+                'erf': '\\operatorname{erf}',
+                'erfc': '\\operatorname{erfc}',
+                'bessel': '\\operatorname{bessel}',
+                'mean': '\\operatorname{mean}',
+                'median': '\\operatorname{median}',
+                'fft': '\\operatorname{fft}',
+                'lcm': '\\operatorname{lcm}',
+                'gcd': '\\operatorname{gcd}',
+                'randomReal': '\\operatorname{randomReal}',
+                'randomInteger': '\\operatorname{randomInteger}',
+                'Re': '\\operatorname{Re}',
+                'Im': '\\operatorname{Im}',
+                '!=': '\\ne',
+                '>=': '\\ge',
+                '<=': '\\le',
+                '<<': '\\ll',
+                '>>': '\\gg',
+                '~~': '\\approx',
+                '?=': '\\questeq',
+                ':=': '\\coloneq',
+                '::': '\\Colon',
+                '-=': '\\equiv',
+                '~=': '\\cong',
+                'lt=': '\\leq',
+                'gt=': '\\geq',
+                '-lt': '\\prec',
+                '-<=': '\\preceq',
+                '->=': '\\succeq',
+                'prop': '\\propto',
+                '*': '\\cdot',
+                '**': '\\ast',
+                '***': '\\star',
+                '&&': '\\land',
+                'in': '\\in',
+                '!in': '\\notin',
+                'xx': '\\times',
+                '+-': '\\pm',
+                '÷': '\\div',
+                '(-)': '\\odot',
+                '(+)': '\\oplus',
+                '(/)': '\\oslash',
+                'ox': '\\otimes',
+                '@': '\\circ',
+                '><': '\\ltimes',
+                '^^': '\\wedge',
+                '^^^': '\\bigwedge',
+                'vv': '\\vee',
+                'vvv': '\\bigvee',
+                'nn': '\\cap',
+                'nnn': '\\bigcap',
+                'uu': '\\cup',
+                'uuu': '\\bigcup',
+                'setminus': '\\backslash',
+                'sub': '\\subset',
+                'sup': '\\supset',
+                'sube': '\\subseteq',
+                'supe': '\\supseteq',
+                'and': '\\land',
+                'or': '\\lor',
+                'not': '\\neg',
+                'implies': '\\Rightarrow',
+                'iff': '\\Leftrightarrow',
+                '__': '\\lfloor',
+                '~': '\\sim',
+                'perp': '\\perp',
+                '⊥': '\\perp',
+                'parallel': '\\parallel',
+                '∥': '\\parallel',
+                '{': '\\{',
+                '}': '\\}',
+                '(:': '\\langle',
+                ':)': '\\rangle',
+                'mm': '\\operatorname{mm}',
+                'cm': '\\operatorname{cm}',
+                'km': '\\operatorname{km}',
+                'kg': '\\operatorname{kg}',
+                '>->': '\\rightarrowtail',
+                '->>': '\\twoheadrightarrow',
+                '>->>': '\\twoheadrightarrowtail',
+                '->': '\\to',
+                '->...': '\\to\\cdots',
+                '-->': '\\longrightarrow',
+                '<--': '\\longleftarrow',
+                '=>': '\\Rightarrow',
+                '==>': '\\Longrightarrow',
+                '<=>': '\\Leftrightarrow',
+                '<->': '\\leftrightarrow',
+                'uarr': '\\uparrow',
+                'darr': '\\downarrow',
+                'rarr': '\\rightarrow',
+                'rArr': '\\Rightarrow',
+                'larr': '\\leftarrow',
+                'lArr': '\\Leftarrow',
+                'harr': '\\leftrightarrow',
+                'hArr': '\\Leftrightarrow',
+                '--': '\\vdash',
+                '==': '\\models',
+                'alpha': '\\alpha',
+                'beta': '\\beta',
+                'gamma': '\\gamma',
+                'Gamma': '\\Gamma',
+                'delta': '\\delta',
+                'Delta': '\\Delta',
+                'epsilon': '\\epsilon',
+                'varepsilon': '\\varepsilon',
+                'zeta': '\\zeta',
+                'eta': '\\eta ',
+                'theta': '\\theta',
+                'vartheta': '\\vartheta',
+                'Theta': '\\Theta',
+                'iota': '\\iota',
+                'kappa': '\\kappa',
+                'lambda': '\\lambda',
+                'Lambda': '\\Lambda',
+                'mu': '\\mu',
+                'nu': '\\nu ',
+                'xi': '\\xi',
+                'Xi': '\\Xi',
+                'pi': '\\pi',
+                'Pi': '\\Pi',
+                'rho': '\\rho',
+                'sigma': '\\sigma',
+                'Sigma': '\\Sigma',
+                'tau': '\\tau',
+                'upsilon': '\\upsilon',
+                'phi': '\\phi',
+                'varphi': '\\varphi',
+                'Phi': '\\Phi',
+                'chi': '\\chi',
+                'psi': '\\psi',
+                'Psi': '\\Psi',
+                'Ω': '\\omega',
+                'Omega': '\\Omega',
+                '∫': '\\int',
+                'int': '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx',
+                'sum': '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
+                'prod': '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',
+                'sqrt': '\\sqrt{\\placeholder{}}',
+                'neg': '\\neg',
+                'liminf': '\\operatorname*{lim~inf}_{}',
+                'limsup': '\\operatorname*{lim~sup}_{}',
+                'argmin': '\\operatorname*{arg~min}_{}',
+                'argmax': '\\operatorname*{arg~max}_{}',
+                '...': '\\ldots',
+                ':.': '\\therefore'
+            };
+
+
+            // Typing behavior: allow free typing like Desmos (no auto-termination interception)
+
+            // Protect navigation into fixed subscripts like \underset{\sim}{} (only main box editable)
+            mf2.addEventListener('keydown', (ev) => {
+                if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(ev.key)) return;
+
+                const position = mf2.position;
+                if (!mf2.model || typeof mf2.model.getPath !== 'function') return;
+                const path = mf2.model.getPath(position);
+                if (path.length < 2) return;
+
+                const parent = path[path.length - 2];
+                const branch = path[path.length - 1].branch;
+
+                let isProtected = false;
+                if (parent.type === 'underset' && parent.subscript?.length > 0) {
+                    const subAtom = parent.subscript[0];
+                    isProtected = subAtom.command === 'sim' || subAtom.value === '~';
+                }
+
+                if (isProtected) {
+                    ev.preventDefault(); // Block entry into subscript
+                    if (ev.key === 'ArrowDown' || (ev.key === 'ArrowRight' && position === parent.body[parent.body.length - 1].range.end)) {
+                        // Skip over subscript, move to next element after structure
+                        mf2.executeCommand('moveToNext');
+                    } else if (ev.key === 'ArrowUp' || (ev.key === 'ArrowLeft' && position === parent.subscript[0].range.start)) {
+                        // Skip back to before structure
+                        mf2.executeCommand('moveToPrevious');
+                    }
+                }
+            });
+
+            // Redirect selection if it lands in protected subscript
+            mf2.addEventListener('selection-did-change', () => {
+                try {
+                    const sel = mf2.selection;
+                    if (!sel.isCollapsed) return;
+                    const position = sel.start;
+                    const path = mf2.model.getPath(position);
+                    if (path.length < 2) return;
+                    const parent = path[path.length - 2];
+                    const branch = path[path.length - 1].branch;
+                    if (parent.type === 'underset' && branch === 'subscript' && parent.subscript?.length > 0) {
+                        const subAtom = parent.subscript[0];
+                        if (subAtom.command === 'sim' || subAtom.value === '~') {
+                            // Redirect to end of main body
+                            mf2.position = parent.body[parent.body.length - 1].range.end;
+                        }
+                    }
+                } catch (e) {
+                    console.warn('Selection change handler error:', e);
+                }
+            });
+
+            // Handle deletion of atomic structures like vectors
+            function tryDeleteAtomicObject(direction = 'back') {
+                try {
+                    const S = '\uE000'; // Sentinel
+                    mf2.executeCommand('insert', S);
+                    const withSentinel = mf2.getValue('latex') || '';
+                    mf2.executeCommand('undo');
+
+                    const idx = withSentinel.indexOf(S);
+                    if (idx === -1) return false;
+
+                    const left = withSentinel.slice(0, idx);
+                    const right = withSentinel.slice(idx + S.length);
+
+                    const atomicPatternEnd = /\\underset\{\\sim\}\{[a-zA-Z]\}$/;
+                    const atomicPatternStart = /^\\underset\{\\sim\}\{[a-zA-Z]\}/;
+
+                    if (direction === 'back') {
+                        const match = left.match(atomicPatternEnd);
+                        if (match) {
+                            mf2.setValue(left.slice(0, -match[0].length) + right);
+                            return true;
+                        }
+                    } else if (direction === 'fwd') {
+                        const match = right.match(atomicPatternStart);
+                        if (match) {
+                            mf2.setValue(left + right.slice(match[0].length));
+                            return true;
+                        }
+                    }
+                    return false;
+                } catch (e) {
+                    console.warn('Atomic deletion failed:', e);
+                    return false;
+                }
+            }
+
+            mf2.addEventListener('beforeinput', (ev) => {
+                if (ev.inputType === 'deleteContentBackward' || ev.inputType === 'deleteContentForward') {
+                    if (tryDeleteAtomicObject(ev.inputType === 'deleteContentBackward' ? 'back' : 'fwd')) {
+                        ev.preventDefault();
+                        syncFromMathLive();
+                    }
+                }
+            });
+        }
+        
+        /* ---------------- Toolbar and Tabs ---------------- */
+        const tabs=[{id:'calc',label:'Calculus'},{id:'powers',label:'Powers'},{id:'trigs',label:'Trigs'},{id:'sym',label:'Symbols'},{id:'vec',label:'Vectors'},{id:'greek',label:'Greek'},{id:'complex',label:'Complex'},{id:'sets',label:'Sets'},{id:'special',label:'More'}];
+        const tabRowConfig={};
+        const allLetters=Array.from('abcdefghijklmnopqrstuvwxyz');
+        
+        // LaTeX to Unicode mapping for dropdown display
+        const latexToUnicode = {
+            '\\theta': 'θ',
+            '\\alpha': 'α',
+            '\\beta': 'β',
+            '\\gamma': 'γ',
+            '\\delta': 'δ',
+            '\\lambda': 'λ',
+            '\\mu': 'μ',
+            '\\sigma': 'σ',
+            '\\omega': '𝜔', // U+1D70E Mathematical Italic Small Omega
+            '\\Omega': 'Ω',
+            '\\Delta': 'Δ',
+            'z': '𝑧', // U+1D467 Mathematical Italic Small Z
+            '\\placeholder{}': '\u25a1' // empty square
+        };
+        
+        function vectorKey(b,d,c){const a=c?c.concat(allLetters.filter(e=>!c.includes(e))):allLetters.slice();return{base:b,currentVar:d,insert:`${b}{${d}}`,display:`${b}{${d}}`,options:a,isSelectable:!0}}
+        
+        const buttonSyncGroups = {
+            derivatives: {
+                groupId: 'derivatives',
+                buttons: []
+            },
+            complex: {
+                groupId: 'complex',
+                buttons: []
+            }
+        };
+
+        const layouts={
+            calc:[
+                {display:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx',insert:'\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx'},
+                {display:'\\int \\placeholder{}\\;dx', insert:'\\int \\placeholder{}\\: dx'},
+                {display:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}',insert:'\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}'},
+                {display:'\\lim_{x\\to\\placeholder{}} \\placeholder{}',insert:'\\lim_{x\\to\\placeholder{}} \\placeholder{}'},
+                {display:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
+                {display:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}',insert:'\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}'},
+                {display:'\\frac{d}{dx}(\\placeholder{})',insert:'\\frac{d}{dx}\\left(\\placeholder{}\\right)'}
+            ],
+            powers:[
+                {display:'{\\placeholder{}}^{\\placeholder{}}',insert:'{\\placeholder{}}^{\\placeholder{}}'},
+                {display:'{\\placeholder{}}^2',insert:'{\\placeholder{}}^2'},
+                {display:'e^{\\placeholder{}}',insert:'e^{\\placeholder{}}'},
+                {display:'\\lvert \\placeholder{} \\rvert',insert:'\\lvert \\placeholder{} \\rvert'},
+                {display:'\\sqrt{\\placeholder{}}',insert:'\\sqrt{\\placeholder{}}', hint: 'root'},
+                {display:'\\sqrt[\\placeholder{}]{\\placeholder{}}',insert:'\\sqrt[\\placeholder{}]{\\placeholder{}}', hint: 'root'},
+                {display:'\\ln(\\placeholder{})',insert:'\\ln(\\placeholder{})'},
+                {display:'\\log_{\\placeholder{}}\\placeholder{}',insert:'\\log_{\\placeholder{}}\\placeholder{}'}
+            ],
+            trigs:[{display:'\\sin\\placeholder{}',insert:'\\sin\\placeholder{}'},{display:'\\cos\\placeholder{}',insert:'\\cos\\placeholder{}'},{display:'\\tan\\placeholder{}',insert:'\\tan\\placeholder{}'},{display:'\\cot\\placeholder{}',insert:'\\cot\\placeholder{}'},{display:'\\sec\\placeholder{}',insert:'\\sec\\placeholder{}'},{display:'\\csc\\placeholder{}',insert:'\\csc\\placeholder{}'},{display:'\\sin^{-1}\\placeholder{}',insert:'\\sin^{-1}\\placeholder{}'},{display:'\\cos^{-1}\\placeholder{}',insert:'\\cos^{-1}\\placeholder{}'},{display:'\\tan^{-1}\\placeholder{}',insert:'\\tan^{-1}\\placeholder{}'},{display:'\\arcsin\\placeholder{}',insert:'\\arcsin\\placeholder{}'},{display:'\\arccos\\placeholder{}',insert:'\\arccos\\placeholder{}'},{display:'\\arctan\\placeholder{}',insert:'\\arctan\\placeholder{}'}],
+            sym:[
+                {display:'\\geq',insert:'\\geq'},
+                {display:'\\leq',insert:'\\leq'},
+                {display:'\\pm', insert:'\\pm'},
+                {display:'\\angle', insert: '\\angle'},
+                {display:'^{\\circ}', insert:'^{\\circ}',hint:'circ'},
+                {display:'\\perp', insert:'\\perp'},
+                {display:'\\parallel', insert:'\\parallel'},
+                {display:'\\neg',insert:'\\neg'},
+                {display:'\\exists',insert:'\\exists'},
+                {display:'\\forall',insert:'\\forall'},
+                {display:'\\infty',insert:'\\infty'},
+                {display:'\\neq',insert:'\\neq'},
+                {display:'\\approx',insert:'\\approx'},
+                {display:'\\equiv',insert:'\\equiv'},
+                {display:'\\to',insert:'\\to'},
+                {display:'\\implies',insert:'\\implies'},
+                {display:'\\iff',insert:'\\iff'},
+                {display:'\\sim',insert:'\\sim'}
+            ],
+
+            vec:[
+                vectorKey('\\vec','v',['v','u','w','r','a']),
+                vectorKey('\\bar','z',['z','w','x','y','v','u']),
+                {...vectorKey('\\dot','x',['x','y','z','r','v']), syncGroup: 'derivatives'},
+                {...vectorKey('\\ddot','x',['x','y','z','r','a']), syncGroup: 'derivatives'},
+                {display:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}',insert:'\\operatorname{proj}_{\\underset{\\sim}{\\placeholder{}}}\\underset{\\sim}{\\placeholder{}}'},
+                {
+                    isSelectable: true,
+                    base: '\\underset{\\sim}',
+                    currentVar: '\\placeholder{}',
+                    insert: '\\underset{\\sim}{\\placeholder{}}',
+                    display: '\\underset{\\sim}{\\placeholder{}}',
+                    options: [
+                        { value: '\\placeholder{}', text: '□' },
+                        'a','b','c','u','v','w','r',
+                        ...allLetters.filter(l => !['a','b','c','u','v','w','r'].includes(l))
+                    ]
+                },
+                {display:'\\underset{\\sim}{i}',insert:'\\underset{\\sim}{i}'},
+                {display:'\\underset{\\sim}{j}',insert:'\\underset{\\sim}{j}'},
+                {display:'\\underset{\\sim}{k}',insert:'\\underset{\\sim}{k}'},
+                {display:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
+                {display:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}',insert:'\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}'},
+                {display:'\\overrightarrow{\\placeholder{}}',insert:'\\overrightarrow{\\placeholder{}}'}
+            ],
+            greek:[{display:'\\alpha',insert:'\\alpha'},{display:'\\beta',insert:'\\beta'},{display:'\\gamma',insert:'\\gamma'},{display:'\\delta',insert:'\\delta'},{display:'\\theta',insert:'\\theta'},{display:'\\lambda',insert:'\\lambda'},{display:'\\mu',insert:'\\mu'},{display:'\\sigma',insert:'\\sigma'},{display:'\\omega',insert:'\\omega'},{display:'\\Delta',insert:'\\Delta'}],
+            complex:[
+                {
+                    isSelectable: true,
+                    keyType: 'cis',
+                    currentVar: '\\theta',
+                    display: '\\operatorname{cis}(\\theta)',
+                    insert: '\\cos{\\theta}+i\\sin{\\theta}',
+                    options: [
+                        { value: '\\theta', text: '𝜃' },
+                        { value: '\\alpha', text: '𝛼' },
+                        { value: '\\beta', text: '𝛽' },
+                        { value: '\\gamma', text: '𝛾' }
+                    ]
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'cos-isin',
+                    currentVar: '\\theta',
+                    display: '\\cos{\\theta}+i\\sin{\\theta}',
+                    insert: '\\cos{\\theta}+i\\sin{\\theta}',
+                    options: [
+                        { value: '\\theta', text: '𝜃' },
+                        { value: '\\alpha', text: '𝛼' },
+                        { value: '\\beta', text: '𝛽' },
+                        { value: '\\gamma', text: '𝛾' }
+                    ]
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'modulus',
+                    currentVar: 'z',
+                    display: '|z|',
+                    insert: '|z|',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'arg',
+                    currentVar: 'z',
+                    display: 'arg(z)',
+                    insert: 'arg(z)',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'conjugate',
+                    currentVar: 'z',
+                    display: '\\overline{z}',
+                    insert: '\\overline{z}',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'real',
+                    currentVar: 'z',
+                    display: 'Re(z)',
+                    insert: 'Re(z)',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'imaginary',
+                    currentVar: 'z',
+                    display: 'Im(z)',
+                    insert: 'Im(z)',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ],
+                    syncGroup: 'complex'
+                }
+                
+            ],
+            sets:[{display:'\\in',insert:'\\in'},{display:'\\mathbb{Z}',insert:'\\mathbb{Z}'},{display:'\\mathbb{Z}^+',insert:'\\mathbb{Z}^+'},{display:'\\mathbb{N}',insert:'\\mathbb{N}'},{display:'\\mathbb{Q}',insert:'\\mathbb{Q}'},{display:'\\mathbb{R}',insert:'\\mathbb{R}'},{display:'\\mathbb{C}',insert:'\\mathbb{C}'}],
+            special:[
+                {display:'\\boxed{\\placeholder{}}',insert:'\\boxed{\\placeholder{}}'},
+                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}'},
+                {display:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}',insert:'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}'}
+            ]
+        };
+
+        // Curated layouts for toolbar
+        const curatedLayouts = {
+            calc: [
+                { display: '\\int \\placeholder{}\\;dx', insert: '\\int \\placeholder{}\\: dx' },
+                { display: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\;dx', insert: '\\int_{\\placeholder{}}^{\\placeholder{}}\\placeholder{}\\: dx' },
+                { display: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}', insert: '\\left.\\placeholder{}\\right|_{\\placeholder{}}^{\\placeholder{}}' },
+                { display: '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}', insert: '\\sum_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}' },
+                { display: '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}', insert: '\\prod_{n=\\placeholder{}}^{\\placeholder{}}\\placeholder{}' }
+            ],
+            powers: [
+                { display: '{\\placeholder{}}^{\\placeholder{}}', insert: '{\\placeholder{}}^{\\placeholder{}}' },
+                { display: '{\\placeholder{}}^2', insert: '{\\placeholder{}}^2' },
+                { display: 'e^{\\placeholder{}}', insert: 'e^{\\placeholder{}}' },
+                { display: '\\lvert \\placeholder{} \\rvert', insert: '\\lvert \\placeholder{} \\rvert' },
+                { display: '\\sqrt{\\placeholder{}}', insert: '\\sqrt{\\placeholder{}}' },
+                { display: '\\sqrt[\\placeholder{}]{\\placeholder{}}', insert: '\\sqrt[\\placeholder{}]{\\placeholder{}}' }
+            ],
+            sym: [
+                { display: '\\geq', insert: '\\geq' },
+                { display: '\\leq', insert: '\\leq' },
+                { display: '~', insert: '~', renderMode: 'text' },
+                { display: '^{\\circ}', insert:'^{\\circ}', hint: 'circ' },
+                { display: '\\neg', insert: '\\neg' },
+                { display: '\\exists', insert: '\\exists' },
+                { display: '\\forall', insert: '\\forall' },
+                { display: '\\infty', insert: '\\infty' }
+            ],
+            vec: [
+                {
+                    isSelectable: true,
+                    base: '\\underset{\\sim}',
+                    currentVar: '\\placeholder{}',
+                    insert: '\\underset{\\sim}{\\placeholder{}}',
+                    display: '\\underset{\\sim}{\\placeholder{}}',
+                    options: [
+                        { value: '\\placeholder{}', text: '□' },
+                        'a','b','c','u','v','w','r'
+                    ].concat(allLetters.filter(l => !['a','b','c','u','v','w','r'].includes(l)))
+                },
+                { display: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}', insert: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}' },
+                { display: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}', insert: '\\begin{pmatrix} \\placeholder{} \\\\ \\placeholder{} \\\\ \\placeholder{} \\end{pmatrix}' },
+                { display: '\\overrightarrow{\\placeholder{}}', insert: '\\overrightarrow{\\placeholder{}}' }
+            ],
+            greek: [
+                { display: '\\alpha', insert: '\\alpha' },
+                { display: '\\beta', insert: '\\beta' },
+                { display: '\\gamma', insert: '\\gamma' },
+                { display: '\\theta', insert: '\\theta' },
+                { display: '\\lambda', insert: '\\lambda' },
+                { display: '\\mu', insert: '\\mu' },
+                { display: '\\sigma', insert: '\\sigma' }
+            ],
+            complex: [
+                {
+                    isSelectable: true,
+                    keyType: 'cos-isin',
+                    currentVar: '\\theta',
+                    display: '\\cos{\\theta}+i\\sin{\\theta}',
+                    insert: '\\cos{\\theta}+i\\sin{\\theta}',
+                    options: [
+                        { value: '\\theta', text: '𝜃' },
+                        { value: '\\alpha', text: '𝛼' },
+                        { value: '\\beta', text: '𝛽' },
+                        { value: '\\gamma', text: '𝛾' }
+                    ].concat(allLetters)
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'modulus',
+                    currentVar: 'z',
+                    display: '|z|',
+                    insert: '|z|',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ].concat(allLetters.filter(l => !['z'].includes(l))),
+                    syncGroup: 'complex'
+                },
+                {
+                    isSelectable: true,
+                    keyType: 'arg',
+                    currentVar: 'z',
+                    display: 'arg(z)',
+                    insert: 'arg(z)',
+                    options: [
+                        { value: 'z', text: '𝑧' },
+                        { value: '\\omega', text: '𝜔' },
+                        { value: '\\placeholder{}', text: '□' }
+                    ].concat(allLetters.filter(l => !['z'].includes(l))),
+                    syncGroup: 'complex'
+                },
+            ],
+            sets: [
+                { display: '\\in', insert: '\\in' },
+                { display: '\\mathbb{N}', insert: '\\mathbb{N}' },
+                { display: '\\mathbb{Z}', insert: '\\mathbb{Z}' },
+                { display: '\\mathbb{Q}', insert: '\\mathbb{Q}' },
+                { display: '\\mathbb{R}', insert: '\\mathbb{R}' }
+            ],
+            special: [
+                { display: '\\boxed{\\placeholder{}}', insert: '\\boxed{\\placeholder{}}' },
+                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x \\leq \\placeholder{} \\end{cases}' },
+                { display: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}', insert: 'f(x) = \\begin{cases} \\placeholder{}, & x > \\placeholder{} \\\\ \\placeholder{}, & x = \\placeholder{} \\\\ \\placeholder{}, & x < \\placeholder{} \\end{cases}' }
+            ]
+        };
+
+
+        function buildTabs(){
+            const tabsContainer=document.getElementById('tabs');
+            tabsContainer.innerHTML='';
+            tabs.forEach(tabInfo=>{
+                const tabEl=document.createElement('button');
+                tabEl.type='button';
+                tabEl.className='tab';
+                tabEl.textContent=tabInfo.label;
+                tabEl.dataset.tabId=tabInfo.id;
+                const activateTab = () => {
+                    pinnedTabId = tabInfo.id;
+                    toggleExpand(tabInfo.id);
+                };
+
+                tabEl.addEventListener('click', activateTab);
+                tabEl.addEventListener('mouseenter', activateTab);
+                
+                tabsContainer.appendChild(tabEl);
+            });
+            const tabEls=Array.from(tabsContainer.querySelectorAll('.tab'));
+            tabEls.forEach((tabEl,index)=>{
+                tabEl.addEventListener('keydown',(event)=>handleTabKeyNavigation(event,index,tabEls));
+            });
+            
+            // Add mouseleave functionality to hide expanded list when cursor moves away from the entire hover area
+            const expArea = document.getElementById('expanded-area');
+            
+            // Create a single hover area that includes both tabs and expanded area
+            const hoverArea = document.createElement('div');
+            hoverArea.className = 'hover-area';
+            hoverArea.style.position = 'relative';
+            hoverArea.style.display = 'block';
+            hoverArea.style.width = '100%';
+            
+            // Move tabs container and expanded area into the hover area
+            const parent = tabsContainer.parentNode;
+            parent.insertBefore(hoverArea, tabsContainer);
+            hoverArea.appendChild(tabsContainer);
+            hoverArea.appendChild(expArea);
+            hoverArea.addEventListener('mouseleave', () => {
+                if (pinnedTabId) {
+                    toggleExpand(pinnedTabId);
+                }
+            });
+
+            syncTabHighlight();
+        }
+
+        function handleTabKeyNavigation(event,currentIndex,tabEls){
+            const { key } = event;
+            if(['ArrowLeft','ArrowUp','ArrowRight','ArrowDown'].includes(key)){
+                event.preventDefault();
+                const direction = (key==='ArrowLeft'||key==='ArrowUp') ? -1 : 1;
+                const nextIndex = (currentIndex + direction + tabEls.length) % tabEls.length;
+                tabEls[nextIndex].focus();
+                return;
+            }
+            if(key===' ' || key==='Enter'){
+                event.preventDefault();
+                tabEls[currentIndex].click();
+            }
+        }
+
+        function renderMathInPlace(element){
+            if(!element || !element.dataset) return;
+            const latex = element.dataset.math;
+            if(!latex) return;
+
+            const renderMode = element.dataset.renderMode || 'math';
+            if(renderMode === 'text'){
+                element.textContent = latex;
+                element.classList.add('math-display-text');
+                return;
+            }
+
+            element.classList.remove('math-display-text');
+
+            let latexForRender = latex;
+            if(latex.includes('\\placeholder')){
+                // Fix stubborn boxes: keep placeholders inside \underset{\sim}{...} at text size
+                latexForRender = latexForRender.replace(/\\underset\\{\\sim\\}\\{\\placeholder\\{\\}\\}/g, '\\underset{\\sim}{\\square}');
+                // Force remaining placeholders to a constant size regardless of script level
+                latexForRender = latexForRender.replace(/\\placeholder\{\}/g, '{\\displaystyle\\square}');
+            }
+
+            if (window.MathJax && window.MathJax.tex2svgPromise) {
+                window.MathJax.tex2svgPromise(latexForRender).then(node => {
+                    const svg = node.querySelector('svg');
+                    if (svg) {
+                        element.innerHTML = '';
+                        const wrapper = document.createElement('span');
+                        wrapper.className = 'math-render';
+                        wrapper.appendChild(svg);
+                        element.appendChild(wrapper);
+                    }
+                }).catch(err => console.warn('MathJax tex2svg failed:', err));
+            } else {
+                element.textContent = latex;
+                element.classList.add('math-display-text');
+            }
+        }
+
+
+        // Convert regular lowercase letters to Mathematical Italic Unicode characters (v2)
+        function toMathItalic(char) {
+            if (typeof char !== 'string' || char.length !== 1) return char;
+            const code = char.charCodeAt(0);
+            // Only convert basic Latin lowercase letters (a-z)
+            if (code >= 0x61 && code <= 0x7A) {
+                // Special case: 'h' uses Planck constant symbol for better font support
+                if (char === 'h') return '\u210E'; // ℎ (Planck constant)
+                // a-z: U+0061 to U+007A -> U+1D44E to U+1D467
+                return String.fromCodePoint(0x1D44E + (code - 0x61));
+            }
+            return char;
+        }
+
+        function formatSelectOptionLabel(value, providedText){
+            if(typeof providedText==='string' && providedText.trim().length>0){
+                return providedText;
+            }
+            if(typeof value==='string'){
+                // Don't convert if it's already a Unicode symbol (Greek, placeholder, etc.)
+                const code = value.charCodeAt(0);
+                const isBasicLatin = code >= 0x61 && code <= 0x7A; // a-z only
+                
+                // Convert only single lowercase Latin letters to math italic Unicode
+                if (value.length === 1 && isBasicLatin) {
+                    return toMathItalic(value);
+                }
+                return value;
+            }
+            return String(value);
+        }
+
+        function syncButtonGroup(groupId, newValue, sourceButton) {
+            const group = buttonSyncGroups[groupId];
+            if (!group) return;
+            
+            group.buttons.forEach(buttonData => {
+                if (buttonData === sourceButton) return;
+                
+                buttonData.currentVar = newValue;
+                
+                if (buttonData.keyType === 'modulus') {
+                    buttonData.insert = `|${newValue}|`;
+                    buttonData.display = `|${newValue}|`;
+                } else if (buttonData.keyType === 'arg') {
+                    buttonData.insert = `arg(${newValue})`;
+                    buttonData.display = `arg(${newValue})`;
+                } else if (buttonData.keyType === 'conjugate') {
+                    buttonData.insert = `\\overline{${newValue}}`;
+                    buttonData.display = `\\overline{${newValue}}`;
+                } else if (buttonData.keyType === 'real') {
+                    buttonData.insert = `Re(${newValue})`;
+                    buttonData.display = `Re(${newValue})`;
+                } else if (buttonData.keyType === 'imaginary') {
+                    buttonData.insert = `Im(${newValue})`;
+                    buttonData.display = `Im(${newValue})`;
+                } else if (buttonData.base) {
+                    buttonData.insert = `${buttonData.base}{${newValue}}`;
+                    buttonData.display = `${buttonData.base}{${newValue}}`;
+                }
+                
+                const buttonElement = buttonData.element;
+                if (buttonElement) {
+                    const selector = buttonElement.querySelector('.selector');
+                    const mathContent = buttonElement.querySelector('.math-display');
+                    
+                    if (selector) {
+                        selector.value = newValue;
+                    }
+                    
+                    if (mathContent) {
+                        mathContent.dataset.math = buttonData.display;
+                        renderMathInPlace(mathContent);
+                    }
+                }
+            });
+        }
+        
+        function registerButtonToSyncGroup(buttonData, element) {
+            if (buttonData.syncGroup) {
+                buttonData.element = element;
+                buttonSyncGroups[buttonData.syncGroup].buttons.push(buttonData);
+            }
+        }
+
+        function createKeyElement(d){
+            if(d.isSelectable){
+                const key=document.createElement('button');
+                key.type='button';
+                key.className='key has-selector';
+                key.tabIndex=-1;
+
+                const mathContent=document.createElement('div');
+                mathContent.className='math-display';
+                mathContent.dataset.math=d.display;
+                // Always render with MathJax unless explicitly requested as text
+                mathContent.dataset.renderMode = d.renderMode || 'math';
+                const selector=document.createElement('select');
+                selector.className='selector';
+
+                d.options.forEach(opt=>{
+                    const optionEl=document.createElement('option');
+                    let val, txt;
+                    if(typeof opt==='object' && opt.value!==undefined){
+                        val = opt.value;
+                        txt = opt.text;
+                    } else {
+                        val = opt;
+                        txt = undefined;
+                    }
+                    optionEl.value = val;
+                    optionEl.textContent = formatSelectOptionLabel(val, txt);
+                    if(val === d.currentVar) optionEl.selected = true;
+                    selector.appendChild(optionEl);
+                });
+
+                ['click','mousedown','touchstart'].forEach(eventType=>{
+                    selector.addEventListener(eventType, event=>event.stopPropagation(), { capture:true });
+                });
+
+                selector.addEventListener('change', event=>{
+                    d.currentVar=event.target.value;
+                    const currentVal=d.currentVar;
+
+                    if(d.keyType==='cis'){
+                        d.insert=`\\cos(${currentVal})+i\\sin(${currentVal})`;
+                        d.display=`\\operatorname{cis}(${currentVal})`;
+                    }else if(d.keyType==='cos-isin'){
+                        d.insert=`\\cos(${currentVal})+i\\sin(${currentVal})`;
+                        d.display=d.insert;
+                    }else if(d.keyType==='modulus'){
+                        d.insert=`|${currentVal}|`;
+                        d.display=`|${currentVal}|`;
+                    }else if(d.keyType==='arg'){
+                        d.insert=`arg(${currentVal})`;
+                        d.display=`arg(${currentVal})`;
+                    }else if(d.keyType==='conjugate'){
+                        d.insert=`\\overline{${currentVal}}`;
+                        d.display=`\\overline{${currentVal}}`;
+                    }else if(d.keyType==='real'){
+                        d.insert=`Re(${currentVal})`;
+                        d.display=`Re(${currentVal})`;
+                    }else if(d.keyType==='imaginary'){
+                        d.insert=`Im(${currentVal})`;
+                        d.display=`Im(${currentVal})`;
+                    }else{
+                        d.insert=`${d.base}{${currentVal}}`;
+                        d.display=`${d.base}{${currentVal}}`;
+                    }
+                    
+                    mathContent.dataset.math=d.display;
+                    if(d.renderMode){
+                        mathContent.dataset.renderMode = d.renderMode;
+                    }else{
+                        mathContent.dataset.renderMode = 'math';
+                    }
+                    
+                    if(d.syncGroup) {
+                        syncButtonGroup(d.syncGroup, currentVal, d);
+                    }
+                    
+                renderMathInPlace(mathContent);
+                try { mf2 && mf2.focus({ preventScroll: true }); setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0); } catch(_) {}
+                });
+
+                mathContent.textContent=d.display;
+                key.addEventListener('click', event=>{ if(event.target!==selector) insertLatex(d.insert); });
+
+                // Add hover expansion functionality
+                key.addEventListener('mouseenter', () => {
+                    // Find which tab this key belongs to and expand it
+                    const expArea = document.getElementById('expanded-area');
+                    if (expArea && expArea.getAttribute('data-tab-id')) {
+                        const currentTabId = expArea.getAttribute('data-tab-id');
+                        // Always expand the tab when hovering over a key
+                        toggleExpand(currentTabId);
+                    }
+                });
+
+                key.appendChild(mathContent);
+                key.appendChild(selector);
+                renderMathInPlace(mathContent);
+                
+                registerButtonToSyncGroup(d, key);
+                
+                return key;
+            }
+
+            const key=document.createElement('button');
+            key.type='button';
+            key.className='key';
+            key.tabIndex=-1;
+            const mathSpan=document.createElement('span');
+            mathSpan.className='math-display';
+            mathSpan.dataset.math=d.display;
+            if(d.renderMode){
+                mathSpan.dataset.renderMode = d.renderMode;
+            }else{
+                mathSpan.dataset.renderMode = 'math';
+            }
+            mathSpan.textContent=d.display;
+            key.appendChild(mathSpan);
+            key.addEventListener('click',()=>insertLatex(d.insert));
+            
+            // Add hover expansion functionality
+            key.addEventListener('mouseenter', () => {
+                // Find which tab this key belongs to and expand it
+                const expArea = document.getElementById('expanded-area');
+                if (expArea && expArea.getAttribute('data-tab-id')) {
+                    const currentTabId = expArea.getAttribute('data-tab-id');
+                    // Always expand the tab when hovering over a key
+                    toggleExpand(currentTabId);
+                }
+            });
+            
+            renderMathInPlace(mathSpan);
+            return key;
+        }
+
+
+        let currentExpandedTab = null;
+        let pinnedTabId = null;
+        function syncTabHighlight(){
+            document.querySelectorAll('#tabs .tab').forEach(tabEl=>{
+                const tabId=tabEl.dataset.tabId;
+                const isExpanded=currentExpandedTab===tabId;
+                tabEl.setAttribute('data-expanded', isExpanded ? 'true' : 'false');
+            });
+        }
+        function toggleExpand(id) {
+            const expArea = document.getElementById('expanded-area');
+            if (!expArea) return;
+            if (currentExpandedTab === id && expArea.childElementCount) {
+                return;
+            }
+
+            expArea.innerHTML = '';
+            expArea.setAttribute('data-tab-id', id);
+            const layoutItems = layouts[id] ?? [];
+            const rowCount = tabRowConfig[id] || 1;
+            const perRow = Math.max(1, Math.ceil(layoutItems.length / rowCount) || layoutItems.length || 1);
+
+            // Add keys directly to expanded area for horizontal grid layout
+            layoutItems.forEach((item, itemIndex) => {
+                const keyEl = createKeyElement(item);
+                expArea.appendChild(keyEl);
+            });
+            const columnCount = Math.max(layoutItems.length, 1);
+            expArea.style.setProperty('--expanded-columns', columnCount);
+            currentExpandedTab = id;
+            syncTabHighlight();
+            
+            // Typeset the newly created buttons with proper timing
+            setTimeout(() => {
+                typesetMathElements();
+            }, 100);
+            
+            // Additional typeset after a longer delay to ensure MathJax is ready
+            setTimeout(() => {
+                typesetMathElements();
+            }, 500);
+
+            // Ensure math field remains active after interacting with tabs
+            try { mf2 && mf2.focus({ preventScroll: true }); } catch(_) {}
+            setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0);
+        }
+        
+        buildTabs(); // Build tabs early
+        if (tabs.length) {
+            pinnedTabId = tabs[0].id;
+            toggleExpand(pinnedTabId);
+        }
+
+        /* ---------------- Load MathLive ---------------- */
+        // Reference: https://cortexjs.io/mathlive/guides/integration/
+        // Official demo: https://mathlive.io/mathfield/demo/
+        async function loadMathLive(){
+            const sources = {
+                coreCss: ['https://unpkg.com/mathlive/dist/mathlive-fonts.css', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive-fonts.css'],
+                css: ['https://unpkg.com/mathlive/dist/mathlive-static.css', 'https://cdn.jsdelivr.net/npm/mathlive/dist/mathlive-static.css'],
+                js: ['https://unpkg.com/mathlive', 'https://cdn.jsdelivr.net/npm/mathlive']
+            };
+            let loaded = false;
+            let coreCssLoaded = false;
+            let cssLoaded = false;
+            let jsLoaded = false;
+
+            // Load core CSS
+            for (const url of sources.coreCss) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = url;
+                        link.onload = () => resolve();
+                        link.onerror = () => reject();
+                        document.head.appendChild(link);
+                    });
+                    coreCssLoaded = true;
+                    break;
+                } catch (e) {
+                }
+            }
+            if (!coreCssLoaded) {
+                console.warn('Failed to load core CSS from all sources');
+            }
+
+            // Load main CSS
+            for (const url of sources.css) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const link = document.createElement('link');
+                        link.rel = 'stylesheet';
+                        link.href = url;
+                        link.onload = () => resolve();
+                        link.onerror = () => reject();
+                        document.head.appendChild(link);
+                    });
+                    cssLoaded = true;
+                    break;
+                } catch (e) {
+                }
+            }
+            if (!cssLoaded) {
+                console.warn('Failed to load main CSS from all sources');
+            }
+
+            // Load JavaScript
+            for (const url of sources.js) {
+                try {
+                    await new Promise((resolve, reject) => {
+                        const script = document.createElement('script');
+                        script.src = url;
+                        script.defer = true;
+                        script.onload = () => resolve();
+                        script.onerror = () => reject();
+                        document.head.appendChild(script);
+                    });
+                    jsLoaded = true;
+                    loaded = true;
+                    break;
+                } catch (e) {
+                }
+            }
+            if (!jsLoaded) {
+                console.warn('Failed to load MathLive JS from all sources');
+            }
+
+            if (!loaded) {
+                console.warn('MathLive failed to load completely');
+            }
+
+            return loaded;
+        }
+
+        async function waitForMathFieldDefinition(){
+            try{
+                if(window.customElements && typeof customElements.whenDefined==='function'){
+                    await customElements.whenDefined('math-field');
+                }
+            }catch(e){ console.warn('math-field definition wait failed', e); }
+        }
+
+        function typesetMathElements(){
+            const mathElements=document.querySelectorAll('.math-display');
+            mathElements.forEach(renderMathInPlace);
+        }
+
+        (async()=>{
+            const loaded=await loadMathLive();
+            await waitForMathFieldDefinition();
+            
+            // Wait for MathJax to be ready
+            if (window.MathJax && window.MathJax.startup) {
+                await window.MathJax.startup.promise;
+            }
+            
+            // Initial typeset of any existing elements
+            typesetMathElements();
+            
+            if(loaded && window.MathfieldElement){
+                configureMathLive();
+                
+                // Mark MathLive as ready - this will make it visible
+                if (mf2) {
+                    mf2.classList.add('mathlive-ready');
+                    
+                    // Check if we can hide the loading screen now
+                    if (typeof checkAndHideLoadingScreen === 'function') {
+                        checkAndHideLoadingScreen();
+                    }
+                }
+                
+                // Set initial focus to mathfield
+                try{ 
+                    mf2 && mf2.focus({ preventScroll: true }); 
+                }catch(_){}
+                
+                // Note: Input event listener is already attached at line ~2820
+            }
+            
+            // Ensure buttons are properly typeset after a short delay
+            setTimeout(() => {
+                typesetMathElements();
+            }, 500);
+            
+            // Additional typeset after MathJax is fully ready
+            setTimeout(() => {
+                typesetMathElements();
+            }, 1000);
+        })();
+
+        function showToast(msg = 'Copied!') {
+          const toast = document.getElementById('toast');
+          if (!toast) return;
+          toast.textContent = msg;
+          toast.classList.add('show');
+          clearTimeout(showToast._t);
+          showToast._t = setTimeout(() => toast.classList.remove('show'), 1600);
+        }
+
+        /* ---------------- Copy buttons ---------------- */
+        async function copyToClipboard(a, b) {
+          const label = b || 'text';
+          let ok = false;
+          try {
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              await navigator.clipboard.writeText(a);
+              ok = true;
+            }
+          } catch (c) {
+            // fall through to legacy path
+          }
+          if (!ok) {
+            const d = document.createElement('textarea');
+            d.value = a;
+            d.setAttribute('readonly', '');
+            d.style.position = 'fixed';
+            d.style.left = '-9999px';
+            document.body.appendChild(d);
+            d.select();
+            try {
+              document.execCommand('copy');
+              ok = true;
+            } catch (c) {
+              ok = false;
+            } finally {
+              document.body.removeChild(d);
+            }
+          }
+
+          showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
+        }
+        const copyButton = document.getElementById('copyBtn');
+        const resolveCopyLabel = () => (localStorage.getItem('pureLatexMode') === 'true' ? 'Pure LaTeX' : 'LaTeX');
+        if (copyButton) {
+          copyButton.addEventListener('click', () => {
+            copyToClipboard(getLatex() ?? '', resolveCopyLabel());
+          });
+        }
+        
+        // Add hover expansion functionality to editor copy buttons
+        document.getElementById('copyBtn').addEventListener('mouseenter', () => {
+            const expArea = document.getElementById('expanded-area');
+            if (expArea && expArea.getAttribute('data-tab-id')) {
+                const currentTabId = expArea.getAttribute('data-tab-id');
+                toggleExpand(currentTabId);
+            }
+        });
+        
+        // 插入文本到光标位置的辅助函数
+        function insertAtCursor(textarea, textToInsert) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const text = textarea.value;
+            const before = text.substring(0, start);
+            const after = text.substring(end, text.length);
+            textarea.value = before + textToInsert + after;
+            textarea.selectionStart = textarea.selectionEnd = start + textToInsert.length;
+            textarea.focus();
+            // 触发输入事件以更新预览
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function adjustMathFieldHeight() {
+            if (!mf2) return;
+            
+            try {
+                const contentElement = mf2.shadowRoot?.querySelector('.ML__content');
+                if (contentElement) {
+                    // First, temporarily set height to auto to get true content height
+                    const originalHeight = mf2.style.height;
+                    mf2.style.height = 'auto';
+                    
+                    const contentHeight = contentElement.scrollHeight;
+                    const minHeight = 60;
+                    const newHeight = Math.max(contentHeight + 24, minHeight); // 24px for padding
+                    
+                    mf2.style.height = newHeight + 'px';
+                } else {
+                    // Fallback: use scrollHeight
+                    const minHeight = 60;
+                    const newHeight = Math.max(mf2.scrollHeight, minHeight);
+                    mf2.style.height = newHeight + 'px';
+                }
+            } catch (e) {
+                // Final fallback: use scrollHeight
+                const minHeight = 60;
+                const newHeight = Math.max(mf2.scrollHeight, minHeight);
+                mf2.style.height = newHeight + 'px';
+            }
+        }
+        
+        if (mf2) {
+            mf2.addEventListener('input', adjustMathFieldHeight);
+            
+            adjustMathFieldHeight();
+            
+            setTimeout(adjustMathFieldHeight, 200);
+            setTimeout(adjustMathFieldHeight, 500);
+        }
+        
+    </script>
+
+    <!-- Hamburger Menu Toggle Script -->
+    <script>
+    (function() {
+      const hamburgerBtn = document.getElementById('hamburgerBtn');
+      const actionsMenu = document.querySelector('.h-actions');
+      
+      if (hamburgerBtn && actionsMenu) {
+        hamburgerBtn.addEventListener('click', function() {
+          const isOpen = actionsMenu.classList.toggle('menu-open');
+          hamburgerBtn.setAttribute('aria-expanded', isOpen);
+          
+          // Change icon
+          const icon = hamburgerBtn.querySelector('i');
+          if (icon) {
+            icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+            if (typeof window.initLucideIcons === 'function') {
+              window.initLucideIcons();
+            }
+          }
+        });
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!hamburgerBtn.contains(e.target) && !actionsMenu.contains(e.target)) {
+            actionsMenu.classList.remove('menu-open');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+            
+            const icon = hamburgerBtn.querySelector('i');
+            if (icon) {
+              icon.setAttribute('data-lucide', 'menu');
+              if (typeof window.initLucideIcons === 'function') {
+                window.initLucideIcons();
+              }
+            }
+          }
+        });
+        
+        // Close menu when any menu item is clicked
+        const menuButtons = actionsMenu.querySelectorAll('.header-copy');
+        menuButtons.forEach(btn => {
+          btn.addEventListener('click', function() {
+            actionsMenu.classList.remove('menu-open');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+            
+            const icon = hamburgerBtn.querySelector('i');
+            if (icon) {
+              icon.setAttribute('data-lucide', 'menu');
+              if (typeof window.initLucideIcons === 'function') {
+                window.initLucideIcons();
+              }
+            }
+          });
+        });
+      }
+    })();
+    </script>
+
+    <!-- LaTeX to MathML Conversion Helper (using MathJax) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+        // Enable AST debugging (set to false in production)
+        window.DEBUG_AST = false;
+        
+        
+        /**
+         * Fixes n-ary operators in MathML to ensure proper display in Microsoft Word
+         * Uses regex patterns to wrap operands in <mrow> tags immediately after operators and their limits
+         * @param {string} mathmlString - The MathML string to fix
+         * @returns {string} Fixed MathML string
+         */
+        window.fixNaryOperatorsMathML = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return mathmlString;
+            }
+            
+            try {
+                let output = mathmlString;
+                
+                // 1. Summation (∑, U+2211) with <munderover>
+                // Support hex, decimal, and literal encodings
+                output = output.replace(
+                    /(<munderover>\s*<mo[^>]*>\s*(?:&#x2211;|&#8721;|∑)\s*<\/mo>.*?<\/munderover>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- summand -->\n</mrow>'
+                );
+                
+                // Summation with <munder> (lower limit only)
+                output = output.replace(
+                    /(<munder>\s*<mo[^>]*>\s*(?:&#x2211;|&#8721;|∑)\s*<\/mo>.*?<\/munder>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- summand -->\n</mrow>'
+                );
+                
+                // 2. Integral (∫, U+222B) with <msubsup>
+                // Ensure <msubsup> integrals are followed by a <mrow> block
+                output = output.replace(
+                    /(<msubsup>\s*<mo[^>]*>\s*(?:&#x222B;|&#8747;|∫)\s*<\/mo>.*?<\/msubsup>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- integrand -->\n</mrow>'
+                );
+                
+                // Integral without limits (standalone <mo>)
+                output = output.replace(
+                    /(<mo[^>]*>\s*(?:&#x222B;|&#8747;|∫)\s*<\/mo>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- integrand -->\n</mrow>'
+                );
+                
+                // Cleanup: if the standalone-integral rule above inserted an integrand <mrow>
+                // inside an <msubsup> block (i.e., right after the integral <mo>), remove it.
+                // We only want the operand wrapper AFTER the </msubsup> container, not inside it.
+                output = output.replace(
+                    /(<msubsup>\s*<mo[^>]*>\s*(?:&#x222B;|&#8747;|∫)\s*<\/mo>)\s*<mrow>\s*<!-- integrand -->\s*<\/mrow>/gs,
+                    '$1'
+                );
+                
+                // 3. Product (∏, U+220F) with <munderover>
+                // Same wrapping rule as summation
+                output = output.replace(
+                    /(<munderover>\s*<mo[^>]*>\s*(?:&#x220F;|&#8719;|∏)\s*<\/mo>.*?<\/munderover>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- multiplicand -->\n</mrow>'
+                );
+                
+                // Product with <munder> (lower limit only)
+                output = output.replace(
+                    /(<munder>\s*<mo[^>]*>\s*(?:&#x220F;|&#8719;|∏)\s*<\/mo>.*?<\/munder>\s*)(?!<mrow>)/gs,
+                    '$1<mrow>\n  <!-- multiplicand -->\n</mrow>'
+                );
+                
+                return output;
+                
+            } catch (error) {
+                console.error('Error fixing n-ary operators in MathML:', error);
+                return mathmlString; // Return original on error
+            }
+        };
+
+        /**
+         * Fixes arrow accents in MathML for Word compatibility
+         * Ensures <mover> elements with arrows have accent="true" and normalized arrow symbols
+         * @param {string} mathmlString - The MathML string to fix
+         * @returns {string} Fixed MathML string with proper arrow accents
+         */
+        window.fixArrowAccentsMathML = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return mathmlString;
+            }
+            
+            try {
+                // Parse MathML string into DOM
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(mathmlString, 'application/xml');
+                
+                // Check for parsing errors
+                if (doc.querySelector('parsererror')) {
+                    console.warn('MathML parsing error in fixArrowAccentsMathML, returning original string');
+                    return mathmlString;
+                }
+                
+                const mathElement = doc.querySelector('math');
+                if (!mathElement) {
+                    return mathmlString;
+                }
+                
+                // Arrow symbols to detect (various Unicode representations)
+                const rightArrows = [
+                    '→',           // U+2192 Rightwards Arrow
+                    '\u2192',      // U+2192
+                    '&#x2192;',    // HTML entity
+                    '&#8594;',     // Decimal entity
+                    '⟶',           // U+27F6 Long Rightwards Arrow
+                    '\u27F6'       // U+27F6
+                ];
+                
+                const leftArrows = [
+                    '←',           // U+2190 Leftwards Arrow
+                    '\u2190',      // U+2190
+                    '&#x2190;',    // HTML entity
+                    '&#8592;',     // Decimal entity
+                    '⟵',           // U+27F5 Long Leftwards Arrow
+                    '\u27F5'       // U+27F5
+                ];
+                
+                // Find all <mover> elements
+                const moverElements = mathElement.querySelectorAll('mover');
+                
+                moverElements.forEach(mover => {
+                    // Get the base element (first child) and the operator element (second child)
+                    const baseElement = mover.children[0];
+                    const operatorElement = mover.children[1];
+                    
+                    if (!baseElement || !operatorElement) {
+                        return; // Skip if structure is invalid
+                    }
+                    
+                    // Check if the operator is an arrow
+                    const operatorText = operatorElement.textContent.trim();
+                    const isRightArrow = rightArrows.some(arrow => 
+                        operatorText === arrow || 
+                        operatorText.includes('→') || 
+                        operatorText.includes('\u2192')
+                    );
+                    const isLeftArrow = leftArrows.some(arrow => 
+                        operatorText === arrow || 
+                        operatorText.includes('←') || 
+                        operatorText.includes('\u2190')
+                    );
+                    
+                    if (isRightArrow || isLeftArrow) {
+                        // Add accent="true" attribute if not present
+                        if (!mover.hasAttribute('accent')) {
+                            mover.setAttribute('accent', 'true');
+                        } else if (mover.getAttribute('accent') !== 'true') {
+                            // Update to true if set to something else
+                            mover.setAttribute('accent', 'true');
+                        }
+                        
+                        // Normalize the arrow symbol to standard Unicode
+                        if (operatorElement.tagName === 'mo') {
+                            if (isRightArrow) {
+                                // Use long rightwards arrow (U+27F6) for \overrightarrow
+                                // This provides better stretching across multi-character bases
+                                operatorElement.textContent = '⟶'; // U+27F6
+                            } else if (isLeftArrow) {
+                                // Use long leftwards arrow (U+27F5) for \overleftarrow
+                                operatorElement.textContent = '⟵'; // U+27F5
+                            }
+                        }
+                        
+                        // Ensure base is wrapped in <mrow> if it contains multiple <mi> elements
+                        // This ensures proper alignment across all characters
+                        if (baseElement.tagName !== 'mrow' && baseElement.children.length > 1) {
+                            const mrow = doc.createElement('mrow');
+                            // Move all children of base into mrow
+                            while (baseElement.firstChild) {
+                                mrow.appendChild(baseElement.firstChild);
+                            }
+                            baseElement.appendChild(mrow);
+                        }
+                    }
+                });
+                
+                // Serialize back to string
+                const serializer = new XMLSerializer();
+                const fixedMathML = serializer.serializeToString(mathElement);
+                
+                // Add namespace if missing
+                if (!fixedMathML.includes('xmlns=')) {
+                    return fixedMathML.replace('<math>', '<math xmlns="http://www.w3.org/1998/Math/MathML">');
+                }
+                
+                return fixedMathML;
+                
+            } catch (error) {
+                console.error('Error fixing arrow accents in MathML:', error);
+                return mathmlString; // Return original on error
+            }
+        };
+
+        /**
+         * Converts overbar notation in MathML to Unicode combining overline format
+         * Replaces <mover> elements with combining overline (U+0305) for Word compatibility
+         * @param {string} mathmlString - The MathML string to fix
+         * @returns {string} Fixed MathML string with combining overlines
+         */
+        window.fixOverbarMathML = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return mathmlString;
+            }
+            
+            try {
+                // Parse MathML string into DOM
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(mathmlString, 'application/xml');
+                
+                // Check for parsing errors
+                if (doc.querySelector('parsererror')) {
+                    console.warn('MathML parsing error in fixOverbarMathML, returning original string');
+                    return mathmlString;
+                }
+                
+                const mathElement = doc.querySelector('math');
+                if (!mathElement) {
+                    return mathmlString;
+                }
+                
+                // Find all <mover> elements
+                const moverElements = mathElement.querySelectorAll('mover');
+                
+                moverElements.forEach(mover => {
+                    // Check if this is an overbar (accent="true")
+                    const isAccent = mover.getAttribute('accent') === 'true';
+                    
+                    // Get the base element (first child) and the accent element (second child)
+                    const baseElement = mover.children[0];
+                    const accentElement = mover.children[1];
+                    
+                    if (!baseElement || !accentElement) {
+                        return; // Skip if structure is invalid
+                    }
+                    
+                    // Check if the accent is an arrow (skip these - they're handled by fixArrowAccentsMathML)
+                    const accentText = accentElement.textContent.trim();
+                    
+                    // Check for all possible arrow representations (including HTML entities)
+                    const rightArrowSymbols = ['→', '\u2192', '⟶', '\u27F6', '&#x2192;', '&#8594;', '&#x27F6;', '&#10230;'];
+                    const leftArrowSymbols = ['←', '\u2190', '⟵', '\u27F5', '&#x2190;', '&#8592;', '&#x27F5;', '&#10229;'];
+                    
+                    const isRightArrow = rightArrowSymbols.some(arrow => 
+                        accentText === arrow || accentText.includes(arrow) || accentText.includes('→') || accentText.includes('⟶')
+                    );
+                    const isLeftArrow = leftArrowSymbols.some(arrow => 
+                        accentText === arrow || accentText.includes(arrow) || accentText.includes('←') || accentText.includes('⟵')
+                    );
+                    
+                    if (isRightArrow || isLeftArrow) {
+                        console.log(`✓ Skipping arrow accent: "${accentText}" (handled by fixArrowAccentsMathML)`);
+                        return; // Skip arrow accents - they should remain as <mover> elements
+                    }
+                    
+                    // Check if the accent is an overbar (¯ or ‾)
+                    const isOverbar = accentText === '¯' ||       // U+00AF (Macron)
+                                     accentText === '\u00AF' ||   // U+00AF
+                                     accentText === '‾' ||         // U+203E (Overline)
+                                     accentText === '\u203E' ||   // U+203E
+                                     accentText === '―' ||         // U+2015 (Horizontal bar)
+                                     accentText === '\u2015' ||   // U+2015
+                                     accentElement.tagName === 'mo' && (
+                                         accentElement.textContent.trim() === '¯' ||
+                                         accentElement.textContent.trim() === '\u00AF'
+                                     );
+                    
+                    // Only convert if it's an overbar accent
+                    if (isAccent && isOverbar) {
+                        // Get the base content (should be a single character for best results)
+                        const baseText = baseElement.textContent.trim();
+                        
+                        // Check if base is a single character (Latin or Greek)
+                        if (baseText.length === 1) {
+                            // Create a new <mi> element with combining overline
+                            const miElement = doc.createElement('mi');
+                            miElement.textContent = baseText + '\u0305'; // Add combining overline
+                            
+                            // Replace the <mover> with the <mi>
+                            mover.parentNode.replaceChild(miElement, mover);
+                        } else {
+                            // Multi-character base: keep mover, but normalize accent for Word
+                            let macronMo = accentElement;
+                            if (accentElement.tagName !== 'mo') {
+                                macronMo = doc.createElement('mo');
+                                macronMo.textContent = '\u00AF';
+                                mover.replaceChild(macronMo, accentElement);
+                            } else {
+                                macronMo.textContent = '\u00AF';
+                            }
+                            macronMo.setAttribute('stretchy', 'true');
+                            if (macronMo.hasAttribute('accent')) {
+                                macronMo.removeAttribute('accent');
+                            }
+                            mover.setAttribute('accent', 'true');
+                        }
+                    }
+                });
+                
+                // Serialize back to string
+                const serializer = new XMLSerializer();
+                const fixedMathML = serializer.serializeToString(mathElement);
+                
+                // Add namespace if missing
+                if (!fixedMathML.includes('xmlns=')) {
+                    return fixedMathML.replace('<math>', '<math xmlns="http://www.w3.org/1998/Math/MathML">');
+                }
+                
+                return fixedMathML;
+                
+            } catch (error) {
+                console.error('Error fixing overbar in MathML:', error);
+                return mathmlString; // Return original on error
+            }
+        };
+
+        // MathML Normalizer: piecewise brace → mfenced(open="{" close="")
+        window.MathMLNormalizer = window.MathMLNormalizer || {};
+        window.MathMLNormalizer.normalizePiecewise = function(mathmlString) {
+            if (!mathmlString || typeof mathmlString !== 'string') {
+                return { mathml: mathmlString, didTransform: false };
+            }
+            try {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(mathmlString, 'application/xml');
+                if (doc.querySelector('parsererror')) {
+                    console.warn('MathML parsing error in normalizePiecewise, returning original string');
+                    return { mathml: mathmlString, didTransform: false };
+                }
+                const math = doc.querySelector('math');
+                if (!math) {
+                    return { mathml: mathmlString, didTransform: false };
+                }
+
+                let didTransform = false;
+
+                function isEl(n, name) {
+                    return n && n.nodeType === 1 && n.localName === name;
+                }
+                function isBraceMo(n) {
+                    return isEl(n, 'mo') && ((n.textContent || '').trim() === '{');
+                }
+                function alreadyMfencedOpenLeft(el) {
+                    return isEl(el, 'mfenced') && el.getAttribute('open') === '{' && (el.getAttribute('close') || '') === '';
+                }
+                function nextElementSiblingSkippingNonElements(nodes, startIdx) {
+                    for (let j = startIdx + 1; j < nodes.length; j++) {
+                        const n = nodes[j];
+                        if (n.nodeType === 1) return { node: n, index: j };
+                    }
+                    return { node: null, index: -1 };
+                }
+                function normalizeContainer(container) {
+                    const kids = Array.from(container.childNodes);
+                    for (let i = 0; i < kids.length; i++) {
+                        const k = kids[i];
+
+                        // Recurse into nested containers first
+                        if (isEl(k, 'mrow') || isEl(k, 'math')) {
+                            normalizeContainer(k);
+                        }
+
+                        if (!isBraceMo(k)) continue;
+
+                        // Find next element child (skip text/comments)
+                        const { node: nextEl, index: nextIdx } = nextElementSiblingSkippingNonElements(kids, i);
+                        if (!nextEl || !isEl(nextEl, 'mtable')) continue;
+
+                        // Avoid double-wrapping if the container itself is the mfenced already
+                        if (alreadyMfencedOpenLeft(container)) continue;
+
+                        // Optional trailing <mo> after the table
+                        const { node: maybeClose, index: closeIdx } = nextElementSiblingSkippingNonElements(kids, nextIdx);
+                        const hasTrailingMo = !!maybeClose && isEl(maybeClose, 'mo');
+
+                        // Build mfenced and move the existing <mtable> into it
+                        const mf = doc.createElementNS('http://www.w3.org/1998/Math/MathML', 'mfenced');
+                        mf.setAttribute('open', '{');
+                        mf.setAttribute('close', '');
+                        mf.appendChild(nextEl); // move node, not clone, to preserve attributes/children
+
+                        // Replace opening brace with mfenced
+                        container.replaceChild(mf, k);
+
+                        // Remove the optional trailing closing <mo>
+                        if (hasTrailingMo && maybeClose.parentNode === container) {
+                            container.removeChild(maybeClose);
+                        }
+
+                        // Update snapshot and restart scan for idempotency and cascading cases
+                        didTransform = true;
+                        return normalizeContainer(container);
+                    }
+                }
+
+                // Walk all mrow and math containers
+                normalizeContainer(math);
+
+                const serializer = new XMLSerializer();
+                let out = serializer.serializeToString(math);
+                if (!out.includes('xmlns=')) {
+                    out = out.replace('<math>', '<math xmlns="http://www.w3.org/1998/Math/MathML">');
+                }
+                return { mathml: out, didTransform };
+            } catch (e) {
+                console.error('Error in normalizePiecewise:', e);
+                return { mathml: mathmlString, didTransform: false };
+            }
+        };
+
+        // Convert single-letter overbars (LaTeX and MathML) to Word-friendly macron accents
+        function convertOverlines(input) {
+          if (!input) return input;
+          let out = input;
+          // Word compatibility: swap accent-based bars for stretchy macron form
+          const BAR_ENTITY_PATTERN = '(?:&#x2015;|&#8213;|&#x203E;|&#8254;|&#xAF;|&#x00AF;|&#x0305;|—|‾|¯)';
+          out = out.replace(
+            new RegExp(String.raw`<mo\b[^>]*\baccent\s*=\s*["'](?:true|1)["'][^>]*>\s*${BAR_ENTITY_PATTERN}\s*</mo>`, 'g'),
+            '<mo stretchy="true">&#xAF;</mo>'
+          );
+          // 1) LaTeX forms \bar{X}, \overline{X} for single symbol
+          const toMover = (symbol) => `<mover accent="true"><mi>${symbol}</mi><mo stretchy="true">&#xAF;</mo></mover>`;
+          out = out.replace(/\\bar\{\s*([A-Za-z\u0370-\u03FF])\s*\}/g, (_, sym) => toMover(sym));
+          out = out.replace(/\\overline\{\s*([A-Za-z\u0370-\u03FF])\s*\}/g, (_, sym) => toMover(sym));
+          // Entities inside braces
+          out = out.replace(/\\bar\{\s*(&#[xX][0-9A-Fa-f]+;|&[A-Za-z]+;)\s*\}/g, (_, entity) => toMover(entity));
+          out = out.replace(/\\overline\{\s*(&#[xX][0-9A-Fa-f]+;|&[A-Za-z]+;)\s*\}/g, (_, entity) => toMover(entity));
+          // 2) Normalize existing mover accents to ensure accent="true"
+          out = out.replace(/<mover\b([^>]*)>/g, (match, attrs = '') => {
+            let updated = attrs;
+            if (!/\baccent\s*=/.test(updated)) {
+              updated = `${updated.trim()} accent="true"`.trim();
+            } else {
+              updated = updated.replace(/\baccent\s*=\s*["'][^"']*["']/, 'accent="true"');
+            }
+            return `<mover ${updated}>`;
+          });
+          return out;
+        }
+
+        // LaTeX to MathML conversion using MathJax, then n-ary normalization (∫, ∑, ∏)
+        window.convertLatexToMathML = async function(latex) {
+            if (!window.MathJax || !window.MathJax.tex2mml) {
+                console.warn('MathJax tex2mml not available yet');
+                return '';
+            }
+            try {
+                const mathml = window.MathJax.tex2mml(latex, {
+                    display: false,
+                    em: 16,
+                    ex: 8,
+                    containerWidth: 80 * 16
+                });
+                // Post-process n-ary operators for Word compatibility
+                if (window.NaryOperatorNormalizer && typeof window.NaryOperatorNormalizer.normalizeMathML === 'function') {
+                    const { mathml: fixed } = window.NaryOperatorNormalizer.normalizeMathML(mathml);
+                    return fixed || mathml;
+                }
+                return mathml;
+            } catch (error) {
+                console.error('MathML conversion error:', error);
+                return '';
+            }
+        };
+        
+        // Debug test for \overrightarrow conversion
+        window.testOverrightarrow = async function() {
+            console.log('🧪 Testing \\overrightarrow MathML Conversion\n');
+            
+            const testCases = [
+                { latex: '\\overrightarrow{AB}', desc: 'Two-letter base (AB)' },
+                { latex: '\\overrightarrow{x}', desc: 'Single letter base (x)' },
+                { latex: '\\overrightarrow{CD}', desc: 'Another two-letter base (CD)' },
+                { latex: '\\overrightarrow{EFG}', desc: 'Three-letter base (EFG)' },
+                { latex: '\\dot{x}', desc: 'Dot accent (for comparison)' },
+                { latex: '\\ddot{x}', desc: 'Double dot accent (for comparison)' },
+            ];
+            
+            for (const test of testCases) {
+                console.log(`\n📝 Test: ${test.desc}`);
+                console.log(`   LaTeX Input:  ${test.latex}`);
+                
+                try {
+                    const mathml = await window.convertLatexToMathML(test.latex);
+                    console.log(`   MathML Output:\n${mathml}`);
+                    
+                    // Check for long rightwards arrow (U+27F6)
+                    if (test.latex.includes('overrightarrow')) {
+                        if (mathml.includes('⟶') || mathml.includes('&#x27F6;') || mathml.includes('&#10230;')) {
+                            console.log('   ✅ PASS - Contains long rightwards arrow (U+27F6)');
+                        } else if (mathml.includes('→') || mathml.includes('&#x2192;')) {
+                            console.log('   ⚠️  WARNING - Contains short arrow (U+2192) instead of long arrow (U+27F6)');
+                        } else {
+                            console.log('   ❌ FAIL - No arrow symbol found');
+                        }
+                        
+                        // Check for <mover> structure
+                        if (mathml.includes('<mover')) {
+                            console.log('   ✅ PASS - Uses <mover> element');
+                        } else {
+                            console.log('   ❌ FAIL - Missing <mover> element');
+                        }
+                        
+                        // Check for accent="true"
+                        if (mathml.includes('accent="true"')) {
+                            console.log('   ✅ PASS - Has accent="true" attribute');
+                        } else {
+                            console.log('   ⚠️  INFO - Missing accent="true" attribute (may be optional)');
+                        }
+                    }
+                } catch (error) {
+                    console.log(`   ❌ ERROR: ${error.message}`);
+                }
+            }
+            
+            console.log('\n✨ Test complete!\n');
+        };
+
+        // Rewire Word-specific MathML helpers to external module (keeps backward compatibility)
+        window.fixNaryOperatorsMathML = function(s){
+            return (window.WordMathML && typeof window.WordMathML.fixNaryOperatorsMathML==='function') ? window.WordMathML.fixNaryOperatorsMathML(s) : s;
+        };
+        window.fixArrowAccentsMathML = function(s){
+            return (window.WordMathML && typeof window.WordMathML.fixArrowAccentsMathML==='function') ? window.WordMathML.fixArrowAccentsMathML(s) : s;
+        };
+        window.fixOverbarMathML = function(s){
+            return (window.WordMathML && typeof window.WordMathML.fixOverbarMathML==='function') ? window.WordMathML.fixOverbarMathML(s) : s;
+        };
+        window.convertOverlines = function(s){
+            return (window.WordMathML && typeof window.WordMathML.convertOverlines==='function') ? window.WordMathML.convertOverlines(s) : s;
+        };
+        
+        
+        // Debug test for overbar combining conversion
+        window.debugOverbar = async function() {
+            console.log('🧪 Testing overbar combining conversion:');
+            console.log('');
+            
+            const testCases = [
+                { latex: '\\bar{z}', desc: 'Simple bar (Latin)', expectCombining: true },
+                { latex: '\\overline{z}', desc: 'Overline (Latin)', expectCombining: true },
+                { latex: '\\bar{x}', desc: 'Bar on x', expectCombining: true },
+                { latex: '\\bar{\\theta}', desc: 'Bar on Greek theta (θ)', expectCombining: true },
+                { latex: '\\overline{A}', desc: 'Overline on uppercase A', expectCombining: true },
+                { latex: '\\bar{z} + \\bar{w}', desc: 'Multiple bars', expectCombining: true },
+                { latex: 'z = \\bar{z}', desc: 'Bar in equation', expectCombining: true },
+                { latex: '\\overrightarrow{AB}', desc: 'Arrow accent (should NOT convert)', expectCombining: false }
+            ];
+            
+            for (const test of testCases) {
+                console.log(`\n📝 Test: ${test.desc}`);
+                console.log(`   Input:  ${test.latex}`);
+                
+                try {
+                    const mathml = await window.convertLatexToMathML(test.latex);
+                    console.log(`   Output: ${mathml}`);
+                    
+                    const hasCombining = mathml.includes('\u0305') || mathml.includes('&#x0305;') || mathml.includes('&#x305;');
+                    const hasMover = mathml.includes('<mover');
+                    
+                    if (test.expectCombining) {
+                        // Should be converted to combining overline
+                        if (hasCombining && !hasMover) {
+                            console.log('   ✅ PASS - Contains combining overline (no <mover>)');
+                        } else if (hasMover) {
+                            console.log('   ❌ FAIL - Still contains <mover> element');
+                        } else {
+                            console.log('   ⚠️  WARN - No overbar found');
+                        }
+                    } else {
+                        // Should NOT be converted (arrows should stay as <mover>)
+                        if (hasMover && !hasCombining) {
+                            console.log('   ✅ PASS - Correctly preserved as <mover> (arrow accent)');
+                        } else if (hasCombining) {
+                            console.log('   ❌ FAIL - Incorrectly converted to combining overline');
+                        } else {
+                            console.log('   ⚠️  WARN - No accent found');
+                        }
+                    }
+                } catch (error) {
+                    console.error('   ❌ ERROR:', error);
+                }
+            }
+            
+            console.log('\n' + '='.repeat(60));
+            console.log('📊 Summary:');
+            console.log('✅ Combining overline format: character + U+0305');
+            console.log('❌ Avoid: <mover> elements (unreliable in Word)');
+            console.log('');
+        };
+        
+        // Helper function to remove spacing commands for clean LaTeX
+        window.removeWordSpaces = function(latex) {
+            // Remove Word-specific spacing commands like \:
+            return latex.replace(/\\:/g, '');
+        };
+        
+        console.log('✅ MathML converter ready (using MathJax)');
+        
+        // Trigger initial sync if math field has content
+        setTimeout(() => {
+            const mf2 = document.getElementById('mf2');
+            if (mf2 && mf2.getValue && mf2.getValue()) {
+                console.log('🔄 Triggering initial sync with content:', mf2.getValue());
+                if (typeof syncFromMathLive === 'function') {
+                    syncFromMathLive();
+                }
+            }
+        }, 100);
+    });
+    </script>
+    <script>
+    /**
+     * MathML: normalize piecewise definitions so the left brace stretches.
+     * Rule: { + <mtable> + (optional closing <mo>)  =>  <mfenced open="{" close=""><mtable/></mfenced>
+     * Idempotent: running multiple times does nothing after first pass.
+     */
+    (function () {
+      function isEl(n, name) {
+        return n && n.nodeType === 1 && n.localName === name;
+      }
+      function isBraceMo(n) {
+        return isEl(n, 'mo') && (n.textContent || '').trim() === '{';
+      }
+      function isEmptyMo(n) {
+        // Many inputs have an empty <mo ...></mo> as a "closing" fence placeholder
+        return isEl(n, 'mo') && (n.textContent || '').trim() === '';
+      }
+      function alreadyMfencedOpenLeft(el) {
+        return isEl(el, 'mfenced')
+          && el.getAttribute('open') === '{'
+          && (el.getAttribute('close') || '') === '';
+      }
+      function normalizeContainer(container) {
+        // We will scan child nodes looking for the pattern: {  <mtable>  [optional closing <mo>]
+        const kids = Array.from(container.childNodes);
+        for (let i = 0; i < kids.length; i++) {
+          const k = kids[i];
+
+          // Recurse into nested rows first
+          if (isEl(k, 'mrow') || isEl(k, 'math')) {
+            normalizeContainer(k);
+          }
+
+          // Skip if not a "{"
+          if (!isBraceMo(k)) continue;
+
+          // Next sibling must be an <mtable>
+          const next = kids[i + 1];
+          if (!isEl(next, 'mtable')) continue;
+
+          // If the table is already inside the correct <mfenced>, skip
+          if (alreadyMfencedOpenLeft(container)) continue;
+
+          // Optional trailing closing <mo> (often empty or has fence attrs)
+          const maybeClose = kids[i + 2];
+          const hasTrailingMo = isEl(maybeClose, 'mo');
+
+          // Build <mfenced open="{" close="">
+          const mf = container.ownerDocument.createElementNS('http://www.w3.org/1998/Math/MathML', 'mfenced');
+          mf.setAttribute('open', '{');
+          mf.setAttribute('close', '');
+
+          // Move the <mtable> inside <mfenced> (preserve all attributes/children)
+          mf.appendChild(next.cloneNode(true));
+
+          // Replace the sequence in the DOM:
+          // remove the old nodes in order: {, <mtable>, (optional trailing <mo>)
+          // then insert <mfenced> at the position of the "{"
+          // We'll do in-place edits to avoid reflows on big docs.
+          const insertionPoint = k; // original "{"
+          // Remove <mtable> and optional closing <mo>
+          container.removeChild(next);
+          if (hasTrailingMo) container.removeChild(maybeClose);
+          // Replace the opening "{"
+          container.replaceChild(mf, insertionPoint);
+
+          // Because we cloned <mtable>, remove the original <mtable> that followed "{"
+          // (already removed above). Now we've inserted <mfenced> with its own <mtable>.
+          // Update the local kids snapshot around the new position.
+          return normalizeContainer(container); // restart scanning this container
+        }
+      }
+
+      function normalizeMath(root) {
+        // Find all MathML roots and normalize them
+        const mathNodes = root.querySelectorAll('math');
+        mathNodes.forEach((math) => {
+          // Walk all <mrow> and the <math> root itself, since some inputs omit <mrow>
+          const rows = [math, ...math.querySelectorAll('mrow')];
+          rows.forEach((row) => normalizeContainer(row));
+        });
+      }
+
+      // Expose for dynamic content, but also run once on load.
+      window.normalizePiecewiseBraces = normalizeMath;
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => normalizeMath(document));
+      } else {
+        normalizeMath(document);
+      }
+    })();
+    </script>
+
+    <script>
+    // ========== Pure LaTeX Mode ==========
+    (function() {
+      const PURE_LATEX_KEY = 'pureLatexMode';
+      const pureLatexBtn = document.getElementById('pureLatexBtn');
+      const tabsWrapper = document.getElementById('tabs_wrapper');
+      const expandedArea = document.getElementById('expanded-area');
+      const renderedSection = document.querySelector('.io-rendered');
+      
+      let isPureLatexMode = localStorage.getItem(PURE_LATEX_KEY) === 'true';
+
+      function updateButtonState() {
+        if (!pureLatexBtn) return;
+        if (isPureLatexMode) {
+          pureLatexBtn.classList.add('pure-latex-active');
+        } else {
+          pureLatexBtn.classList.remove('pure-latex-active');
+        }
+      }
+
+      function applyPureLatexMode() {
+        if (isPureLatexMode) {
+          // Hide toolbar and rendered input
+          if (tabsWrapper) tabsWrapper.style.display = 'none';
+          if (expandedArea) expandedArea.style.display = 'none';
+          if (renderedSection) renderedSection.style.display = 'none';
+        } else {
+          // Show everything
+          if (tabsWrapper) tabsWrapper.style.display = '';
+          if (expandedArea) expandedArea.style.display = '';
+          if (renderedSection) renderedSection.style.display = '';
+        }
+        updateButtonState();
+        
+        // Communicate mode to iframe for height adjustment
+        const iframe = document.getElementById('latexLiveIframe');
+        if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+          try {
+            iframe.contentWindow.document.body.setAttribute('data-pure-latex-mode', isPureLatexMode);
+          } catch(e) {
+            // Cross-origin restrictions may prevent this, but shouldn't happen with same-origin iframe
+            console.warn('Could not communicate with iframe:', e);
+          }
+        }
+      }
+
+      // Toggle Pure LaTeX mode
+      if (pureLatexBtn) {
+        pureLatexBtn.addEventListener('click', () => {
+          isPureLatexMode = !isPureLatexMode;
+          localStorage.setItem(PURE_LATEX_KEY, isPureLatexMode);
+          applyPureLatexMode();
+        });
+      }
+
+      // Apply mode on page load
+      applyPureLatexMode();
+      
+      // Also apply when iframe loads
+      const iframe = document.getElementById('latexLiveIframe');
+      if (iframe) {
+        iframe.addEventListener('load', () => {
+          applyPureLatexMode();
+        });
+      }
+    })();
+
+    // Hide loading screen once MathLive is loaded
+    window.mathLiveReady = false;
+    
+    function checkAndHideLoadingScreen() {
+      const loadingScreen = document.getElementById('loading-screen');
+      const mf2 = document.getElementById('mf2');
+      
+      // Hide if MathLive is ready
+      if (window.mathLiveReady && 
+          loadingScreen && 
+          mf2 && 
+          mf2.classList.contains('mathlive-ready')) {
+        setTimeout(() => {
+          loadingScreen.classList.add('fade-out');
+          setTimeout(() => {
+            loadingScreen.remove();
+          }, 500);
+        }, 200);
+      }
+    }
+    
+    window.addEventListener('load', () => {
+      window.mathLiveReady = true;
+      checkAndHideLoadingScreen();
+    });
+    </script>
+</body>
+</html>
