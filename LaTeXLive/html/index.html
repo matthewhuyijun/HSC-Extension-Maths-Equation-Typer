@@ -38,6 +38,7 @@
       --iframe-title-color: #1f2937;
       --iframe-label-bg: #f3f4f6;
       --iframe-label-border: #e5e7eb;
+      --iframe-card-bg: #ffffff;
     }
     
     /* Reset body to remove all default spacing */
@@ -73,10 +74,13 @@
     .card {
       margin: 0 !important;
       border: none !important;
+      background: var(--iframe-card-bg) !important;
+      border-radius: 10px !important;
     }
     
     .card-body {
       padding: 0 !important;
+      background: transparent !important;
     }
     
     .io-label {
@@ -175,6 +179,7 @@
         const previewCard = document.querySelector('#output-area .card-body');
         if (resolved === 'dark') {
           document.documentElement.style.setProperty('--iframe-title-color', '#f3f4f6');
+          document.documentElement.style.setProperty('--iframe-card-bg', '#1f2937');
           if (preview) {
             preview.style.backgroundColor = '#2e2e2e';
             preview.style.margin = '0';
@@ -186,6 +191,7 @@
           }
         } else {
           document.documentElement.style.setProperty('--iframe-title-color', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-card-bg', '#ffffff');
           if (preview) {
             preview.style.backgroundColor = '#ffffff';
             preview.style.margin = '2rem auto 1.5rem auto';
