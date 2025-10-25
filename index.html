@@ -1779,7 +1779,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       border: 2px solid var(--color-border);
       border-radius: 10px;
       font-size: 1.1rem;
-      min-height: 120px;
+      min-height: 80px;
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
@@ -4559,6 +4559,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           if (renderedSection) renderedSection.style.display = '';
         }
         updateButtonState();
+        
+        // Communicate mode to iframe for height adjustment
+        const iframe = document.getElementById('latexLiveIframe');
+        if (iframe && iframe.contentWindow && iframe.contentWindow.document) {
+          try {
+            iframe.contentWindow.document.body.setAttribute('data-pure-latex-mode', isPureLatexMode);
+          } catch(e) {
+            // Cross-origin restrictions may prevent this, but shouldn't happen with same-origin iframe
+            console.warn('Could not communicate with iframe:', e);
+          }
+        }
       }
 
       // Toggle Pure LaTeX mode
@@ -4572,6 +4583,14 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
       // Apply mode on page load
       applyPureLatexMode();
+      
+      // Also apply when iframe loads
+      const iframe = document.getElementById('latexLiveIframe');
+      if (iframe) {
+        iframe.addEventListener('load', () => {
+          applyPureLatexMode();
+        });
+      }
     })();
 
     // Hide loading screen once MathLive is loaded

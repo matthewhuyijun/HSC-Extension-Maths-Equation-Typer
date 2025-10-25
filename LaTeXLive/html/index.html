@@ -111,6 +111,15 @@
       margin: 0 0 12px 2px;
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
     }
+    
+    /* Height adjustments for Raw LaTeX Input based on mode */
+    body:not([data-pure-latex-mode="true"]) .twins {
+      height: 7rem !important; /* 70% of original 10rem in normal mode */
+    }
+    
+    body[data-pure-latex-mode="true"] .twins {
+      height: 10rem !important; /* Keep original height in pure latex mode */
+    }
   </style>
 
   <!-- #region page -->
