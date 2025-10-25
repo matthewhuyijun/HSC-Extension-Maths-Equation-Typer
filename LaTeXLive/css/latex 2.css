@@ -224,6 +224,7 @@ body {
   text-align: center;
   min-height: 200px;
   background-color: #ffffff;
+  background-image: none !important;
   transition: background-color 0.3s ease;
 }
 body[data-theme="dark"] #wrap_output {

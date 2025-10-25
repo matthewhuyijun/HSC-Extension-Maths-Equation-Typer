@@ -174,17 +174,37 @@
       let observer = null;
       let retryTimer = null;
 
-      const applyTitleColor = (themeName) => {
-        if (themeName === 'dark') {
-          // Dark theme colors
+      const applyFrameThemeTokens = (themeName) => {
+        const resolved = themeName === 'dark' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', resolved);
+        const preview = document.getElementById('wrap_output');
+        const previewCard = document.querySelector('#output-area .card-body');
+        if (resolved === 'dark') {
           document.documentElement.style.setProperty('--iframe-title-color', '#f3f4f6');
           document.documentElement.style.setProperty('--iframe-label-bg', '#1e293b');
           document.documentElement.style.setProperty('--iframe-label-border', '#374151');
+          if (preview) {
+            preview.style.backgroundColor = '#2e2e2e';
+            preview.style.margin = '0';
+            preview.style.color = '#f3f4f6';
+          }
+          if (previewCard) {
+            previewCard.style.backgroundColor = '#2e2e2e';
+            previewCard.style.borderRadius = '0 0 10px 10px';
+          }
         } else {
-          // Light theme colors (default)
           document.documentElement.style.setProperty('--iframe-title-color', '#1f2937');
           document.documentElement.style.setProperty('--iframe-label-bg', '#f3f4f6');
           document.documentElement.style.setProperty('--iframe-label-border', '#e5e7eb');
+          if (preview) {
+            preview.style.backgroundColor = '#ffffff';
+            preview.style.margin = '2rem auto 1.5rem auto';
+            preview.style.color = '#1f2937';
+          }
+          if (previewCard) {
+            previewCard.style.backgroundColor = '#ffffff';
+            previewCard.style.borderRadius = '0 0 10px 10px';
+          }
         }
       };
 
@@ -266,7 +286,7 @@
 
       const scheduleTheme = (themeName) => {
         const normalized = normalizeTheme(themeName);
-        applyTitleColor(normalized);
+        applyFrameThemeTokens(normalized);
         if (normalized === lastApplied && !targetTheme) {
           return;
         }

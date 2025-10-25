@@ -9,15 +9,15 @@ export var output = {
   init: function (opt) {
     output.obj_element = opt.obj_element;
     output.obj_common = opt.obj_common;
-    output.emptyPath = opt.const_boot + "/img/empty1.png";
-    output.obj_element.el_output.style.backgroundImage = "url(" + output.emptyPath + ")";
+    output.emptyPath = "";
+    output.obj_element.el_output.style.backgroundImage = "none";
     if (output.obj_common.isMac()) { output.scrollForMAC(); }
     output.render();
   },
   /** 渲染mathjax预览 */
   render: function () {
     if (output.obj_element.el_input.value.trim() == "") {
-      output.obj_element.el_output.style.backgroundImage = "url(" + output.emptyPath + ")";
+      output.obj_element.el_output.style.backgroundImage = "none";
       output.obj_element.el_output.innerHTML = "";
       output.svgSource = "";
       output.svgSurce_size = [];
