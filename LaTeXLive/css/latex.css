@@ -257,7 +257,6 @@ body {
   margin: 2rem auto 1.5rem auto;
   text-align: center;
   min-height: 120px;
-  background: url("../img/empty1.png") center center no-repeat;
 }
 #wrap_output img {
   opacity: 0.05;
