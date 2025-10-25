@@ -85,14 +85,8 @@
       font-size: 1.05rem;
       letter-spacing: -0.01em;
       color: var(--iframe-title-color);
-      margin: 0;
-      padding: 12px 14px;
+      margin: 0 0 12px 2px;
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
-      background: var(--iframe-label-bg);
-      border: 1px solid var(--iframe-label-border);
-      border-radius: 10px 10px 0 0;
-      box-shadow: 0 1px 0 rgba(2, 6, 23, 0.05);
-      transition: all 0.3s ease;
     }
   </style>
 
@@ -181,8 +175,6 @@
         const previewCard = document.querySelector('#output-area .card-body');
         if (resolved === 'dark') {
           document.documentElement.style.setProperty('--iframe-title-color', '#f3f4f6');
-          document.documentElement.style.setProperty('--iframe-label-bg', '#1e293b');
-          document.documentElement.style.setProperty('--iframe-label-border', '#374151');
           if (preview) {
             preview.style.backgroundColor = '#2e2e2e';
             preview.style.margin = '0';
@@ -194,8 +186,6 @@
           }
         } else {
           document.documentElement.style.setProperty('--iframe-title-color', '#1f2937');
-          document.documentElement.style.setProperty('--iframe-label-bg', '#f3f4f6');
-          document.documentElement.style.setProperty('--iframe-label-border', '#e5e7eb');
           if (preview) {
             preview.style.backgroundColor = '#ffffff';
             preview.style.margin = '2rem auto 1.5rem auto';

@@ -123,6 +123,33 @@ body {
 }
 /* #endregion */
 
+/* Input/Output labels alignment */
+.io-label {
+  display: block;
+  text-align: left;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+/* Remove card background and borders */
+.area .card {
+  background-color: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.area .card-header {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0.75rem 0 !important;
+}
+
+.area .card-body {
+  background-color: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+}
+
 /* #region 区域 */
 .area {
   margin-top: 2rem;
