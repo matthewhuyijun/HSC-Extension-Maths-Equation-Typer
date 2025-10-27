@@ -2313,7 +2313,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     // Handle copy request from iframe
                     const latex = data.latex || '';
                     if (latex) {
-                        copyToClipboard(latex, 'LaTeX');
+                        navigator.clipboard.writeText(latex).then(() => {
+                            showToast('LaTeX copied!');
+                        }).catch(err => {
+                            console.error('Failed to copy:', err);
+                            showToast('Copy failed');
+                        });
                     } else {
                         showToast('No LaTeX to copy');
                     }
@@ -3641,12 +3646,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           showToast(ok ? `Copied ${label} ✓` : 'Copy failed');
         }
         const copyButton = document.getElementById('copyBtn');
-        const resolveCopyLabel = () => (localStorage.getItem('pureLatexMode') === 'true' ? 'Pure LaTeX' : 'LaTeX');
         if (copyButton) {
           copyButton.addEventListener('click', () => {
             const latex = getLatex();
             if (latex) {
-              copyToClipboard(latex, resolveCopyLabel());
+              navigator.clipboard.writeText(latex).then(() => {
+                showToast('LaTeX copied!');
+              }).catch(err => {
+                console.error('Failed to copy:', err);
+                showToast('Copy failed');
+              });
             } else {
               showToast('No LaTeX to copy');
             }
