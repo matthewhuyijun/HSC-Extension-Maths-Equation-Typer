@@ -148,7 +148,7 @@
     <div class="flat-row row~">
       <div class="flat-col col-xl-6~">
         <div class="container area" id="input-area">
-          <label class="io-label">Raw LaTeX Input</label>
+          <label class="io-label" id="raw-latex-label">Raw LaTeX Input</label>
           <div class="card">
             <div class="card-body">
               <div class="d-none" aria-hidden="true">
@@ -167,7 +167,7 @@
       </div>
       <div class="flat-col col-xl-6~">
         <div class="container area" id="output-area">
-          <label class="io-label">LaTeX Preview</label>
+          <label class="io-label" id="latex-preview-label">LaTeX Preview</label>
           <div class="card">
             <div class="card-body" style="padding: 15px !important;">
               <div class="output" id="latex-preview-box" style="
@@ -672,6 +672,70 @@
         document.addEventListener('DOMContentLoaded', setupObserver);
       } else {
         setupObserver();
+      }
+    })();
+  </script>
+
+  <script>
+    // Click handlers for labels to copy LaTeX with toast notifications
+    (function() {
+      const SOURCE = 'mathstyper-sync';
+      
+      function copyLatexToClipboard() {
+        const textarea = document.getElementById('txta_input');
+        const latex = textarea ? textarea.value : '';
+        
+        // Send message to parent window to handle copy and show toast
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              source: SOURCE,
+              type: 'copyLatex',
+              latex: latex
+            }, '*');
+          }
+        } catch (err) {
+          console.warn('Failed to send copy message to parent:', err);
+        }
+      }
+      
+      // Add click handler to "Raw LaTeX Input" label
+      const rawLatexLabel = document.getElementById('raw-latex-label');
+      if (rawLatexLabel) {
+        rawLatexLabel.style.cursor = 'pointer';
+        rawLatexLabel.title = 'Click to copy LaTeX';
+        rawLatexLabel.addEventListener('click', copyLatexToClipboard);
+      }
+      
+      // Add click handler to "LaTeX Preview" label
+      const previewLabel = document.getElementById('latex-preview-label');
+      if (previewLabel) {
+        previewLabel.style.cursor = 'pointer';
+        previewLabel.title = 'Click to copy LaTeX';
+        previewLabel.addEventListener('click', copyLatexToClipboard);
+      }
+      
+      // Add click handler to the preview box itself
+      const previewBox = document.getElementById('latex-preview-box');
+      if (previewBox) {
+        previewBox.style.cursor = 'pointer';
+        previewBox.title = 'Click to copy LaTeX';
+        previewBox.addEventListener('click', copyLatexToClipboard);
+      }
+      
+      // Add click handler to the textarea and copy div
+      const textarea = document.getElementById('txta_input');
+      if (textarea) {
+        textarea.style.cursor = 'pointer';
+        textarea.title = 'Click to copy LaTeX';
+        textarea.addEventListener('click', copyLatexToClipboard);
+      }
+      
+      const copyDiv = document.getElementById('div_copy');
+      if (copyDiv) {
+        copyDiv.style.cursor = 'pointer';
+        copyDiv.title = 'Click to copy LaTeX';
+        copyDiv.addEventListener('click', copyLatexToClipboard);
       }
     })();
   </script>

@@ -2203,8 +2203,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       <div class="io-grid">
         <!-- 1. Rendered -->
         <div class="io-section io-rendered">
-          <label class="io-label" for="mf2">Rendered Input (Editable)</label>
-          <math-field id="mf2"></math-field>
+          <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;" title="Click to copy LaTeX">Rendered Input (Editable)</label>
+          <math-field id="mf2" style="cursor: pointer;" title="Click to copy LaTeX"></math-field>
       </div>
       </div>
 
@@ -2309,6 +2309,14 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (data && data.source === 'mathstyper-sync') {
                 if (data.type === 'latexChanged') {
                     syncFromTextArea(data.latex);
+                } else if (data.type === 'copyLatex') {
+                    // Handle copy request from iframe
+                    const latex = data.latex || '';
+                    if (latex) {
+                        copyToClipboard(latex, 'LaTeX');
+                    } else {
+                        showToast('No LaTeX to copy');
+                    }
                 }
             }
         });
@@ -2326,6 +2334,20 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }
         
         /* ========== Event Listener Setup ========== */
+        
+        // Click on "Rendered Input (Editable)" label to copy LaTeX
+        const renderedInputLabel = document.querySelector('label[for="mf2"]');
+        if (renderedInputLabel) {
+            renderedInputLabel.style.cursor = 'pointer';
+            renderedInputLabel.addEventListener('click', () => {
+                const latex = getLatex();
+                if (latex) {
+                    copyToClipboard(latex, 'LaTeX');
+                } else {
+                    showToast('No LaTeX to copy');
+                }
+            });
+        }
         
         // MathLive input changes → sync to Raw LaTeX
         mf2.addEventListener('input', syncFromMathLive);
@@ -2350,6 +2372,24 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 }
             }, 10);
         });
+        
+        // Click-to-copy functionality for Rendered Input
+        function copyRenderedLatex() {
+            const latex = getLatex();
+            if (latex) {
+                navigator.clipboard.writeText(latex).then(() => {
+                    showToast('LaTeX copied!');
+                }).catch(err => {
+                    console.error('Failed to copy:', err);
+                    showToast('Copy failed');
+                });
+            }
+        }
+        
+        // Add click handler to math-field
+        if (mf2) {
+            mf2.addEventListener('click', copyRenderedLatex);
+        }
         
         // Listen for module loading completion and trigger initial sync
         window.addEventListener('e2ModulesReady', () => {
@@ -3604,7 +3644,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const resolveCopyLabel = () => (localStorage.getItem('pureLatexMode') === 'true' ? 'Pure LaTeX' : 'LaTeX');
         if (copyButton) {
           copyButton.addEventListener('click', () => {
-            copyToClipboard(getLatex() ?? '', resolveCopyLabel());
+            const latex = getLatex();
+            if (latex) {
+              copyToClipboard(latex, resolveCopyLabel());
+            } else {
+              showToast('No LaTeX to copy');
+            }
           });
         }
         
