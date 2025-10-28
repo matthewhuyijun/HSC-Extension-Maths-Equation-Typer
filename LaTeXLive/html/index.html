@@ -116,6 +116,17 @@
       color: var(--iframe-title-color);
       margin: 20px 0 12px 2px;    /* Increased top margin for more space from input area */
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+      cursor: pointer !important;
+      user-select: none;
+      transition: opacity 0.2s ease;
+    }
+    
+    .io-label:hover {
+      opacity: 0.7;
+    }
+    
+    .io-label:active {
+      opacity: 0.5;
     }
     
     /* Reduce top margin for Raw LaTeX Input label to bring it closer to rendered output */
@@ -713,29 +724,6 @@
         previewLabel.style.cursor = 'pointer';
         previewLabel.title = 'Click to copy LaTeX';
         previewLabel.addEventListener('click', copyLatexToClipboard);
-      }
-      
-      // Add click handler to the preview box itself
-      const previewBox = document.getElementById('latex-preview-box');
-      if (previewBox) {
-        previewBox.style.cursor = 'pointer';
-        previewBox.title = 'Click to copy LaTeX';
-        previewBox.addEventListener('click', copyLatexToClipboard);
-      }
-      
-      // Add click handler to the textarea and copy div
-      const textarea = document.getElementById('txta_input');
-      if (textarea) {
-        textarea.style.cursor = 'pointer';
-        textarea.title = 'Click to copy LaTeX';
-        textarea.addEventListener('click', copyLatexToClipboard);
-      }
-      
-      const copyDiv = document.getElementById('div_copy');
-      if (copyDiv) {
-        copyDiv.style.cursor = 'pointer';
-        copyDiv.title = 'Click to copy LaTeX';
-        copyDiv.addEventListener('click', copyLatexToClipboard);
       }
     })();
   </script>
