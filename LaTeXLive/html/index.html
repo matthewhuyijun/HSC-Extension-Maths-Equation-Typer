@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+
+<html lang="zh-cn">
+
+<head>
+  <meta charset="utf-8" />
+  <title>在线LaTeX公式编辑器-编辑器</title>
+  <meta name="renderer" content="webkit" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta content="always" name="referrer" />
+  <meta name="description"
+    content="识别图片中的公式！免费的在线LaTeX公式编辑器。支持导出svg、超大png、jpg、MathML、SVGCode。可以打出任何公式，不只是数学！支持物理physics、化学mhchem、unicode等常用扩展宏包加载。即时渲染，基于MathJax实现。" />
+  <meta name="keywords" content="在线LaTeX,LaTeX公式编辑器,公式识别,公式编辑器,LaTeX公式识别,数学公式,LaTeX公式编辑,数学公式编辑,数学公式编辑器,妈叔,在线公式编辑" />
+  <meta name="author" content="PandaHero, yuetao_1011@outlook.com" />
+  <meta name="copyright" content="妈咪说（北京）科技传媒有限公司,熊猫大侠" />
+  <meta name="renderer" content="webkit" />
+  <meta name="robots" content="all" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0,maximum-scale=1.0, minimum-scale=1.0,user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <!-- #region icon -->
+  <link rel="shortcut icon"
+    href="data:image/png;base64,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"
+    type="image/x-icon">
+  <!-- #endregion -->
+  <script src="../js/common/config.js" id="common_config" data-pagetype="latex"></script>
+  <script src="../js/common/common_05.js" id="common_05"></script>
+  <script src="../js/common/common_10.js" id="common_10"></script>
+</head>
+
+<body>
+  <script src="../js/common/common_20.js" id="common_20"></script>
+  <script src="../js/common/common_30.js" id="common_30"></script>
+
+  <style>
+    /* CSS Variables for theme-aware colors */
+    :root {
+      --iframe-title-color: #1f2937;
+      --iframe-label-bg: #f3f4f6;
+      --iframe-label-border: #e5e7eb;
+      --iframe-card-bg: #ffffff;
+      --iframe-surface-bg: #ffffff;
+      --iframe-surface-ink: #1f2937;
+    }
+    
+    /* Reset body to remove all default spacing */
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    /* Reset container to remove spacing */
+    .flat-container {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+    }
+    
+    .flat-row {
+      margin: 0 !important;
+      padding: 0 !important;
+    }
+    
+    .flat-col {
+      padding: 0 !important;
+    }
+    
+    /* Reset .container and .area classes */
+    .container, .area {
+      padding: 0 !important;
+      margin: 0 !important;
+      max-width: 100% !important;
+    }
+    
+    /* Reset card styling */
+    .card {
+      margin: 0 !important;
+      border: none !important;
+      background: var(--iframe-card-bg) !important;
+      border-radius: 10px !important;
+    }
+    
+    .card-body {
+      padding: 0 !important;
+      background: transparent !important;
+    }
+
+    .form-control.twins {
+      background: var(--iframe-surface-bg) !important;
+      border-radius: 10px !important;
+      border: 2px solid transparent !important;
+      box-shadow: none !important;
+    }
+
+    .output {
+      background: var(--iframe-surface-bg) !important;
+      color: var(--iframe-surface-ink) !important;
+      border-radius: 10px !important;
+      border: 2px solid transparent !important;
+      box-shadow: none !important;
+    }
+
+    .form-control.twins::placeholder {
+      color: color-mix(in srgb, var(--iframe-surface-ink) 65%, transparent) !important;
+    }
+
+    #wrap_txtainput {
+      margin-bottom: 0 !important;
+    }
+    
+    .io-label {
+      display: block;
+      font-weight: 800;
+      font-size: 1.05rem;
+      letter-spacing: -0.01em;
+      color: var(--iframe-title-color);
+      margin: 20px 0 12px 2px;    /* Increased top margin for more space from input area */
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+      cursor: pointer !important;
+      user-select: none;
+      transition: opacity 0.2s ease;
+    }
+    
+    .io-label:hover {
+      opacity: 0.7;
+    }
+    
+    .io-label:active {
+      opacity: 0.5;
+    }
+    
+    /* Reduce top margin for Raw LaTeX Input label to bring it closer to rendered output */
+    #input-area .io-label {
+      margin-top: 2px;
+    }
+
+    /* Keep textarea transparent so syntax highlight overlay shines through */
+    #txta_input {
+      background-color: transparent !important;
+      color: rgba(0, 0, 0, 0.01) !important;
+    }
+
+    #div_copy {
+      color: var(--iframe-surface-ink) !important;
+    }
+    
+    /* Height adjustments for Raw LaTeX Input based on mode */
+    body:not([data-pure-latex-mode="true"]) .twins {
+      height: 7rem !important; /* 70% of original 10rem in normal mode */
+    }
+    
+    body[data-pure-latex-mode="true"] .twins {
+      height: 10rem !important; /* Keep original height in pure latex mode */
+    }
+  </style>
+
+  <!-- #region page -->
+  <section class="flat-container container-fluid~">
+    <div class="flat-row row~">
+      <div class="flat-col col-xl-6~">
+        <div class="container area" id="input-area">
+          <label class="io-label" id="raw-latex-label">Raw LaTeX Input</label>
+          <div class="card">
+            <div class="card-body">
+              <div class="d-none" aria-hidden="true">
+                <button class="btn btn-light theme-fill" id="btn_setting" type="button"><i class="fa fa-cog"></i>编辑器设置</button>
+                <div class="form-group" id="wrap_shortcut"></div>
+                <div class="form-group" id="wrap_immediate"></div>
+              </div>
+              <div class="form-group" id="wrap_txtainput">
+                <textarea class="form-control twins" id="txta_input" placeholder="" maxlength="16384"
+                  spellcheck="false" wrap="off"></textarea>
+                <div class="form-control twins" id="div_copy"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flat-col col-xl-6~">
+        <div class="container area" id="output-area">
+          <label class="io-label" id="latex-preview-label">LaTeX Preview</label>
+          <div class="card">
+            <div class="card-body" style="padding: 15px !important;">
+              <div class="output" id="latex-preview-box" style="
+                min-height: 5rem;
+                padding: 15px;
+                background-color: var(--iframe-surface-bg);
+                color: var(--iframe-surface-ink);
+                border-radius: 10px;
+                font-size: 20px;
+                line-height: 1.5;
+                overflow-x: auto;
+                overflow-y: auto;
+                max-height: 400px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              ">
+              </div>
+            </div>
+          </div>
+          <div style="display:none" aria-hidden="true">
+            <div class="output" id="wrap_output"></div>
+            <div id="wrap_action"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="screenmodal" id="wrap_setting"></div>
+  <div class="screenmodal-mask" id="mask_setting"></div>
+  
+  <!-- Modal -->
+  <div class="modal fade" id="modal-notify" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>公告</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p id="p_notify"></p>          
+        </div>
+        <div class="modal-footer">
+          <div class="form-check">
+            <input type="checkbox" class="form-check-input" id="check_noshow">
+            <label class="form-check-label" for="check_noshow">不再显示</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- #endregion -->
+
+  <script src="../js/common/common_50.js" id="common_50"></script>
+  <script>
+    (function () {
+      const SOURCE = 'mathstyper-theme';
+      const STORAGE_KEY = 'setting';
+      let targetTheme = null;
+      let lastApplied = null;
+      let observer = null;
+      let retryTimer = null;
+
+      const applyFrameThemeTokens = (themeName) => {
+        const resolved = themeName === 'dark' ? 'dark' : 'light';
+        document.body.setAttribute('data-theme', resolved);
+        const preview = document.getElementById('wrap_output');
+        const previewCard = document.querySelector('#output-area .card-body');
+        if (resolved === 'dark') {
+          document.documentElement.style.setProperty('--iframe-title-color', '#f3f4f6');
+          document.documentElement.style.setProperty('--iframe-card-bg', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-surface-bg', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-surface-ink', '#f3f4f6');
+          if (preview) {
+            preview.style.backgroundColor = '#1f2937';
+            preview.style.margin = '0';
+            preview.style.color = '#f3f4f6';
+          }
+          if (previewCard) {
+            previewCard.style.backgroundColor = '#1f2937';
+            previewCard.style.borderRadius = '0 0 10px 10px';
+          }
+        } else {
+          document.documentElement.style.setProperty('--iframe-title-color', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-card-bg', '#ffffff');
+          document.documentElement.style.setProperty('--iframe-surface-bg', '#ffffff');
+          document.documentElement.style.setProperty('--iframe-surface-ink', '#1f2937');
+          if (preview) {
+            preview.style.backgroundColor = '#ffffff';
+            preview.style.margin = '2rem auto 1.5rem auto';
+            preview.style.color = '#1f2937';
+          }
+          if (previewCard) {
+            previewCard.style.backgroundColor = '#ffffff';
+            previewCard.style.borderRadius = '0 0 10px 10px';
+          }
+        }
+      };
+
+      const normalizeTheme = (value) => {
+        if (value === 'dark') return 'dark';
+        if (value === 'default') return 'default';
+        return 'default';
+      };
+
+      const persistTheme = (themeName) => {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          let parsed = raw ? JSON.parse(raw) : {};
+          if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+            parsed = {};
+          }
+          if (parsed.theme !== themeName) {
+            parsed.theme = themeName;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+          }
+        } catch (err) {
+          console.warn('Unable to persist LaTeX Live theme preference', err);
+        }
+      };
+
+      const triggerThemeRadio = (themeName) => {
+        const radio = document.getElementById('radio-' + themeName);
+        if (!radio) {
+          return false;
+        }
+        if (!radio.checked) {
+          radio.checked = true;
+        }
+        if (typeof radio.onclick === 'function') {
+          radio.onclick();
+        } else {
+          radio.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+        }
+        lastApplied = themeName;
+        return true;
+      };
+
+      const stopObserver = () => {
+        if (observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      };
+
+      const attemptApply = () => {
+        if (!targetTheme) {
+          return;
+        }
+        if (triggerThemeRadio(targetTheme)) {
+          targetTheme = null;
+          stopObserver();
+          if (retryTimer) {
+            clearTimeout(retryTimer);
+            retryTimer = null;
+          }
+          return;
+        }
+        if (!retryTimer) {
+          retryTimer = window.setTimeout(() => {
+            retryTimer = null;
+            attemptApply();
+          }, 300);
+        }
+      };
+
+      const ensureObserver = () => {
+        if (observer) {
+          return;
+        }
+        const root = document.body || document.documentElement;
+        observer = new MutationObserver(attemptApply);
+        observer.observe(root, { childList: true, subtree: true });
+      };
+
+      const scheduleTheme = (themeName) => {
+        const normalized = normalizeTheme(themeName);
+        applyFrameThemeTokens(normalized);
+        if (normalized === lastApplied && !targetTheme) {
+          return;
+        }
+        targetTheme = normalized;
+        attemptApply();
+        ensureObserver();
+      };
+
+      const sendReady = () => {
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({ source: SOURCE, type: 'iframe-ready' }, '*');
+          }
+        } catch (err) {
+          // Ignore cross-origin errors
+        }
+      };
+
+      window.addEventListener('message', (event) => {
+        const data = event && event.data;
+        if (!data || data.source !== SOURCE) {
+          return;
+        }
+        if (data.type === 'theme') {
+          const desired = normalizeTheme(data.resolved || data.mode);
+          persistTheme(desired);
+          scheduleTheme(desired);
+        }
+      });
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => {
+          sendReady();
+          attemptApply();
+        });
+      } else {
+        sendReady();
+        attemptApply();
+      }
+    })();
+  </script>
+  <script>
+    // Sync script: bidirectional communication with parent window
+    (function () {
+      const SYNC_SOURCE = 'mathstyper-sync';
+      let syncInProgress = false;
+      let textareaElement = null;
+      let lastSentValue = '';
+
+      // Get the textarea element
+      const getTextarea = () => {
+        if (!textareaElement) {
+          textareaElement = document.getElementById('txta_input');
+        }
+        return textareaElement;
+      };
+
+      // Send latex changes to parent
+      const notifyParent = (latex) => {
+        if (syncInProgress) return;
+        if (latex === lastSentValue) return; // Avoid sending duplicate updates
+        
+        lastSentValue = latex;
+        
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              source: SYNC_SOURCE,
+              type: 'latexChanged',
+              latex: latex
+            }, '*');
+          }
+        } catch (err) {
+          console.warn('Failed to notify parent of latex change:', err);
+        }
+      };
+
+      // Update textarea from parent
+      const updateTextarea = (latex) => {
+        const textarea = getTextarea();
+        if (!textarea) return;
+        
+        syncInProgress = true;
+        
+        try {
+          if (textarea.value !== latex) {
+            textarea.value = latex;
+            lastSentValue = latex;
+            
+            // Trigger the input event to update the preview
+            const event = new Event('input', { bubbles: true });
+            textarea.dispatchEvent(event);
+          }
+        } catch (err) {
+          console.warn('Failed to update textarea:', err);
+        }
+        
+        setTimeout(() => { syncInProgress = false; }, 50);
+      };
+
+      // Listen for changes in the textarea
+      const observeTextarea = () => {
+        const textarea = getTextarea();
+        if (!textarea) {
+          // Retry after a short delay if textarea not found yet
+          setTimeout(observeTextarea, 100);
+          return;
+        }
+
+        // Listen for input events
+        textarea.addEventListener('input', function() {
+          if (!syncInProgress) {
+            notifyParent(textarea.value);
+          }
+        });
+
+        // Also listen for change events as a fallback
+        textarea.addEventListener('change', function() {
+          if (!syncInProgress) {
+            notifyParent(textarea.value);
+          }
+        });
+      };
+
+      // Listen for messages from parent
+      window.addEventListener('message', (event) => {
+        const data = event.data;
+        if (!data || data.source !== SYNC_SOURCE) {
+          return;
+        }
+        
+        if (data.type === 'updateLatex') {
+          updateTextarea(data.latex || '');
+        }
+      });
+
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', observeTextarea);
+      } else {
+        observeTextarea();
+      }
+    })();
+  </script>
+  <script>
+    // LaTeX Preview Box - Real-time rendering
+    (function() {
+      let previewBox = null;
+      let textareaElement = null;
+      let renderTimeout = null;
+
+      // Get elements
+      const getElements = () => {
+        if (!previewBox) {
+          previewBox = document.getElementById('latex-preview-box');
+        }
+        if (!textareaElement) {
+          textareaElement = document.getElementById('txta_input');
+        }
+        return { previewBox, textareaElement };
+      };
+
+      const EMPTY_MESSAGE = '';
+      const ERROR_MESSAGE = '<span style="color: #e74c3c;">Unable to render this LaTeX yet. Check for missing braces or arguments.</span>';
+
+      const stripDelimiters = (latex) => {
+        let trimmed = latex.trim();
+        if (!trimmed) {
+          return { latex: '', display: true };
+        }
+
+        const startsWith = (delim) => trimmed.startsWith(delim);
+        const endsWith = (delim) => trimmed.endsWith(delim);
+
+        if (startsWith('\\[') && endsWith('\\]')) {
+          return { latex: trimmed.slice(2, -2).trim(), display: true };
+        }
+        if (startsWith('$$') && endsWith('$$')) {
+          return { latex: trimmed.slice(2, -2).trim(), display: true };
+        }
+        if (startsWith('\\(') && endsWith('\\)')) {
+          return { latex: trimmed.slice(2, -2).trim(), display: false };
+        }
+        if (startsWith('$') && endsWith('$') && trimmed.length > 1) {
+          return { latex: trimmed.slice(1, -1).trim(), display: false };
+        }
+
+        return { latex: trimmed, display: true };
+      };
+
+      const enhanceEmptyArguments = (latex) => {
+        // Highlight completely empty arguments for a few common structures
+        return latex
+          .replace(/\\frac\s*\{\s*\}\s*\{\s*\}/g, '\\\\frac{\\\\color{#b0b0b0}{\\\\square}}{\\\\color{#b0b0b0}{\\\\square}}')
+          .replace(/\\frac\s*\{\s*\}/g, '\\\\frac{\\\\color{#b0b0b0}{\\\\square}}')
+          .replace(/\\sqrt\s*\{\s*\}/g, '\\\\sqrt{\\\\color{#b0b0b0}{\\\\square}}')
+          .replace(/\\sqrt\s*\[\s*\]\s*\{\s*\}/g, '\\\\sqrt[\\\\color{#b0b0b0}{\\\\square}]{\\\\color{#b0b0b0}{\\\\square}}');
+      };
+
+      // Render LaTeX in the preview box
+      const renderPreview = (latex) => {
+        const { previewBox } = getElements();
+        if (!previewBox) return;
+
+        // Clear existing content
+        previewBox.innerHTML = '';
+
+        if (!latex || latex.trim() === '') {
+          previewBox.innerHTML = EMPTY_MESSAGE;
+          return;
+        }
+
+        const { latex: strippedLatex, display } = stripDelimiters(latex);
+        const latexForRender = enhanceEmptyArguments(strippedLatex);
+
+        if (!latexForRender) {
+          previewBox.innerHTML = EMPTY_MESSAGE;
+          return;
+        }
+
+        const renderWithMathJax = () => {
+          try {
+            const MJ = window.MathJax;
+            if (!MJ) return false;
+
+            const options = typeof MJ.getMetricsFor === 'function'
+              ? MJ.getMetricsFor(previewBox)
+              : { display };
+
+            options.scale = typeof options.scale === 'number' ? options.scale * 1.25 : 1.25;
+
+            options.display = display;
+
+            if (typeof MJ.texReset === 'function') {
+              MJ.texReset();
+            }
+
+            if (typeof MJ.tex2svgPromise === 'function') {
+              return MJ.tex2svgPromise(latexForRender, options).then((node) => {
+                previewBox.innerHTML = '';
+                // tex2svgPromise wraps the rendered math in an <svg>, so append firstElementChild if available
+                const svg = node && node.firstElementChild ? node.firstElementChild : node;
+                if (svg) {
+                  previewBox.appendChild(svg);
+                }
+              });
+            }
+
+            if (typeof MJ.tex2svg === 'function') {
+              const node = MJ.tex2svg(latexForRender, options);
+              const svg = node && node.firstElementChild ? node.firstElementChild : node;
+              if (svg) {
+                previewBox.appendChild(svg);
+              }
+              return Promise.resolve();
+            }
+
+            if (typeof MJ.typesetPromise === 'function') {
+              const mathContainer = document.createElement('div');
+              mathContainer.textContent = display ? `\\[${latexForRender}\\]` : `\\(${latexForRender}\\)`;
+              mathContainer.style.textAlign = 'center';
+              previewBox.appendChild(mathContainer);
+              return MJ.typesetPromise([mathContainer]);
+            }
+
+            return false;
+          } catch (err) {
+            console.warn('MathJax rendering error:', err);
+            return Promise.reject(err);
+          }
+        };
+
+        const fallbackRender = () => {
+          previewBox.innerHTML = '<span style="color: #888; font-size: 20px;">' +
+            (display ? `\\[${latexForRender}\\]` : `\\(${latexForRender}\\)`)
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;') +
+            '</span>';
+        };
+
+        const renderer = renderWithMathJax();
+        if (renderer && typeof renderer.then === 'function') {
+          renderer.catch(() => {
+            previewBox.innerHTML = ERROR_MESSAGE;
+          });
+        } else if (renderer === false) {
+          fallbackRender();
+        }
+      };
+
+      // Debounced render function
+      const scheduleRender = (latex) => {
+        if (renderTimeout) {
+          clearTimeout(renderTimeout);
+        }
+        renderTimeout = setTimeout(() => {
+          renderPreview(latex);
+        }, 300); // 300ms debounce
+      };
+
+      // Setup textarea observer
+      const setupObserver = () => {
+        const { textareaElement } = getElements();
+        if (!textareaElement) {
+          setTimeout(setupObserver, 100);
+          return;
+        }
+
+        // Listen for input changes
+        textareaElement.addEventListener('input', function() {
+          scheduleRender(textareaElement.value);
+        });
+
+        // Initial render
+        renderPreview(textareaElement.value);
+      };
+
+      // Initialize
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', setupObserver);
+      } else {
+        setupObserver();
+      }
+    })();
+  </script>
+
+  <script>
+    // Click handlers for labels to copy LaTeX with toast notifications
+    (function() {
+      const SOURCE = 'mathstyper-sync';
+      
+      function copyLatexToClipboard() {
+        const textarea = document.getElementById('txta_input');
+        const latex = textarea ? textarea.value : '';
+        
+        // Send message to parent window to handle copy and show toast
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              source: SOURCE,
+              type: 'copyLatex',
+              latex: latex
+            }, '*');
+          }
+        } catch (err) {
+          console.warn('Failed to send copy message to parent:', err);
+        }
+      }
+      
+      // Add click handler to "Raw LaTeX Input" label
+      const rawLatexLabel = document.getElementById('raw-latex-label');
+      if (rawLatexLabel) {
+        rawLatexLabel.style.cursor = 'pointer';
+        rawLatexLabel.title = 'Click to copy LaTeX';
+        rawLatexLabel.addEventListener('click', copyLatexToClipboard);
+      }
+      
+      // Add click handler to "LaTeX Preview" label
+      const previewLabel = document.getElementById('latex-preview-label');
+      if (previewLabel) {
+        previewLabel.style.cursor = 'pointer';
+        previewLabel.title = 'Click to copy LaTeX';
+        previewLabel.addEventListener('click', copyLatexToClipboard);
+      }
+    })();
+  </script>
+</body>
+
+</html>

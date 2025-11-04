@@ -1,0 +1,11 @@
+{
+  "public": ".",
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/html", "destination": "/LaTeXLive/html" },
+    { "source": "/html/(.*)", "destination": "/LaTeXLive/html/$1" }
+  ],
+  "redirects": [
+    { "source": "/html/index.html", "destination": "/LaTeXLive/html", "type": 301 }
+  ]
+}
