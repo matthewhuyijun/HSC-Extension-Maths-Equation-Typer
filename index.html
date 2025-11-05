@@ -57,6 +57,9 @@
             --copy-hover-bg: var(--color-tab-active-bg);
             --copy-hover-ink: var(--color-tab-active-text);
             --copy-hover-border: rgba(37, 99, 235, 0.65);
+            --toolbar-card-bg: color-mix(in srgb, var(--color-surface) 88%, rgba(255, 255, 255, 0.65));
+            --toolbar-card-border: rgba(148, 163, 184, 0.35);
+            --toolbar-card-shadow: 0 24px 40px rgba(15, 23, 42, 0.12);
         }
 
         [data-theme="dark"] {
@@ -89,6 +92,9 @@
             --copy-hover-bg: var(--color-tab-active-bg);
             --copy-hover-ink: var(--color-tab-active-text);
             --copy-hover-border: rgba(37, 99, 235, 0.65);
+            --toolbar-card-bg: color-mix(in srgb, rgba(17, 24, 39, 0.94) 92%, rgba(59, 130, 246, 0.08));
+            --toolbar-card-border: rgba(148, 163, 184, 0.28);
+            --toolbar-card-shadow: 0 28px 46px rgba(2, 6, 23, 0.55);
         }
 
         * { box-sizing: border-box; }
@@ -326,10 +332,13 @@
             box-sizing: border-box;
         }
         #expanded-area { 
-            background: transparent; 
-            border-radius: 16px;
+            background: var(--toolbar-card-bg);
+            border-radius: 18px;
+            border: 1px solid var(--toolbar-card-border);
+            box-shadow: var(--toolbar-card-shadow);
+            backdrop-filter: blur(14px);
         }
-        #expanded-area:hover { background: transparent; }
+        #expanded-area:hover { background: var(--toolbar-card-bg); }
         .hidden { display: none; }
 
         .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
@@ -3074,6 +3083,23 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             return mf2 ? mf2.getValue('latex') : '';
         }
 
+        function scheduleMathFieldHeightAdjustment() {
+            if (typeof adjustMathFieldHeight !== 'function') {
+                return;
+            }
+
+            const delays = [0, 60, 150, 300, 600];
+            delays.forEach((delay) => {
+                setTimeout(() => {
+                    try {
+                        adjustMathFieldHeight();
+                    } catch (e) {
+                        console.warn('Failed to adjust height:', e);
+                    }
+                }, delay);
+            });
+        }
+
         /* ---------- LaTeX -> MathML conversion (using MathJax) ---------- */
         // MathML conversion uses MathJax's built-in tex2mml function
         // The convertLatexToMathML wrapper function is defined at the end of this file
@@ -3107,16 +3133,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (mf2 && typeof latex === 'string') {
                 try {
                     mf2.setValue(latex);
-                    // Adjust height after setting value programmatically
-                    setTimeout(() => {
-                        try {
-                            if (typeof adjustMathFieldHeight === 'function') {
-                                adjustMathFieldHeight();
-                            }
-                        } catch (e) {
-                            console.warn('Failed to adjust height:', e);
-                        }
-                    }, 0);
+                    scheduleMathFieldHeightAdjustment();
                 } catch (e) {
                     console.warn('Failed to update math-field:', e);
                 }
@@ -3194,14 +3211,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 syncFromMathLive();
                 
                 // Adjust height multiple times to ensure proper sizing
-                if (typeof adjustMathFieldHeight === 'function') {
-                    requestAnimationFrame(() => {
-                        adjustMathFieldHeight();
-                        setTimeout(adjustMathFieldHeight, 100);
-                        setTimeout(adjustMathFieldHeight, 300);
-                        setTimeout(adjustMathFieldHeight, 500);
-                    });
-                }
+                requestAnimationFrame(scheduleMathFieldHeightAdjustment);
             }, 10);
         });
         

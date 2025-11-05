@@ -798,8 +798,11 @@
           return;
         }
 
-        const { latex: strippedLatex, display } = stripDelimiters(latex);
+        const { latex: strippedLatex } = stripDelimiters(latex);
+        const display = true;
         const latexForRender = enhanceEmptyArguments(strippedLatex);
+        const renderLatex = latexForRender;
+        previewBox.dataset.renderMode = 'display';
 
         if (!latexForRender) {
           previewBox.innerHTML = EMPTY_MESSAGE;
@@ -813,9 +816,10 @@
 
             const options = typeof MJ.getMetricsFor === 'function'
               ? MJ.getMetricsFor(previewBox)
-              : { display };
+              : {};
 
-            options.scale = typeof options.scale === 'number' ? options.scale * 1.25 : 1.25;
+            const baseScale = 0.88;
+            options.scale = typeof options.scale === 'number' ? options.scale * baseScale : baseScale;
 
             options.display = display;
 
@@ -823,29 +827,36 @@
               MJ.texReset();
             }
 
+            const attachRenderedNode = (node) => {
+              if (!node) return;
+              const element = node.firstElementChild || node;
+              if (!element) return;
+              if (element.setAttribute) {
+                element.setAttribute('display', 'block');
+              }
+              element.style.margin = '0 auto';
+              element.style.display = 'block';
+              element.style.width = 'auto';
+              element.style.maxWidth = '100%';
+              previewBox.appendChild(element);
+            };
+
             if (typeof MJ.tex2svgPromise === 'function') {
-              return MJ.tex2svgPromise(latexForRender, options).then((node) => {
+              return MJ.tex2svgPromise(renderLatex, options).then((node) => {
                 previewBox.innerHTML = '';
-                // tex2svgPromise wraps the rendered math in an <svg>, so append firstElementChild if available
-                const svg = node && node.firstElementChild ? node.firstElementChild : node;
-                if (svg) {
-                  previewBox.appendChild(svg);
-                }
+                attachRenderedNode(node);
               });
             }
 
             if (typeof MJ.tex2svg === 'function') {
-              const node = MJ.tex2svg(latexForRender, options);
-              const svg = node && node.firstElementChild ? node.firstElementChild : node;
-              if (svg) {
-                previewBox.appendChild(svg);
-              }
+              const node = MJ.tex2svg(renderLatex, options);
+              attachRenderedNode(node);
               return Promise.resolve();
             }
 
             if (typeof MJ.typesetPromise === 'function') {
               const mathContainer = document.createElement('div');
-              mathContainer.textContent = display ? `\\[${latexForRender}\\]` : `\\(${latexForRender}\\)`;
+              mathContainer.textContent = `\\[${renderLatex}\\]`;
               mathContainer.style.textAlign = 'center';
               previewBox.appendChild(mathContainer);
               return MJ.typesetPromise([mathContainer]);
@@ -859,8 +870,8 @@
         };
 
         const fallbackRender = () => {
-          previewBox.innerHTML = '<span style="color: #888; font-size: 20px;">' +
-            (display ? `\\[${latexForRender}\\]` : `\\(${latexForRender}\\)`)
+          previewBox.innerHTML = '<div style="color: #888; font-size: 14px; display: block; text-align: center;">' +
+            `\\[${renderLatex}\\]`
               .replace(/</g, '&lt;')
               .replace(/>/g, '&gt;') +
             '</span>';
@@ -883,7 +894,7 @@
         }
         renderTimeout = setTimeout(() => {
           renderPreview(latex);
-        }, 300); // 300ms debounce
+        }, 200); // 200ms debounce
       };
 
       // Setup textarea observer
