@@ -122,8 +122,14 @@
     .form-control.twins {
       background: var(--iframe-surface-bg) !important;
       border-radius: 8px !important;
-      border: none !important;
-      box-shadow: none !important;
+      border: 1px solid rgba(148, 163, 184, 0.28) !important;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    }
+
+    #wrap_txtainput:focus-within .form-control.twins {
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
     }
 
     .output {
@@ -152,13 +158,25 @@
     }
 
     /* Dark mode surface styling */
-    [data-theme="dark"] .form-control.twins,
+    [data-theme="dark"] .form-control.twins {
+      background: #1f2937 !important;
+      border: 1px solid rgba(148, 163, 184, 0.35) !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+      color: #f5f9ff !important;
+    }
+
     [data-theme="dark"] #latex-preview-box {
       background: #1f2937 !important;
       border: none !important;
       border-radius: 8px !important;
       box-shadow: none !important;
       color: #f5f9ff !important;
+    }
+
+    [data-theme="dark"] #wrap_txtainput:focus-within .form-control.twins {
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.45) !important;
     }
 
     [data-theme="dark"] .form-control.twins::placeholder {
