@@ -41,7 +41,6 @@
       --iframe-card-bg: #ffffff;
       --iframe-surface-bg: #ffffff;
       --iframe-surface-ink: #1f2937;
-      --iframe-body-bg: #ffffff;
     }
     
     /* Dark mode color overrides */
@@ -52,14 +51,13 @@
       --iframe-card-bg: #1f2937;
       --iframe-surface-bg: #1f2937;
       --iframe-surface-ink: #f3f4f6;
-      --iframe-body-bg: #111827;
     }
     
-    /* Reset body to remove all default spacing */
+    /* Reset body to remove all default spacing and keep transparent */
     body {
       margin: 0 !important;
       padding: 0 !important;
-      background: var(--iframe-body-bg) !important;
+      background: transparent !important;
     }
     
     /* Reset container to remove spacing */
