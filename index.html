@@ -1644,6 +1644,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       box-shadow: 0 1px 0 rgba(2,6,23,0.05);
     }
     .io-label {
+      display: inline-block;
       font-weight: 800;
       font-size: 1.05rem;
       letter-spacing: -0.01em;
@@ -1651,11 +1652,24 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       margin: 0 0 0 2px;    /* No bottom margin - gap handled by .io-section */
     }
 
-    .io-rendered > .io-label {
-      display: block;
+    .io-label:hover {
+      opacity: 0.7;
+    }
+
+    .io-label:active {
+      opacity: 0.5;
+    }
+
+    .io-label-row {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       margin: 0 0 0 2px;
-      font-weight: 800;
-      font-size: 1.05rem;
+    }
+
+    .io-rendered .io-label-row {
+      display: inline-flex;
+      margin: 0 0 0 2px;
     }
 
 
@@ -2203,7 +2217,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       <div class="io-grid">
         <!-- 1. Rendered -->
         <div class="io-section io-rendered">
-          <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;" title="Click to copy LaTeX">Rendered Input (Editable)</label>
+          <div class="io-label-row">
+            <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;" title="Click to copy LaTeX">Rendered Input (Editable)</label>
+          </div>
           <math-field id="mf2"></math-field>
       </div>
       </div>
