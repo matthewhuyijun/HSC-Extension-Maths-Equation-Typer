@@ -378,30 +378,30 @@
         const previewCard = document.querySelector('#output-area .card-body');
         if (resolved === 'dark') {
           document.documentElement.style.setProperty('--iframe-title-color', '#f3f4f6');
-          document.documentElement.style.setProperty('--iframe-card-bg', '#1f2937');
-          document.documentElement.style.setProperty('--iframe-surface-bg', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-card-bg', 'transparent');
+          document.documentElement.style.setProperty('--iframe-surface-bg', 'transparent');
           document.documentElement.style.setProperty('--iframe-surface-ink', '#f3f4f6');
           if (preview) {
-            preview.style.backgroundColor = '#1f2937';
+            preview.style.backgroundColor = 'transparent';
             preview.style.margin = '0';
             preview.style.color = '#f3f4f6';
           }
           if (previewCard) {
-            previewCard.style.backgroundColor = '#1f2937';
+            previewCard.style.backgroundColor = 'transparent';
             previewCard.style.borderRadius = '0 0 10px 10px';
           }
         } else {
           document.documentElement.style.setProperty('--iframe-title-color', '#1f2937');
-          document.documentElement.style.setProperty('--iframe-card-bg', '#ffffff');
-          document.documentElement.style.setProperty('--iframe-surface-bg', '#ffffff');
+          document.documentElement.style.setProperty('--iframe-card-bg', 'transparent');
+          document.documentElement.style.setProperty('--iframe-surface-bg', 'transparent');
           document.documentElement.style.setProperty('--iframe-surface-ink', '#1f2937');
           if (preview) {
-            preview.style.backgroundColor = '#ffffff';
+            preview.style.backgroundColor = 'transparent';
             preview.style.margin = '2rem auto 1.5rem auto';
             preview.style.color = '#1f2937';
           }
           if (previewCard) {
-            previewCard.style.backgroundColor = '#ffffff';
+            previewCard.style.backgroundColor = 'transparent';
             previewCard.style.borderRadius = '0 0 10px 10px';
           }
         }
