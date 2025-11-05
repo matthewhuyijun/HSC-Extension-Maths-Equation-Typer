@@ -53,11 +53,25 @@
       --iframe-surface-ink: #f3f4f6;
     }
     
-    /* Reset body to remove all default spacing and keep transparent */
+    /* Reset html and body to remove all default spacing and keep transparent */
+    html {
+      margin: 0 !important;
+      padding: 0 !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+    
     body {
       margin: 0 !important;
       padding: 0 !important;
       background: transparent !important;
+      height: 100% !important;
+      overflow: hidden !important;
+    }
+    
+    section {
+      margin: 0 !important;
+      padding: 0 !important;
     }
     
     /* Reset container to remove spacing */
@@ -247,7 +261,12 @@
     }
     
     body[data-pure-latex-mode="true"] .twins {
-      height: 10rem !important; /* Keep original height in pure latex mode */
+      height: 11.5rem !important; /* 115% of original 10rem in pure latex mode */
+    }
+    
+    /* Height adjustments for LaTeX Preview box based on mode */
+    body[data-pure-latex-mode="true"] #latex-preview-box {
+      min-height: 11.5rem !important; /* 115% of original 10rem in pure latex mode */
     }
   </style>
 
@@ -296,11 +315,11 @@
                 overflow-x: auto;
                 overflow-y: auto;
                 max-height: 400px;
+                width: 100%;
+                box-sizing: border-box;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                width: 100%;
-                box-sizing: border-box;
               ">
               </div>
             </div>
