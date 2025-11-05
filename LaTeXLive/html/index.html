@@ -104,6 +104,11 @@
       border: 2px solid transparent !important;
       box-shadow: none !important;
     }
+    
+    /* Dark mode: transparent background for input area */
+    [data-theme="dark"] .form-control.twins {
+      background: transparent !important;
+    }
 
     .output {
       background: var(--iframe-surface-bg) !important;
@@ -111,6 +116,11 @@
       border-radius: 10px !important;
       border: 2px solid transparent !important;
       box-shadow: none !important;
+    }
+    
+    /* Dark mode: transparent background for output area */
+    [data-theme="dark"] .output {
+      background: transparent !important;
     }
     
     /* Make output area match input area width */
@@ -125,6 +135,11 @@
     #latex-preview-box {
       width: 100% !important;
       box-sizing: border-box !important;
+    }
+    
+    /* Dark mode: transparent background for preview box */
+    [data-theme="dark"] #latex-preview-box {
+      background: transparent !important;
     }
 
     .form-control.twins::placeholder {
@@ -234,6 +249,11 @@
 
     #div_copy {
       color: var(--iframe-surface-ink) !important;
+    }
+    
+    /* Dark mode: transparent background for syntax highlight overlay */
+    [data-theme="dark"] #div_copy {
+      background: transparent !important;
     }
     
     /* Height adjustments for Raw LaTeX Input based on mode */
