@@ -127,7 +127,8 @@
       transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
     }
 
-    #wrap_txtainput:focus-within .form-control.twins {
+    #wrap_txtainput:focus-within .form-control.twins,
+    #wrap_txtainput.latex-focus .form-control.twins {
       border-color: #3b82f6 !important;
       box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
     }
@@ -174,7 +175,8 @@
       color: #f5f9ff !important;
     }
 
-    [data-theme="dark"] #wrap_txtainput:focus-within .form-control.twins {
+    [data-theme="dark"] #wrap_txtainput:focus-within .form-control.twins,
+    [data-theme="dark"] #wrap_txtainput.latex-focus .form-control.twins {
       border-color: #60a5fa !important;
       box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.45) !important;
     }
@@ -556,6 +558,39 @@
       } else {
         sendReady();
         attemptApply();
+      }
+    })();
+  </script>
+  <script>
+    // Ensure Raw LaTeX wrapper receives a focus class for consistent styling
+    (function () {
+      const wrap = document.getElementById('wrap_txtainput');
+      const textarea = document.getElementById('txta_input');
+      const overlay = document.getElementById('div_copy');
+
+      if (!wrap || !textarea) {
+        return;
+      }
+
+      const applyFocusRing = () => wrap.classList.add('latex-focus');
+      const removeFocusRing = () => wrap.classList.remove('latex-focus');
+
+      textarea.addEventListener('focus', applyFocusRing);
+      textarea.addEventListener('blur', removeFocusRing);
+      textarea.addEventListener('input', () => {
+        if (document.activeElement === textarea) {
+          applyFocusRing();
+        }
+      });
+
+      if (overlay) {
+        overlay.addEventListener('mousedown', () => {
+          requestAnimationFrame(() => textarea.focus());
+        });
+      }
+
+      if (document.activeElement === textarea) {
+        applyFocusRing();
       }
     })();
   </script>
