@@ -35,6 +35,7 @@
   <style>
     /* CSS Variables for theme-aware colors */
     :root {
+      --bg-color: #f1f5f9;  /* Light gray-blue - matches main page */
       --iframe-title-color: #1f2937;
       --iframe-label-bg: #f3f4f6;
       --iframe-label-border: #e5e7eb;
@@ -45,6 +46,7 @@
     
     /* Dark mode color overrides */
     [data-theme="dark"] {
+      --bg-color: #0f172a;  /* Dark slate - matches main page */
       --iframe-title-color: #f3f4f6;
       --iframe-label-bg: #374151;
       --iframe-label-border: #4b5563;
@@ -64,7 +66,7 @@
     body {
       margin: 0 !important;
       padding: 0 !important;
-      background: transparent !important;
+      background-color: var(--bg-color) !important;
       height: 100% !important;
       overflow: hidden !important;
     }
@@ -119,16 +121,16 @@
 
     .form-control.twins {
       background: var(--iframe-surface-bg) !important;
-      border-radius: 10px !important;
-      border: 2px solid transparent !important;
+      border-radius: 8px !important;
+      border: none !important;
       box-shadow: none !important;
     }
 
     .output {
       background: var(--iframe-surface-bg) !important;
       color: var(--iframe-surface-ink) !important;
-      border-radius: 10px !important;
-      border: 2px solid transparent !important;
+      border-radius: 8px !important;
+      border: 1px solid rgba(148, 163, 184, 0.28) !important;
       box-shadow: none !important;
     }
     
@@ -144,6 +146,23 @@
     #latex-preview-box {
       width: 100% !important;
       box-sizing: border-box !important;
+      border: none !important;
+      border-radius: 8px !important;
+      background: var(--iframe-surface-bg) !important;
+    }
+
+    /* Dark mode surface styling */
+    [data-theme="dark"] .form-control.twins,
+    [data-theme="dark"] #latex-preview-box {
+      background: #1f2937 !important;
+      border: none !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
+      color: #f5f9ff !important;
+    }
+
+    [data-theme="dark"] .form-control.twins::placeholder {
+      color: rgba(203, 213, 225, 0.68) !important;
     }
 
     .form-control.twins::placeholder {
@@ -277,9 +296,9 @@
         <div class="container area" id="input-area">
           <div class="io-label-row">
             <label class="io-label" id="raw-latex-label">Raw LaTeX Input</label>
-            <button class="env-button" id="array-star-btn" title="Insert array environment">array</button>
-            <button class="env-button" id="align-btn" title="Insert align* environment">align*</button>
-            <button class="env-button" id="large-btn" title="Insert large command">large</button>
+            <button class="env-button" id="array-star-btn">array</button>
+            <button class="env-button" id="align-btn">align*</button>
+            <button class="env-button" id="large-btn">large</button>
           </div>
           <div class="card">
             <div class="card-body">
@@ -375,34 +394,29 @@
         const resolved = themeName === 'dark' ? 'dark' : 'light';
         document.body.setAttribute('data-theme', resolved);
         const preview = document.getElementById('wrap_output');
-        const previewCard = document.querySelector('#output-area .card-body');
         if (resolved === 'dark') {
-          document.documentElement.style.setProperty('--iframe-title-color', '#f3f4f6');
-          document.documentElement.style.setProperty('--iframe-card-bg', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-title-color', '#f5f9ff');
+          document.documentElement.style.setProperty('--iframe-label-bg', 'rgba(148, 176, 228, 0.08)');
+          document.documentElement.style.setProperty('--iframe-label-border', 'rgba(148, 176, 228, 0.28)');
+          document.documentElement.style.setProperty('--iframe-card-bg', 'rgba(12, 20, 34, 0.34)');
           document.documentElement.style.setProperty('--iframe-surface-bg', '#1f2937');
-          document.documentElement.style.setProperty('--iframe-surface-ink', '#f3f4f6');
+          document.documentElement.style.setProperty('--iframe-surface-ink', '#f5f9ff');
           if (preview) {
-            preview.style.backgroundColor = '#1f2937';
             preview.style.margin = '0';
-            preview.style.color = '#f3f4f6';
-          }
-          if (previewCard) {
-            previewCard.style.backgroundColor = '#1f2937';
-            previewCard.style.borderRadius = '0 0 10px 10px';
+            preview.style.backgroundColor = '';
+            preview.style.color = '';
           }
         } else {
           document.documentElement.style.setProperty('--iframe-title-color', '#1f2937');
+          document.documentElement.style.setProperty('--iframe-label-bg', '#f3f4f6');
+          document.documentElement.style.setProperty('--iframe-label-border', '#e5e7eb');
           document.documentElement.style.setProperty('--iframe-card-bg', '#ffffff');
           document.documentElement.style.setProperty('--iframe-surface-bg', '#ffffff');
           document.documentElement.style.setProperty('--iframe-surface-ink', '#1f2937');
           if (preview) {
-            preview.style.backgroundColor = '#ffffff';
             preview.style.margin = '2rem auto 1.5rem auto';
-            preview.style.color = '#1f2937';
-          }
-          if (previewCard) {
-            previewCard.style.backgroundColor = '#ffffff';
-            previewCard.style.borderRadius = '0 0 10px 10px';
+            preview.style.backgroundColor = '';
+            preview.style.color = '';
           }
         }
       };

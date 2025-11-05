@@ -92,8 +92,8 @@
         }
 
         * { box-sizing: border-box; }
-        html, body { overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-y; height: 100vh; }
-        body { font-family: "Latin Modern Math", "Latin Modern Roman", serif; margin: 0; padding: 0; background: var(--color-bg); color: var(--color-text); display: flex; flex-direction: column; height: 100vh; }
+        html, body { overflow-x: hidden; overflow-y: hidden; overscroll-behavior: contain; touch-action: pan-y; height: 100vh; background: transparent; }
+        body { font-family: "Latin Modern Math", "Latin Modern Roman", serif; margin: 0; padding: 0; background: transparent; color: var(--color-text); display: flex; flex-direction: column; height: 100vh; }
         .header-left { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
         header h1 { margin: 0; font-size: 18px; line-height: 1.25; font-weight: 600; }
         .header-actions {
@@ -326,10 +326,10 @@
             box-sizing: border-box;
         }
         #expanded-area { 
-            background: var(--color-bg); 
+            background: transparent; 
             border-radius: 16px;
         }
-        #expanded-area:hover { background: var(--color-bg); }
+        #expanded-area:hover { background: transparent; }
         .hidden { display: none; }
 
         .key-row { display: grid; gap: 16px; width: 100%; grid-auto-rows: 1fr; }
@@ -400,10 +400,11 @@
         }
 
         /* Focus state - clean blue ring like demo */
-        #mf2:focus-within {
-            border-color: #3b82f6;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
-            outline: none;
+        #mf2:focus-within,
+        .io-grid #mf2:focus-within {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+            outline: none !important;
         }
 
         /* Allow content to wrap naturally */
@@ -442,9 +443,11 @@
             --padding: 12px 16px;
         }
         
-        [data-theme="dark"] #mf2:focus-within {
-            border-color: #60a5fa;
-            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3);
+        [data-theme="dark"] #mf2:focus-within,
+        [data-theme="dark"] .io-grid #mf2:focus-within {
+            border-color: #60a5fa !important;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+            outline: none !important;
         }
 
         .editor label {
@@ -545,7 +548,37 @@
         /* Ensure math content within keys wraps and centers nicely below selector */
         .key.has-selector .math-display { display: flex; align-items: center; justify-content: center; text-align: center; }
         .selector option { font-family: "Latin Modern Math", "Latin Modern Roman", serif; font-size: 16px; font-style: italic; }
-        .tooltip { display: none; position: absolute; background: var(--color-tooltip-bg); color: var(--color-tooltip-text); padding: 4px 8px; border-radius: 4px; font-size: 12px; top: calc(100% + 6px); left: 50%; transform: translateX(-50%); white-space: nowrap; z-index: 900; box-shadow: 0 6px 16px rgba(15,23,42,0.25); }
+        .tooltip { display: none !important; visibility: hidden !important; }
+
+        /* Hide ALL tooltips from any source */
+        [role="tooltip"],
+        .ML__tooltip,
+        math-field::part(tooltip),
+        [data-tooltip],
+        [title]:hover::after,
+        [aria-label]:hover::after,
+        *[title],
+        *[data-title] {
+            /* Prevent browser default tooltips */
+        }
+        
+        /* Override any tooltip-like element */
+        * {
+            /* Disable all title attributes from showing tooltips */
+        }
+        
+        /* Hide dynamically created tooltip elements */
+        div[class*="tooltip"],
+        span[class*="tooltip"],
+        div[class*="hint"],
+        span[class*="hint"],
+        div[id*="tooltip"],
+        span[id*="tooltip"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
 
         /* (removed) hint corner and popover styles */
 
@@ -623,8 +656,7 @@ html, body { font-family: "Latin Modern Math", "Latin Modern Roman", serif; -web
 
 /* Subtle gradient background */
 :root {
-  --bg-grad-1: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.10), transparent 60%),
-               radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,.10), transparent 60%);
+  --bg-color: #f1f5f9;  /* Light gray-blue for light mode */
   --panel-surface: rgba(244, 247, 255, 0.9);
   --panel-border: rgba(148, 163, 184, 0.35);
   --panel-shadow: rgba(30, 41, 59, 0.18);
@@ -632,15 +664,13 @@ html, body { font-family: "Latin Modern Math", "Latin Modern Roman", serif; -web
   --key-border: rgba(148, 163, 184, 0.38);
 }
 [data-theme="dark"] {
-  --bg-grad-1: radial-gradient(1200px 600px at 10% -10%, rgba(37,99,235,.18), transparent 60%),
-               radial-gradient(900px 500px at 110% 10%, rgba(99,102,241,.18), transparent 60%);
+  --bg-color: #0f172a;  /* Dark slate for dark mode */
   --panel-surface: rgba(23, 33, 58, 0.88);
   --panel-border: rgba(63, 76, 110, 0.55);
   --panel-shadow: rgba(2, 6, 23, 0.32);
   --key-surface: rgba(30, 44, 76, 0.92);
   --key-border: rgba(84, 105, 150, 0.55);
 }
-body { background-image: var(--bg-grad-1); }
 
 /* Header: soft gradient + nicer title */
 header {
@@ -692,7 +722,7 @@ header h1::after {
 #expanded-area { 
   gap: 14px; 
   border-radius: 16px;
-  background: var(--color-bg);
+  background: transparent;
 }
 .key {
   border-radius: 14px;
@@ -703,13 +733,13 @@ header h1::after {
 
 /* Textarea focus ring */
 textarea {
-  border-radius: 10px;
-  box-shadow: 0 1px 0 rgba(2, 6, 23, 0.04);
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
 }
 textarea:focus {
-  outline: 2px solid color-mix(in srgb, var(--color-tab-active-bg) 60%, white);
-  outline-offset: 2px;
-  border-color: var(--color-tab-active-bg);
+  outline: none;
+  border: none;
 }
 
 /* Content area copy buttons - override to match header style */
@@ -755,13 +785,14 @@ textarea:focus {
   --wallpaper: var(--wallpaper-dark);
 }
 
-/* layer the wallpaper under any existing gradient/background */
+/* layer the wallpaper over solid background color */
 body {
-  background-image: var(--bg-grad-1, none), var(--wallpaper);
-  background-size: auto, 28px 28px;          /* keep your gradient size as-is; dot grid at 28px */
-  background-attachment: fixed, fixed;        /* subtle parallax feel, also prevents seams */
-  background-position: center, center;
-  background-repeat: no-repeat, repeat;
+  background-color: var(--bg-color);
+  background-image: var(--wallpaper);
+  background-size: 28px 28px;
+  background-attachment: fixed;
+  background-position: center;
+  background-repeat: repeat;
 }
 
 /* === Copy toast styles === */
@@ -2075,11 +2106,11 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       padding: 16px 18px;
       background: var(--color-surface);
       color: var(--color-text);
-      border: 2px solid var(--color-border);
-      border-radius: 10px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
       font-size: 1.1rem;
       min-height: 80px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      box-shadow: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
       line-height: 1.6;
@@ -2087,20 +2118,26 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
     
     .io-grid textarea:focus {
-      border-color: var(--color-tab-active-bg);
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
       outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
     }
     
-    /* MathField styling to match https://mathlive.io/mathfield/demo/ */
-    .io-grid math-field {
+        /* MathField styling - consistent with other containers */
+    .io-grid math-field,
+    .io-grid #mf2 {
       width: 100%;
-      border: 2px solid #2c2c2c;
-      border-radius: 2px;
-      box-shadow: 
-        inset 0 0 0 1px rgba(0, 0, 0, 0.05),
-        0 1px 3px rgba(0, 0, 0, 0.08),
-        0 4px 8px rgba(0, 0, 0, 0.04);
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      box-shadow: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .io-grid math-field:focus-within,
+    .io-grid #mf2:focus-within {
+      outline: none;
+      border-color: #3b82f6 !important;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
     }
 
 
@@ -2119,20 +2156,31 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     [data-theme="dark"] .io-grid textarea {
       background: var(--color-surface) !important;
       color: var(--color-text) !important;
-      border: 2px solid #1f2937 !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+      border: 1px solid var(--color-border) !important;
+      border-radius: 8px !important;
+      box-shadow: none !important;
     }
 
     [data-theme="dark"] .io-grid textarea:focus {
-      border-color: var(--color-tab-active-bg) !important;
-      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15) !important;
+      outline: none !important;
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
     }
 
-    /* Dark mode styling for math-field */
-    [data-theme="dark"] .io-grid math-field {
-      border: 2px solid #1f2937 !important;
+    /* Dark mode styling for math-field - consistent border */
+    [data-theme="dark"] .io-grid math-field,
+    [data-theme="dark"] .io-grid #mf2 {
+      border: 1px solid var(--color-border) !important;
+      border-radius: 8px !important;
       background: var(--color-surface) !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+      box-shadow: none !important;
+    }
+    
+    [data-theme="dark"] .io-grid math-field:focus-within,
+    [data-theme="dark"] .io-grid #mf2:focus-within {
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.15), 0 1px 3px rgba(0, 0, 0, 0.3) !important;
+      outline: none !important;
     }
 
 
@@ -2483,7 +2531,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       left: 0;
       width: 100vw;
       height: 100vh;
-      background: var(--color-bg);
+      background-color: var(--bg-color);
       display: flex;
       justify-content: center;
       align-items: center;
@@ -2588,27 +2636,27 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
           <!-- Group 1: External Resources -->
-          <button class="header-copy" id="functionsBtn" title="Functions Guide">
+          <button class="header-copy" id="functionsBtn">
             <i data-lucide="info"></i>
           </button>
           
           <span class="header-separator" aria-hidden="true"></span>
           
           <!-- Group 2: Input Helpers -->
-          <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="header-copy" title="Image Recognition - Convert math images to LaTeX" style="text-decoration: none;">
+          <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="header-copy" style="text-decoration: none;">
             <i data-lucide="scan"></i>
           </a>
           
           <span class="header-separator" aria-hidden="true"></span>
           
           <!-- Group 3: Output Actions -->
-          <button class="header-copy" id="copyBtn" title="Copy LaTeX">
+          <button class="header-copy" id="copyBtn">
             <i data-lucide="copy"></i>
           </button>
           <button class="header-copy" id="hideHeaderBtn">
             <i data-lucide="eye-off"></i>
           </button>
-          <label class="header-copy pure-latex-switch" for="pureLatexSwitch" title="Pure LaTeX Mode">
+          <label class="header-copy pure-latex-switch" for="pureLatexSwitch">
             <i data-lucide="code"></i>
             <span class="switch-label">Pure LaTeX</span>
             <input type="checkbox" id="pureLatexSwitch" aria-label="Pure LaTeX Mode">
@@ -2618,13 +2666,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         <div class="h-right">
           <div class="theme-switch" role="group" aria-label="Theme">
-            <button class="theme-opt" data-theme="light" title="Light" aria-label="Switch to light theme">
+            <button class="theme-opt" data-theme="light" aria-label="Switch to light theme">
               <i data-lucide="sun"></i>
             </button>
-            <button class="theme-opt" data-theme="dark" title="Dark" aria-label="Switch to dark theme">
+            <button class="theme-opt" data-theme="dark" aria-label="Switch to dark theme">
               <i data-lucide="moon"></i>
             </button>
-            <button class="theme-opt is-active" data-theme="system" title="System" aria-label="Use system theme">
+            <button class="theme-opt is-active" data-theme="system" aria-label="Use system theme">
               <i data-lucide="monitor"></i>
             </button>
         </div>
@@ -2788,6 +2836,39 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
       window.addEventListener('load', flushIframeTheme);
       
+      // Remove tooltips from all MathLive keyboard buttons
+      window.addEventListener('load', () => {
+        // Function to remove title attributes
+        const removeTooltips = () => {
+          // Remove from all elements with title attribute
+          document.querySelectorAll('[title]').forEach(el => {
+            // Only remove from MathLive keyboard elements
+            if (el.closest('.MLK__keyboard') || el.classList.contains('MLK__keycap') || 
+                el.closest('math-field') || el.tagName === 'MATH-FIELD') {
+              el.removeAttribute('title');
+            }
+          });
+        };
+        
+        // Run immediately
+        removeTooltips();
+        
+        // Set up mutation observer to catch dynamically added elements
+        const observer = new MutationObserver(() => {
+          removeTooltips();
+        });
+        
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['title']
+        });
+        
+        // Also run periodically as a backup
+        setInterval(removeTooltips, 500);
+      });
+      
       const apply = (mode)=>{
         opts.forEach(o=>o.classList.toggle('is-active', o.dataset.theme===mode));
         const resolved = resolveTheme(mode);
@@ -2862,7 +2943,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         <!-- 1. Rendered -->
         <div class="io-section io-rendered">
           <div class="io-label-row">
-          <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;" title="Click to copy LaTeX">Rendered Input (Editable)</label>
+          <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;">Rendered Input (Editable)</label>
           </div>
           <math-field id="mf2"></math-field>
       </div>
@@ -2872,10 +2953,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       <div id="latexLiveContainer" style="width: 100%; margin: 0; padding: 0; position: relative; z-index: 1;">
         <iframe id="latexLiveIframe"
                 src="LaTeXLive/html/index.html" 
-                style="width: 100%; height: 500px; border: none; display: block; margin: 0; padding: 0; overflow: hidden; position: relative; z-index: 1; background: transparent; transition: height 0.3s ease;"
-                scrolling="no"
-                title="LaTeX Live Editor"
-                allowtransparency="true">
+                style="width: 100%; height: 500px; border: none; display: block; margin: 0; padding: 0; overflow: hidden; position: relative; z-index: 1; transition: height 0.3s ease;"
+                scrolling="no">
         </iframe>
       </div>
       
@@ -3192,6 +3271,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             // UI customization - disable unwanted features
             mf2.inlineShortcutToolbar = false;      // No inline shortcut suggestions
             try { mf2.menuItems = []; } catch(_) {} // Disable context menu
+            
+            // Disable tooltips completely
+            try {
+                mf2.virtualKeyboardContainer = null;
+                // Override any tooltip display mechanism
+                if (window.MathfieldElement) {
+                    window.MathfieldElement.showTooltip = () => {};
+                }
+            } catch(_) {}
             
             // Keybindings - filter out text mode commands
             mf2.keybindings = [
