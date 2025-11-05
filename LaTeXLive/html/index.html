@@ -41,18 +41,25 @@
       --iframe-card-bg: #ffffff;
       --iframe-surface-bg: #ffffff;
       --iframe-surface-ink: #1f2937;
+      --iframe-body-bg: #ffffff;
+    }
+    
+    /* Dark mode color overrides */
+    [data-theme="dark"] {
+      --iframe-title-color: #f3f4f6;
+      --iframe-label-bg: #374151;
+      --iframe-label-border: #4b5563;
+      --iframe-card-bg: #1f2937;
+      --iframe-surface-bg: #1f2937;
+      --iframe-surface-ink: #f3f4f6;
+      --iframe-body-bg: #111827;
     }
     
     /* Reset body to remove all default spacing */
     body {
       margin: 0 !important;
       padding: 0 !important;
-      background: transparent !important;
-    }
-    
-    /* Dark mode: set transparent background for proper theme support */
-    [data-theme="dark"] body {
-      background: transparent !important;
+      background: var(--iframe-body-bg) !important;
     }
     
     /* Reset container to remove spacing */
