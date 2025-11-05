@@ -50,6 +50,11 @@
       background: transparent !important;
     }
     
+    /* Dark mode: set transparent background for proper theme support */
+    [data-theme="dark"] body {
+      background: transparent !important;
+    }
+    
     /* Reset container to remove spacing */
     .flat-container {
       padding: 0 !important;
@@ -84,6 +89,12 @@
     
     .card-body {
       padding: 0 !important;
+      background: transparent !important;
+    }
+    
+    /* Dark mode: ensure cards stay transparent */
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .card-body {
       background: transparent !important;
     }
 

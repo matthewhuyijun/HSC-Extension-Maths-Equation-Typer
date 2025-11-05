@@ -100,6 +100,7 @@
             display: flex;
             gap: 6px;
             flex-wrap: wrap;
+            --header-action-size: 46px;
         }
         /* Copy buttons - Pure LaTeX Document Style */
         .copyBtn {
@@ -1921,15 +1922,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       color: var(--pill-ink) !important;
     }
 
-    /* Header buttons - white pill style */
+    /* Header buttons - circular icon style */
     .header-actions .header-copy {
       appearance: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      width: 40px;
-      height: 40px;
+      width: var(--header-action-size, 46px);
+      height: var(--header-action-size, 46px);
       padding: 0;
       border-radius: 50%;
       background-color: #ffffff;
@@ -1946,9 +1947,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     /* Keep switches as pills */
     .header-actions .header-copy.pure-latex-switch {
       width: auto;
-      height: auto;
-      padding: 11px 24px;
-      border-radius: 999px;
+      height: var(--header-action-size, 46px);
+      padding: 0 calc(var(--header-action-size, 46px) * 0.6);
+      border-radius: calc(var(--header-action-size, 46px) / 2);
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      line-height: 1;
     }
 
     .header-actions .header-copy:hover {
@@ -1959,6 +1964,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       background-color: #e2e8f0;
       transform: translateY(0);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-actions .header-copy:hover {
+      background: color-mix(in srgb, var(--color-tab-active-bg) 20%, #ffffff);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
     }
     
     .header-actions .header-copy:focus-visible {
@@ -2127,32 +2138,27 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     }
 
 
-    /* === Header buttons: theme-aware pill style === */
+    /* === Header buttons: compact circular icons === */
     .header-actions .header-copy {
       appearance: none;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 11px 24px;
-      border-radius: 999px;
+      width: var(--header-action-size, 46px);
+      height: var(--header-action-size, 46px);
+      padding: 0;
+      border-radius: 50%;
       background-color: #ffffff;
       border: none;
       color: #1e293b;
       font-weight: 700;
       font-size: 15px;
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
-      letter-spacing: -0.01em;
+      line-height: 1;
       cursor: pointer;
       box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
       transition: all 0.2s ease;
-    }
-
-    .header-actions .header-copy:hover {
-      background: color-mix(in srgb, var(--color-tab-active-bg) 25%, #ffffff);
-      border-color: var(--color-tab-active-bg);
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(37, 99, 235, 0.25);
     }
 
     .header-actions .header-copy:active {
@@ -2641,6 +2647,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           </button>
         </div>
         <div class="functions-modal-body">
+          <div class="function-item">
+            <div class="function-icon">
+              <i data-lucide="copy"></i>
+            </div>
+            <div class="function-info">
+              <h3>Copy Button</h3>
+              <p>Copies the LaTeX code to your clipboard. You can also click on the three subtitles (Raw LaTeX, MathLive, Preview) to quickly copy your mathematical expressions.</p>
+            </div>
+          </div>
+
           <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
             <div class="function-icon">
               <i data-lucide="github"></i>
@@ -2899,7 +2915,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const latexLiveIframe = document.getElementById('latexLiveIframe');
         const ta = { value: '' };
         let syncInProgress = false; // Prevent circular updates
-        
         function getLatex(){ 
             return mf2 ? mf2.getValue('latex') : '';
         }
