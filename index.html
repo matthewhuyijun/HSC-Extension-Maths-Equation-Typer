@@ -1203,15 +1203,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     
     /* Header separator - visual divider between button groups */
     .header-separator {
-      width: 1px;
-      height: 24px;
-      background: rgba(255, 255, 255, 0.25);
-      margin: 0 4px;
-      flex-shrink: 0;
-    }
-    
-    [data-theme="dark"] .header-separator {
-      background: rgba(255, 255, 255, 0.2);
+      display: none;
     }
     /* White pill buttons - semi-transparent with blue hover */
     .chip-btn{
@@ -1481,6 +1473,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         transform: translateY(-1px);
       }
       
+      /* Mobile styles for Pure LaTeX switch - container already styled as header-copy */
+      .h-actions .pure-latex-switch {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .h-actions .pure-latex-switch .switch-label {
+        flex: 1;
+      }
+      
       .h-title { 
         font-size: 18px;
       }
@@ -1531,15 +1533,369 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         0 14px 32px rgba(3,12,30,.58);
     }
 
-    /* Pure LaTeX button active state - follows tab design system */
-    .pure-latex-active {
-      background: var(--color-tab-active-bg) !important;
-      color: var(--color-tab-active-text) !important;
-      border-color: var(--color-tab-active-bg) !important;
-      animation: pureLatexGlow 2s ease-in-out infinite alternate !important;
-      box-shadow: 
-        0 0 20px rgba(37, 99, 235, 0.5), 
-        inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+    /* Pure LaTeX toggle switch - container matches header-copy */
+    .pure-latex-switch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      user-select: none;
+      flex-shrink: 0;
+    }
+
+    .pure-latex-switch input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .switch-slider {
+      position: relative;
+      width: 40px;
+      height: 20px;
+      background: rgba(30, 41, 59, 0.2);
+      border-radius: 10px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      border: 1px solid rgba(30, 41, 59, 0.1);
+      flex-shrink: 0;
+    }
+
+    .switch-slider::before {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #ffffff;
+      top: 1.5px;
+      left: 1.5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .pure-latex-switch input[type="checkbox"]:checked + .switch-slider {
+      background: var(--color-tab-active-bg, #3b82f6);
+      border-color: var(--color-tab-active-bg, #3b82f6);
+      animation: pureLatexGlow 2s ease-in-out infinite alternate;
+    }
+
+    .pure-latex-switch input[type="checkbox"]:checked + .switch-slider::before {
+      transform: translateX(18px);
+      box-shadow: 0 2px 6px rgba(59, 130, 246, 0.4);
+    }
+
+    .switch-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: inherit;
+      letter-spacing: -0.01em;
+      transition: opacity 0.2s ease, color 0.2s ease;
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+    }
+
+    .pure-latex-switch:hover .switch-slider {
+      background: rgba(30, 41, 59, 0.3);
+    }
+
+    .pure-latex-switch input[type="checkbox"]:checked + .switch-slider:hover {
+      background: var(--color-tab-active-bg, #3b82f6);
+      opacity: 0.9;
+    }
+
+    /* Icon styling for Pure LaTeX switch */
+    .pure-latex-switch i {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      flex-shrink: 0;
+    }
+
+    /* Dark theme adjustments */
+    [data-theme="dark"] .switch-slider {
+      background: rgba(30, 41, 59, 0.2);
+      border-color: rgba(30, 41, 59, 0.1);
+    }
+
+    [data-theme="dark"] .pure-latex-switch:hover .switch-slider {
+      background: rgba(30, 41, 59, 0.3);
+    }
+
+    [data-theme="dark"] .switch-label {
+      color: inherit;
+    }
+
+    /* Picture-in-Picture Window Style for Hidden Header */
+    .pip-window {
+      position: fixed !important;
+      top: 20px !important;
+      right: 20px !important;
+      z-index: 2147483647 !important; /* Maximum z-index value */
+      width: 200px;
+      min-height: 120px;
+      background: rgba(255, 255, 255, 0.95) !important;
+      backdrop-filter: blur(20px) saturate(180%) !important;
+      -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+      border-radius: 12px !important;
+      border: 1px solid rgba(0, 0, 0, 0.1) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12), 
+                  0 2px 8px rgba(0, 0, 0, 0.08),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
+      cursor: move !important;
+      display: flex !important;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+      pointer-events: auto !important;
+      isolation: isolate;
+      transform: translateZ(0);
+      -webkit-transform: translateZ(0);
+      transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+      opacity: 0.85;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .pip-window:hover {
+      opacity: 1;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15), 
+                  0 4px 12px rgba(0, 0, 0, 0.1),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+      transform: translateY(-2px) translateZ(0);
+    }
+
+    .pip-window.dragging {
+      opacity: 0.95;
+      cursor: grabbing !important;
+      transform: scale(0.98) translateZ(0);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* PiP Window Title Bar */
+    .pip-title-bar {
+      display: flex !important;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: linear-gradient(to bottom, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.6));
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      cursor: move;
+      flex-shrink: 0;
+      min-height: 32px;
+    }
+
+    .pip-title-content {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      cursor: move;
+    }
+
+    .pip-title-icon {
+      width: 16px;
+      height: 16px;
+      color: #4f7df9;
+      flex-shrink: 0;
+      pointer-events: none;
+    }
+
+    .pip-title-text {
+      font-size: 12px;
+      font-weight: 600;
+      color: #1e293b;
+      letter-spacing: -0.01em;
+      cursor: move;
+      pointer-events: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* PiP Window Controls */
+    .pip-controls {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      cursor: move;
+    }
+
+    .pip-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .pip-dot.red {
+      background: #ff5f57;
+    }
+
+    .pip-dot.yellow {
+      background: #ffbd2e;
+    }
+
+    .pip-dot.green {
+      background: #28c840;
+    }
+
+    /* PiP Window Content Area */
+    .pip-content {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      flex: 1;
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      text-align: center;
+      min-height: 60px;
+      transition: background-color 0.15s ease;
+    }
+
+    .pip-content:hover {
+      background-color: rgba(79, 125, 249, 0.06);
+    }
+
+    .pip-content:active {
+      background-color: rgba(79, 125, 249, 0.12);
+    }
+
+    .pip-main-icon {
+      width: 32px;
+      height: 32px;
+      color: #4f7df9;
+      margin-bottom: 8px;
+      pointer-events: none;
+      transition: transform 0.2s ease;
+    }
+
+    .pip-content:hover .pip-main-icon {
+      transform: scale(1.1);
+    }
+
+    .pip-content-text {
+      font-size: 11px;
+      font-weight: 500;
+      color: #64748b;
+      pointer-events: none;
+      margin-top: 4px;
+    }
+
+    /* Dark Mode PiP Window */
+    [data-theme="dark"] .pip-window {
+      background: rgba(30, 41, 59, 0.95) !important;
+      border: 1px solid rgba(255, 255, 255, 0.1) !important;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                  0 2px 8px rgba(0, 0, 0, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+    }
+
+    [data-theme="dark"] .pip-window:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4), 
+                  0 4px 12px rgba(0, 0, 0, 0.3),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+    }
+
+    [data-theme="dark"] .pip-title-bar {
+      background: linear-gradient(to bottom, rgba(30, 41, 59, 0.9), rgba(30, 41, 59, 0.7));
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    [data-theme="dark"] .pip-title-text {
+      color: #e2e8f0;
+    }
+
+    [data-theme="dark"] .pip-title-icon,
+    [data-theme="dark"] .pip-main-icon {
+      color: #60a5fa;
+    }
+
+    [data-theme="dark"] .pip-content:hover {
+      background-color: rgba(96, 165, 250, 0.1);
+    }
+
+    [data-theme="dark"] .pip-content:active {
+      background-color: rgba(96, 165, 250, 0.15);
+    }
+
+    [data-theme="dark"] .pip-content-text {
+      color: #94a3b8;
+    }
+
+    /* Simple eye icon button for showing header */
+    .show-header-btn {
+      position: fixed !important;
+      top: 4px !important;
+      right: 4px !important;
+      z-index: 1000 !important;
+      width: 24px;
+      height: 24px;
+      background: rgba(255, 255, 255, 0.85) !important;
+      backdrop-filter: blur(8px) !important;
+      -webkit-backdrop-filter: blur(8px) !important;
+      border-radius: 4px !important;
+      border: 1px solid rgba(0, 0, 0, 0.08) !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+      display: flex !important;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer !important;
+      pointer-events: auto !important;
+      transition: all 0.2s ease;
+      opacity: 0.75;
+      padding: 0;
+      margin: 0;
+    }
+
+    .show-header-btn:hover {
+      opacity: 1;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+      transform: translateY(-1px);
+    }
+
+    .show-header-btn:active {
+      transform: translateY(0);
+    }
+
+    .show-header-btn i {
+      width: 10px;
+      height: 10px;
+      color: #4f7df9;
+      pointer-events: none;
+    }
+
+    [data-theme="dark"] .show-header-btn {
+      background: rgba(30, 41, 59, 0.85) !important;
+      border: 1px solid rgba(255, 255, 255, 0.08) !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    [data-theme="dark"] .show-header-btn:hover {
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    [data-theme="dark"] .show-header-btn i {
+      color: #60a5fa;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .pip-window {
+        width: 160px;
+        min-height: 100px;
+      }
+      
+      .pip-title-text {
+        font-size: 11px;
+      }
+      
+      .pip-main-icon {
+        width: 28px;
+        height: 28px;
+      }
     }
 
     @keyframes pureLatexGlow {
@@ -1551,7 +1907,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       100% {
         box-shadow: 
           0 0 25px rgba(37, 99, 235, 0.6), 
-          0 12px 22px rgba(15, 23, 42, 0.18),
           inset 0 1px 0 rgba(255, 255, 255, 0.2);
       }
     }
@@ -1573,8 +1928,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       align-items: center;
       justify-content: center;
       gap: 8px;
-      padding: 11px 24px;
-      border-radius: 999px;
+      width: 40px;
+      height: 40px;
+      padding: 0;
+      border-radius: 50%;
       background-color: #ffffff;
       border: none;
       color: #1e293b;
@@ -1584,6 +1941,14 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       cursor: pointer;
       transition: all 0.2s ease;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Keep switches as pills */
+    .header-actions .header-copy.pure-latex-switch {
+      width: auto;
+      height: auto;
+      padding: 11px 24px;
+      border-radius: 999px;
     }
 
     .header-actions .header-copy:hover {
@@ -1897,6 +2262,195 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       stroke-width: 2 !important;
       transition: color .18s ease, stroke .18s ease !important;
     }
+
+    /* === Functions Help Modal === */
+    .functions-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .functions-modal[aria-hidden="false"] {
+      display: flex;
+      opacity: 1;
+    }
+
+    .functions-modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .functions-modal-content {
+      position: relative;
+      background: var(--color-surface);
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
+      border: 1px solid var(--color-border);
+    }
+
+    .functions-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 28px;
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    .functions-modal-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+    }
+
+    .functions-modal-title i {
+      width: 24px;
+      height: 24px;
+      color: var(--color-tab-active-bg);
+    }
+
+    .functions-modal-close {
+      appearance: none;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 8px;
+      color: var(--color-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .functions-modal-close:hover {
+      background: var(--color-surface-alt);
+    }
+
+    .functions-modal-close i {
+      width: 20px;
+      height: 20px;
+    }
+
+    .functions-modal-body {
+      padding: 24px 28px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .function-item {
+      display: flex;
+      gap: 16px;
+      padding: 20px 0;
+    }
+
+    /* Clickable function items */
+    a.function-item {
+      cursor: pointer;
+    }
+
+    .function-icon {
+      flex-shrink: 0;
+      width: 48px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-tab-active-bg);
+      border-radius: 12px;
+      color: white;
+    }
+
+    .function-icon i {
+      width: 24px;
+      height: 24px;
+    }
+
+    .function-info {
+      flex: 1;
+    }
+
+    .function-info h3 {
+      margin: 0 0 8px 0;
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--color-text);
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+    }
+
+    /* Underline titles of clickable function items */
+    a.function-item .function-info h3 {
+      text-decoration: underline;
+      text-decoration-color: var(--color-primary);
+      text-underline-offset: 3px;
+    }
+
+    .function-info p {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.6;
+      color: var(--muted);
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+    }
+
+    /* Dark mode modal */
+    [data-theme="dark"] .functions-modal-content {
+      background: var(--color-surface);
+      border-color: var(--color-border);
+    }
+
+    [data-theme="dark"] .functions-modal-header {
+      border-bottom-color: var(--color-border);
+    }
+
+
+    /* Mobile responsive */
+    @media (max-width: 768px) {
+      .functions-modal-content {
+        max-width: 100%;
+        max-height: 95vh;
+        border-radius: 16px 16px 0 0;
+      }
+
+      .functions-modal-header,
+      .functions-modal-body {
+        padding: 20px;
+      }
+
+      .function-item {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .function-icon {
+        width: 40px;
+        height: 40px;
+      }
+    }
     
     /* === LaTeX Input Area (Direct textarea) === */
     #ta {
@@ -2028,35 +2582,34 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     <header class="header-bar" role="banner">
       <div class="header-row">
 
-        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle menu" aria-expanded="false">
-          <i data-lucide="menu"></i>
-        </button>
-
         <div class="h-actions header-actions" role="toolbar" aria-label="Primary Actions">
           <!-- Group 1: External Resources -->
-          <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="github-btn" title="View on GitHub">
-            <i data-lucide="github"></i>
-          </a>
+          <button class="header-copy" id="functionsBtn" title="Functions Guide">
+            <i data-lucide="info"></i>
+          </button>
           
           <span class="header-separator" aria-hidden="true"></span>
           
           <!-- Group 2: Input Helpers -->
           <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="header-copy" title="Image Recognition - Convert math images to LaTeX" style="text-decoration: none;">
-            <i data-lucide="scan"></i> Image Recognition
-          </a>
-          <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="header-copy" title="View available inline shortcuts" style="text-decoration: none;">
-            <i data-lucide="keyboard"></i> Shortcuts
+            <i data-lucide="scan"></i>
           </a>
           
           <span class="header-separator" aria-hidden="true"></span>
           
           <!-- Group 3: Output Actions -->
           <button class="header-copy" id="copyBtn" title="Copy LaTeX">
-            <i data-lucide="copy"></i> Copy LaTeX
+            <i data-lucide="copy"></i>
           </button>
-          <button class="header-copy" id="pureLatexBtn" title="Pure LaTeX Mode">
-            <i data-lucide="terminal"></i> Pure LaTeX
+          <button class="header-copy" id="hideHeaderBtn">
+            <i data-lucide="eye-off"></i>
           </button>
+          <label class="header-copy pure-latex-switch" for="pureLatexSwitch" title="Pure LaTeX Mode">
+            <i data-lucide="code"></i>
+            <span class="switch-label">Pure LaTeX</span>
+            <input type="checkbox" id="pureLatexSwitch" aria-label="Pure LaTeX Mode">
+            <span class="switch-slider"></span>
+          </label>
             </div>
 
         <div class="h-right">
@@ -2074,6 +2627,83 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 </div>
         </div>
     </header>
+
+    <!-- Functions Help Modal -->
+    <div id="functionsModal" class="functions-modal" role="dialog" aria-labelledby="functionsModalTitle" aria-hidden="true">
+      <div class="functions-modal-overlay"></div>
+      <div class="functions-modal-content">
+        <div class="functions-modal-header">
+          <h2 id="functionsModalTitle" class="functions-modal-title">
+            <i data-lucide="info"></i> Header Functions Guide
+          </h2>
+          <button class="functions-modal-close" id="functionsModalClose" aria-label="Close modal">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="functions-modal-body">
+          <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
+            <div class="function-icon">
+              <i data-lucide="github"></i>
+            </div>
+            <div class="function-info">
+              <h3>GitHub</h3>
+              <p>Opens the project repository on GitHub where you can view the source code, report issues, or contribute to the project.</p>
+            </div>
+          </a>
+
+          <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
+            <div class="function-icon">
+              <i data-lucide="scan"></i>
+            </div>
+            <div class="function-info">
+              <h3>Image Recognition</h3>
+              <p>Opens a ChatGPT tool that can convert math images to LaTeX format. Upload a screenshot or image of a mathematical equation to get its LaTeX code.</p>
+            </div>
+          </a>
+
+          <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
+            <div class="function-icon">
+              <i data-lucide="keyboard"></i>
+            </div>
+            <div class="function-info">
+              <h3>Shortcuts</h3>
+              <p>View all available keyboard shortcuts for the MathLive editor. Learn how to quickly input mathematical symbols and expressions using keyboard commands.</p>
+            </div>
+          </a>
+
+          <div class="function-item">
+            <div class="function-icon">
+              <i data-lucide="eye-off"></i>
+            </div>
+            <div class="function-info">
+              <h3>Hide Header</h3>
+              <p>Toggles the header visibility. When enabled, the header is hidden to maximize your workspace. A small button will appear to show the header again.</p>
+            </div>
+          </div>
+
+          <div class="function-item">
+            <div class="function-icon">
+              <i data-lucide="code"></i>
+            </div>
+            <div class="function-info">
+              <h3>Pure LaTeX Mode</h3>
+              <p>Switches between rendered math view and pure LaTeX code view. When enabled, you'll see the raw LaTeX code instead of the formatted mathematical expression.</p>
+            </div>
+          </div>
+
+          <div class="function-item">
+            <div class="function-icon">
+              <i data-lucide="sun"></i>
+            </div>
+            <div class="function-info">
+              <h3>Theme Switcher</h3>
+              <p>Change the appearance theme: Light mode (sun icon), Dark mode (moon icon), or System mode (monitor icon) which follows your device's theme preference.</p>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
 
     <script>
     (function(){
@@ -2218,17 +2848,17 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         <!-- 1. Rendered -->
         <div class="io-section io-rendered">
           <div class="io-label-row">
-            <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;" title="Click to copy LaTeX">Rendered Input (Editable)</label>
+          <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;" title="Click to copy LaTeX">Rendered Input (Editable)</label>
           </div>
           <math-field id="mf2"></math-field>
       </div>
       </div>
 
       <!-- LaTeXLive Embed - Full Width Below -->
-      <div style="width: 100%; margin-top: 0; margin-left: 0; margin-right: 0; padding: 0;">
+      <div style="width: 100%; margin-top: 0; margin-left: 0; margin-right: 0; padding: 0; position: relative; z-index: 1;">
         <iframe id="latexLiveIframe"
                 src="LaTeXLive/html/index.html" 
-                style="width: 100%; height: 800px; border: none; display: block; margin: 0; padding: 0; overflow: hidden;"
+                style="width: 100%; height: 800px; border: none; display: block; margin: 0; padding: 0; overflow: hidden; position: relative; z-index: 1;"
                 scrolling="no"
                 title="LaTeX Live Editor">
         </iframe>
@@ -3693,6 +4323,49 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 toggleExpand(currentTabId);
             }
         });
+
+        // Functions Help Modal
+        const functionsBtn = document.getElementById('functionsBtn');
+        const functionsModal = document.getElementById('functionsModal');
+        const functionsModalClose = document.getElementById('functionsModalClose');
+        const functionsModalOverlay = functionsModal?.querySelector('.functions-modal-overlay');
+
+        function openFunctionsModal() {
+          if (functionsModal) {
+            functionsModal.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+            // Re-initialize lucide icons in modal
+            if (typeof lucide !== 'undefined') {
+              lucide.createIcons();
+            }
+          }
+        }
+
+        function closeFunctionsModal() {
+          if (functionsModal) {
+            functionsModal.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+          }
+        }
+
+        if (functionsBtn) {
+          functionsBtn.addEventListener('click', openFunctionsModal);
+        }
+
+        if (functionsModalClose) {
+          functionsModalClose.addEventListener('click', closeFunctionsModal);
+        }
+
+        if (functionsModalOverlay) {
+          functionsModalOverlay.addEventListener('click', closeFunctionsModal);
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape' && functionsModal && functionsModal.getAttribute('aria-hidden') === 'false') {
+            closeFunctionsModal();
+            }
+        });
         
         // 插入文本到光标位置的辅助函数
         function insertAtCursor(textarea, textToInsert) {
@@ -3746,63 +4419,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             setTimeout(adjustMathFieldHeight, 500);
         }
         
-    </script>
-
-    <!-- Hamburger Menu Toggle Script -->
-    <script>
-    (function() {
-      const hamburgerBtn = document.getElementById('hamburgerBtn');
-      const actionsMenu = document.querySelector('.h-actions');
-      
-      if (hamburgerBtn && actionsMenu) {
-        hamburgerBtn.addEventListener('click', function() {
-          const isOpen = actionsMenu.classList.toggle('menu-open');
-          hamburgerBtn.setAttribute('aria-expanded', isOpen);
-          
-          // Change icon
-          const icon = hamburgerBtn.querySelector('i');
-          if (icon) {
-            icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
-            if (typeof window.initLucideIcons === 'function') {
-              window.initLucideIcons();
-            }
-          }
-        });
-        
-        // Close menu when clicking outside
-        document.addEventListener('click', function(e) {
-          if (!hamburgerBtn.contains(e.target) && !actionsMenu.contains(e.target)) {
-            actionsMenu.classList.remove('menu-open');
-            hamburgerBtn.setAttribute('aria-expanded', 'false');
-            
-            const icon = hamburgerBtn.querySelector('i');
-            if (icon) {
-              icon.setAttribute('data-lucide', 'menu');
-              if (typeof window.initLucideIcons === 'function') {
-                window.initLucideIcons();
-              }
-            }
-          }
-        });
-        
-        // Close menu when any menu item is clicked
-        const menuButtons = actionsMenu.querySelectorAll('.header-copy');
-        menuButtons.forEach(btn => {
-          btn.addEventListener('click', function() {
-            actionsMenu.classList.remove('menu-open');
-            hamburgerBtn.setAttribute('aria-expanded', 'false');
-            
-            const icon = hamburgerBtn.querySelector('i');
-            if (icon) {
-              icon.setAttribute('data-lucide', 'menu');
-              if (typeof window.initLucideIcons === 'function') {
-                window.initLucideIcons();
-              }
-            }
-          });
-        });
-      }
-    })();
     </script>
 
     <!-- LaTeX to MathML Conversion Helper (using MathJax) -->
@@ -4517,20 +5133,16 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     // ========== Pure LaTeX Mode ==========
     (function() {
       const PURE_LATEX_KEY = 'pureLatexMode';
-      const pureLatexBtn = document.getElementById('pureLatexBtn');
+      const pureLatexSwitch = document.getElementById('pureLatexSwitch');
       const tabsWrapper = document.getElementById('tabs_wrapper');
       const expandedArea = document.getElementById('expanded-area');
       const renderedSection = document.querySelector('.io-rendered');
       
       let isPureLatexMode = localStorage.getItem(PURE_LATEX_KEY) === 'true';
 
-      function updateButtonState() {
-        if (!pureLatexBtn) return;
-        if (isPureLatexMode) {
-          pureLatexBtn.classList.add('pure-latex-active');
-        } else {
-          pureLatexBtn.classList.remove('pure-latex-active');
-        }
+      function updateSwitchState() {
+        if (!pureLatexSwitch) return;
+        pureLatexSwitch.checked = isPureLatexMode;
       }
 
       function applyPureLatexMode() {
@@ -4545,7 +5157,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           if (expandedArea) expandedArea.style.display = '';
           if (renderedSection) renderedSection.style.display = '';
         }
-        updateButtonState();
+        updateSwitchState();
         
         // Communicate mode to iframe for height adjustment
         const iframe = document.getElementById('latexLiveIframe');
@@ -4560,9 +5172,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       }
 
       // Toggle Pure LaTeX mode
-      if (pureLatexBtn) {
-        pureLatexBtn.addEventListener('click', () => {
-          isPureLatexMode = !isPureLatexMode;
+      if (pureLatexSwitch) {
+        pureLatexSwitch.addEventListener('change', () => {
+          isPureLatexMode = pureLatexSwitch.checked;
           localStorage.setItem(PURE_LATEX_KEY, isPureLatexMode);
           applyPureLatexMode();
         });
@@ -4578,6 +5190,185 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           applyPureLatexMode();
         });
       }
+    })();
+
+    // ========== Hide Header Mode ==========
+    (function() {
+      const HIDE_HEADER_KEY = 'hideHeaderMode';
+      const HEADER_BTN_POSITION_KEY = 'showHeaderBtnPosition';
+      const hideHeaderBtn = document.getElementById('hideHeaderBtn');
+      const headerBar = document.querySelector('.header-bar');
+      
+      let isHeaderHidden = localStorage.getItem(HIDE_HEADER_KEY) === 'true';
+      let isDragging = false;
+      let dragOffset = { x: 0, y: 0 };
+
+      function updateHeaderButtonState() {
+        // No state to update for a simple button
+      }
+
+      function initDragFunctionality(btn) {
+        // Load saved position
+        const savedPosition = localStorage.getItem(HEADER_BTN_POSITION_KEY);
+        if (savedPosition) {
+          try {
+            const pos = JSON.parse(savedPosition);
+            if (pos.left && pos.left !== 'auto') {
+              btn.style.left = pos.left;
+              btn.style.right = 'auto';
+            } else if (pos.right && pos.right !== 'auto') {
+              btn.style.right = pos.right;
+              btn.style.left = 'auto';
+            }
+            if (pos.top && pos.top !== 'auto') {
+              btn.style.top = pos.top;
+              btn.style.bottom = 'auto';
+            } else if (pos.bottom && pos.bottom !== 'auto') {
+              btn.style.bottom = pos.bottom;
+              btn.style.top = 'auto';
+            }
+          } catch (e) {
+            console.warn('Failed to load button position:', e);
+          }
+        }
+
+        let dragStartPos = null;
+        let hasMoved = false;
+        const titleBar = btn.querySelector('.pip-title-bar');
+        const contentBtn = btn.querySelector('.pip-content');
+
+        // Drag functionality - only allow dragging from title bar
+        const handleDragStart = (e) => {
+          // Don't start dragging on right click or if clicking the content button
+          if (e.button !== 0 || e.target.closest('.pip-content')) return;
+          
+          dragStartPos = { x: e.clientX, y: e.clientY };
+          hasMoved = false;
+          
+          const rect = btn.getBoundingClientRect();
+          dragOffset.x = e.clientX - rect.left;
+          dragOffset.y = e.clientY - rect.top;
+          
+          e.preventDefault();
+          e.stopPropagation();
+        };
+
+        // Allow dragging from title bar
+        if (titleBar) {
+          titleBar.addEventListener('mousedown', handleDragStart);
+        }
+        // Also allow dragging from the window itself (but not content button)
+        btn.addEventListener('mousedown', handleDragStart);
+
+        document.addEventListener('mousemove', (e) => {
+          if (!dragStartPos) return;
+          
+          const moveDistance = Math.abs(e.clientX - dragStartPos.x) + Math.abs(e.clientY - dragStartPos.y);
+          if (moveDistance > 5) {
+            hasMoved = true;
+            if (!isDragging) {
+              isDragging = true;
+              btn.classList.add('dragging');
+            }
+          }
+          
+          if (!isDragging) return;
+          
+          const maxX = window.innerWidth - btn.offsetWidth;
+          const maxY = window.innerHeight - btn.offsetHeight;
+          
+          let left = e.clientX - dragOffset.x;
+          let top = e.clientY - dragOffset.y;
+          
+          // Constrain to viewport
+          left = Math.max(0, Math.min(left, maxX));
+          top = Math.max(0, Math.min(top, maxY));
+          
+          btn.style.left = left + 'px';
+          btn.style.top = top + 'px';
+          btn.style.right = 'auto';
+          btn.style.bottom = 'auto';
+        });
+
+        document.addEventListener('mouseup', () => {
+          if (isDragging) {
+            btn.classList.remove('dragging');
+            
+            // Save position
+            const position = {
+              top: btn.style.top || 'auto',
+              right: btn.style.right || 'auto',
+              left: btn.style.left || 'auto',
+              bottom: btn.style.bottom || 'auto'
+            };
+            localStorage.setItem(HEADER_BTN_POSITION_KEY, JSON.stringify(position));
+          }
+          
+          const wasDragging = isDragging;
+          isDragging = false;
+          const wasMoved = hasMoved;
+          dragStartPos = null;
+          hasMoved = false;
+        });
+      }
+
+      function applyHideHeaderMode() {
+        if (!headerBar) return;
+        
+        if (isHeaderHidden) {
+          // Hide header
+          headerBar.style.display = 'none';
+          // Add a simple eye icon button in top right corner
+          let showHeaderBtn = document.getElementById('showHeaderBtn');
+          if (!showHeaderBtn) {
+            showHeaderBtn = document.createElement('button');
+            showHeaderBtn.id = 'showHeaderBtn';
+            showHeaderBtn.className = 'show-header-btn';
+            showHeaderBtn.setAttribute('aria-label', 'Show Header');
+            showHeaderBtn.type = 'button';
+            
+            // Create simple menu icon (smaller and less prominent)
+            showHeaderBtn.innerHTML = `<i data-lucide="menu"></i>`;
+            
+            // Add click handler
+            showHeaderBtn.addEventListener('click', () => {
+              isHeaderHidden = false;
+              localStorage.setItem(HIDE_HEADER_KEY, 'false');
+              applyHideHeaderMode();
+            });
+            
+            // Append to documentElement (html) instead of body to ensure it's at the top level
+            (document.documentElement || document.body).appendChild(showHeaderBtn);
+            
+            // Initialize lucide icons
+            if (window.initLucideIcons) {
+              window.initLucideIcons();
+            }
+          }
+          showHeaderBtn.style.display = 'flex';
+        } else {
+          // Show header
+          headerBar.style.display = '';
+          // Remove the picture-in-picture window completely
+          const showHeaderBtn = document.getElementById('showHeaderBtn');
+          if (showHeaderBtn) {
+            showHeaderBtn.remove();
+          }
+        }
+        updateHeaderButtonState();
+      }
+
+      // Toggle Hide Header mode
+      if (hideHeaderBtn) {
+        hideHeaderBtn.addEventListener('click', () => {
+          isHeaderHidden = !isHeaderHidden;
+          localStorage.setItem(HIDE_HEADER_KEY, isHeaderHidden);
+          applyHideHeaderMode();
+        });
+      }
+
+      // Apply mode on page load
+      applyHideHeaderMode();
     })();
 
     // Hide loading screen once MathLive is loaded
