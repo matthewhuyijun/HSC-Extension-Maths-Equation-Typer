@@ -251,7 +251,7 @@
         }
         .tab {
             padding: 10px 16px;
-            border: 1px solid var(--color-border);
+            border: none;
             border-radius: 12px;
             cursor: pointer;
             background: var(--color-tab-bg);
@@ -264,7 +264,7 @@
             font-size: 12px;
             font-weight: 600;
             font-family: "Latin Modern Math", "Latin Modern Roman", serif;
-            transition: background .2s ease, border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+            transition: background .2s ease, box-shadow .2s ease, transform .15s ease;
             flex: 1;
             min-width: 0;
             text-align: center;
@@ -274,7 +274,6 @@
         }
         .tab:hover {
             background: color-mix(in srgb, var(--color-tab-active-bg) 25%, var(--color-tab-bg));
-            border-color: var(--color-tab-active-bg);
             transform: translateY(-1px);
             box-shadow: 0 0 20px rgba(59,130,246,0.4), 0 12px 22px rgba(15,23,42,0.18), inset 0 1px 0 rgba(255,255,255,0.1);
         }
@@ -282,7 +281,6 @@
         .tab[data-expanded="true"] { 
             background: var(--color-tab-active-bg); 
             color: var(--color-tab-active-text); 
-            border-color: var(--color-tab-active-bg);
             box-shadow: 0 0 20px rgba(59,130,246,0.5), inset 0 1px 0 rgba(255,255,255,0.15);
         }
         .tab[data-expanded="true"]::after { content: ''; }
@@ -2653,7 +2651,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             </div>
             <div class="function-info">
               <h3>Copy Button</h3>
-              <p>Copies the LaTeX code to your clipboard. You can also click on the three subtitles (Raw LaTeX, MathLive, Preview) to quickly copy your mathematical expressions.</p>
+              <p>Copies the LaTeX code to your clipboard. <strong><u>You can also click on the three subtitles (Raw LaTeX, MathLive, Preview) to quickly copy your mathematical expressions.</u></strong></p>
             </div>
           </div>
 
