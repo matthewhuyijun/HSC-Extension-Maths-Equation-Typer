@@ -122,8 +122,8 @@
     .form-control.twins {
       background: var(--iframe-surface-bg) !important;
       border-radius: 8px !important;
-      border: 1px solid rgba(148, 163, 184, 0.28) !important;
-      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+      border: 1px solid transparent !important;
+      box-shadow: none !important;
       transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
     }
 
@@ -161,7 +161,7 @@
     /* Dark mode surface styling */
     [data-theme="dark"] .form-control.twins {
       background: #1f2937 !important;
-      border: 1px solid rgba(148, 163, 184, 0.35) !important;
+      border: 1px solid transparent !important;
       border-radius: 8px !important;
       box-shadow: none !important;
       color: #f5f9ff !important;
