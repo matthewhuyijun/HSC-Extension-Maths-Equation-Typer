@@ -2420,11 +2420,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       padding: 20px 0;
     }
 
-    /* Clickable function items */
-    a.function-item {
-      cursor: pointer;
-    }
-
     .function-icon {
       flex-shrink: 0;
       width: 48px;
@@ -2454,11 +2449,25 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
       font-family: "Latin Modern Math", "Latin Modern Roman", serif;
     }
 
-    /* Underline titles of clickable function items */
-    a.function-item .function-info h3 {
+    .function-info h3 a {
+      color: inherit;
       text-decoration: underline;
       text-decoration-color: var(--color-primary);
       text-underline-offset: 3px;
+    }
+
+    .function-info h3 a:hover,
+    .function-info h3 a:focus-visible {
+      text-decoration-thickness: 2px;
+    }
+
+    .function-link {
+      color: inherit;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
 
     .function-info p {
@@ -2702,36 +2711,41 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
               <p>Copies the LaTeX code to your clipboard. <strong><u>You can also click on the three subtitles (Raw LaTeX, MathLive, Preview) to quickly copy your mathematical expressions.</u></strong></p>
             </div>
           </div>
-
-          <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
-            <div class="function-icon">
+          <div class="function-item">
+            <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="function-icon function-link" aria-label="Open GitHub repository">
               <i data-lucide="github"></i>
-            </div>
+            </a>
             <div class="function-info">
-              <h3>GitHub</h3>
+              <h3>
+                <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="function-link">GitHub</a>
+              </h3>
               <p>Opens the project repository on GitHub where you can view the source code, report issues, or contribute to the project.</p>
             </div>
-          </a>
+          </div>
 
-          <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
-            <div class="function-icon">
+          <div class="function-item">
+            <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="function-icon function-link" aria-label="Open Math to LaTeX assistant">
               <i data-lucide="scan"></i>
-            </div>
+            </a>
             <div class="function-info">
-              <h3>Image Recognition</h3>
+              <h3>
+                <a href="https://chatgpt.com/g/g-68fc12a5e6888191b19fa85f57474b50-math-to-latex-dual-output" target="_blank" rel="noopener noreferrer" class="function-link">Image Recognition</a>
+              </h3>
               <p>Opens a ChatGPT tool that can convert math images to LaTeX format. Upload a screenshot or image of a mathematical equation to get its LaTeX code.</p>
             </div>
-          </a>
+          </div>
 
-          <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="function-item" style="text-decoration: none; color: inherit;">
-            <div class="function-icon">
+          <div class="function-item">
+            <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="function-icon function-link" aria-label="Open MathLive keyboard shortcuts">
               <i data-lucide="keyboard"></i>
-            </div>
+            </a>
             <div class="function-info">
-              <h3>Shortcuts</h3>
+              <h3>
+                <a href="https://mathlive.io/mathfield/reference/keybindings/" target="_blank" rel="noopener noreferrer" class="function-link">Shortcuts</a>
+              </h3>
               <p>View all available keyboard shortcuts for the MathLive editor. Learn how to quickly input mathematical symbols and expressions using keyboard commands.</p>
             </div>
-          </a>
+          </div>
 
           <div class="function-item">
             <div class="function-icon">
@@ -3096,17 +3110,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     // Adjust height after setting value programmatically
                     setTimeout(() => {
                         try {
-                            const contentElement = mf2.shadowRoot?.querySelector('.ML__content');
-                            if (contentElement) {
-                                mf2.style.height = 'auto';
-                                const contentHeight = contentElement.scrollHeight;
-                                const minHeight = 60;
-                                const newHeight = Math.max(contentHeight + 24, minHeight);
-                                mf2.style.height = newHeight + 'px';
-                            } else {
-                                const minHeight = 60;
-                                const newHeight = Math.max(mf2.scrollHeight, minHeight);
-                                mf2.style.height = newHeight + 'px';
+                            if (typeof adjustMathFieldHeight === 'function') {
+                                adjustMathFieldHeight();
                             }
                         } catch (e) {
                             console.warn('Failed to adjust height:', e);
@@ -4549,30 +4554,32 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
 
         function adjustMathFieldHeight() {
             if (!mf2) return;
-            
+
+            const MIN_HEIGHT = 60;
+            const EXTRA_PADDING = 24;
+            const previousHeight = mf2.style.height;
+
+            let targetHeight = MIN_HEIGHT;
+
             try {
+                mf2.style.height = 'auto';
+
                 const contentElement = mf2.shadowRoot?.querySelector('.ML__content');
                 if (contentElement) {
-                    // First, temporarily set height to auto to get true content height
-                    const originalHeight = mf2.style.height;
-                    mf2.style.height = 'auto';
-                    
-                    const contentHeight = contentElement.scrollHeight;
-                    const minHeight = 60;
-                    const newHeight = Math.max(contentHeight + 24, minHeight); // 24px for padding
-                    
-                    mf2.style.height = newHeight + 'px';
+                    targetHeight = contentElement.scrollHeight + EXTRA_PADDING;
                 } else {
-                    // Fallback: use scrollHeight
-                    const minHeight = 60;
-                    const newHeight = Math.max(mf2.scrollHeight, minHeight);
-                    mf2.style.height = newHeight + 'px';
+                    targetHeight = mf2.scrollHeight || MIN_HEIGHT;
                 }
             } catch (e) {
-                // Final fallback: use scrollHeight
-                const minHeight = 60;
-                const newHeight = Math.max(mf2.scrollHeight, minHeight);
-                mf2.style.height = newHeight + 'px';
+                targetHeight = mf2.scrollHeight || MIN_HEIGHT;
+            }
+
+            targetHeight = Math.max(MIN_HEIGHT, Math.ceil(targetHeight));
+
+            try {
+                mf2.style.height = targetHeight + 'px';
+            } catch (e) {
+                mf2.style.height = previousHeight || '';
             }
         }
         
