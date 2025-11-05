@@ -47,6 +47,7 @@
     body {
       margin: 0 !important;
       padding: 0 !important;
+      background: transparent !important;
     }
     
     /* Reset container to remove spacing */
@@ -54,6 +55,7 @@
       padding: 0 !important;
       margin: 0 !important;
       max-width: 100% !important;
+      background: transparent !important;
     }
     
     .flat-row {
@@ -76,7 +78,7 @@
     .card {
       margin: 0 !important;
       border: none !important;
-      background: var(--iframe-card-bg) !important;
+      background: transparent !important;
       border-radius: 10px !important;
     }
     
@@ -98,6 +100,20 @@
       border-radius: 10px !important;
       border: 2px solid transparent !important;
       box-shadow: none !important;
+    }
+    
+    /* Make output area match input area width */
+    #output-area {
+      width: 100% !important;
+    }
+    
+    #output-area .card-body {
+      padding: 0 !important;
+    }
+    
+    #latex-preview-box {
+      width: 100% !important;
+      box-sizing: border-box !important;
     }
 
     .form-control.twins::placeholder {
@@ -252,7 +268,7 @@
             <label class="io-label" id="latex-preview-label">LaTeX Preview</label>
           </div>
           <div class="card">
-            <div class="card-body" style="padding: 15px !important;">
+            <div class="card-body" style="padding: 0 !important;">
               <div class="output" id="latex-preview-box" style="
                 min-height: 5rem;
                 padding: 15px;
@@ -267,6 +283,8 @@
                 display: flex;
                 align-items: center;
                 justify-content: center;
+                width: 100%;
+                box-sizing: border-box;
               ">
               </div>
             </div>
