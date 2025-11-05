@@ -2475,6 +2475,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             mf2.smartFence = true;                  // Auto-scale parentheses/brackets
             mf2.removeExtraneousParentheses = true; // Clean up unnecessary parentheses
             
+            // Disable all built-in keypress sounds (https://mathlive.io/mathfield/guides/customizing/#sounds-and-haptic-feedback)
+            mf2.keypressSound = null;
+            
             // Virtual keyboard configuration
             mf2.virtualKeyboardMode = 'manual';     // Don't auto-show virtual keyboard
             

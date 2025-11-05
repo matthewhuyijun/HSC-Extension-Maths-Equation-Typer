@@ -228,6 +228,7 @@
             <label class="io-label" id="raw-latex-label">Raw LaTeX Input</label>
             <button class="env-button" id="array-star-btn" title="Insert array environment">array</button>
             <button class="env-button" id="align-btn" title="Insert align* environment">align*</button>
+            <button class="env-button" id="large-btn" title="Insert large command">large</button>
           </div>
           <div class="card">
             <div class="card-body">
@@ -850,6 +851,27 @@
             
             // Position cursor on the middle line
             const cursorPos = start + '\\begin{align*}\n  '.length;
+            textarea.setSelectionRange(cursorPos, cursorPos);
+            textarea.focus();
+            textarea.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+      }
+      
+      const largeBtn = document.getElementById('large-btn');
+      if (largeBtn) {
+        largeBtn.addEventListener('click', function(e) {
+          e.stopPropagation(); // Prevent triggering label click
+          const textarea = document.getElementById('txta_input');
+          if (textarea) {
+            const start = textarea.selectionStart;
+            const text = '\\large ';
+            const value = textarea.value;
+            const newValue = value.substring(0, start) + text + value.substring(textarea.selectionEnd);
+            textarea.value = newValue;
+            
+            // Position cursor after the inserted text
+            const cursorPos = start + text.length;
             textarea.setSelectionRange(cursorPos, cursorPos);
             textarea.focus();
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
