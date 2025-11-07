@@ -2068,13 +2068,98 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
     .io-label-row {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       margin: 0 0 0 2px;
     }
 
     .io-rendered .io-label-row {
       display: inline-flex;
       margin: 0 0 0 2px;
+    }
+
+    .io-label-actions {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .io-label-actions .env-button {
+      font-size: 0.85rem;
+      padding: 6px 16px;
+      margin-left: 8px;
+    }
+
+    .env-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 16px;
+      margin-left: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: "Latin Modern Math", "Latin Modern Roman", serif;
+      color: #e6edff;
+      background: rgba(30, 44, 76, 0.94);
+      border: 1px solid rgba(96, 150, 232, 0.48);
+      border-radius: 16px;
+      cursor: pointer;
+      transition: color 0.15s ease, transform 0.12s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      user-select: none;
+      vertical-align: middle;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 12px 26px rgba(2, 6, 23, 0.28);
+    }
+    
+    .env-button:hover,
+    .env-button:focus-visible {
+      color: #f5fbff;
+      background: rgba(42, 61, 102, 0.96);
+      border-color: rgba(133, 186, 255, 0.7);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        0 16px 32px rgba(2, 6, 23, 0.34);
+      transform: translateY(-1px);
+      outline: none;
+    }
+    
+    .env-button:active {
+      transform: translateY(0);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 8px 18px rgba(2, 6, 23, 0.28);
+    }
+
+    .env-button--icon {
+      width: 42px;
+      padding: 6px;
+      margin-left: 10px;
+      flex-shrink: 0;
+    }
+
+    .env-button__icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+    }
+    
+    [data-theme="light"] .env-button {
+      color: #1f2937;
+      background: rgba(247, 249, 255, 0.98);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.9),
+        0 12px 24px rgba(15, 23, 42, 0.18);
+    }
+    
+    [data-theme="light"] .env-button:hover,
+    [data-theme="light"] .env-button:focus-visible {
+      color: #0f172a;
+      background: rgba(233, 242, 255, 0.98);
+      border-color: rgba(59, 130, 246, 0.6);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.94),
+        0 16px 28px rgba(15, 23, 42, 0.2);
     }
 
 
@@ -2673,7 +2758,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           <span class="header-separator" aria-hidden="true"></span>
           
           <!-- Group 3: Output Actions -->
-          <button class="header-copy" id="copyBtn">
+          <button class="header-copy" id="copyBtn" aria-label="Copy LaTeX">
             <i data-lucide="copy"></i>
           </button>
           <button class="header-copy" id="hideHeaderBtn">
@@ -2723,6 +2808,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             <div class="function-info">
               <h3>Copy Button</h3>
               <p>Copies the LaTeX code to your clipboard. <strong><u>You can also click on the three subtitles (Raw LaTeX, MathLive, Preview) to quickly copy your mathematical expressions.</u></strong></p>
+            </div>
+          </div>
+          <div class="function-item">
+            <div class="function-icon">
+              <i data-lucide="code-xml"></i>
+            </div>
+            <div class="function-info">
+              <h3>Copy MathML</h3>
+              <p>Runs the MathJax/Plurimath-style converter and copies Word-friendly MathML for pasting into apps that prefer semantic math markup.</p>
             </div>
           </div>
           <div class="function-item">
@@ -2971,7 +3065,10 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         <!-- 1. Rendered -->
         <div class="io-section io-rendered">
           <div class="io-label-row">
-          <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;">Rendered Input (Editable)</label>
+            <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;">Rendered Input (Editable)</label>
+            <div class="io-label-actions" role="group" aria-label="Rendered input copy actions">
+              <button class="env-button" id="renderedCopyMathMLBtn" type="button" aria-label="Copy MathML">MathML</button>
+            </div>
           </div>
           <math-field id="mf2"></math-field>
       </div>
@@ -3121,16 +3218,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (mf2 && typeof latex === 'string') {
                 try {
                     mf2.setValue(latex);
-                    // Adjust height after setting value programmatically
-                    setTimeout(() => {
-                        try {
-                            if (typeof adjustMathFieldHeight === 'function') {
-                                adjustMathFieldHeight();
-                            }
-                        } catch (e) {
-                            console.warn('Failed to adjust height:', e);
-                        }
-                    }, 0);
+                    scheduleMathFieldHeightRefresh();
                 } catch (e) {
                     console.warn('Failed to update math-field:', e);
                 }
@@ -4452,6 +4540,41 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }
 
         /* ---------------- Copy buttons ---------------- */
+        async function getMathMLFromLatex(latex) {
+          if (typeof window.convertLatexToMathML !== 'function') {
+            throw new Error('MathML converter unavailable');
+          }
+          let mathml = await window.convertLatexToMathML(latex);
+          if (!mathml) {
+            throw new Error('MathML conversion produced empty output');
+          }
+          if (typeof window.fixNaryOperatorsMathML === 'function') {
+            mathml = window.fixNaryOperatorsMathML(mathml);
+          }
+          if (typeof window.fixArrowAccentsMathML === 'function') {
+            mathml = window.fixArrowAccentsMathML(mathml);
+          }
+          if (typeof window.fixOverbarMathML === 'function') {
+            mathml = window.fixOverbarMathML(mathml);
+          }
+          return mathml.trim();
+        }
+
+        async function copyMathMLFromEditor() {
+          const latex = getLatex();
+          if (!latex) {
+            showToast('No LaTeX to copy');
+            return;
+          }
+          try {
+            const mathml = await getMathMLFromLatex(latex);
+            await copyToClipboard(mathml, 'MathML');
+          } catch (error) {
+            console.error('MathML copy failed:', error);
+            showToast('MathML copy failed');
+          }
+        }
+
         async function copyToClipboard(a, b) {
           const label = b || 'text';
           let ok = false;
@@ -4488,27 +4611,26 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           copyButton.addEventListener('click', () => {
             const latex = getLatex();
             if (latex) {
-              navigator.clipboard.writeText(latex).then(() => {
-                showToast('LaTeX copied!');
-              }).catch(err => {
-                console.error('Failed to copy:', err);
-                showToast('Copy failed');
-              });
+              copyToClipboard(latex, 'LaTeX');
             } else {
               showToast('No LaTeX to copy');
             }
           });
-        }
-        
-        // Add hover expansion functionality to editor copy buttons
-        document.getElementById('copyBtn').addEventListener('mouseenter', () => {
+          copyButton.addEventListener('mouseenter', () => {
             const expArea = document.getElementById('expanded-area');
             if (expArea && expArea.getAttribute('data-tab-id')) {
-                const currentTabId = expArea.getAttribute('data-tab-id');
-                toggleExpand(currentTabId);
+              const currentTabId = expArea.getAttribute('data-tab-id');
+              toggleExpand(currentTabId);
             }
-        });
+          });
+        }
 
+        const renderedCopyMathMLButton = document.getElementById('renderedCopyMathMLBtn');
+        if (renderedCopyMathMLButton) {
+          renderedCopyMathMLButton.addEventListener('click', () => {
+            copyMathMLFromEditor();
+          });
+        }
         // Functions Help Modal
         const functionsBtn = document.getElementById('functionsBtn');
         const functionsModal = document.getElementById('functionsModal');
@@ -4566,6 +4688,27 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
+        function scheduleMathFieldHeightRefresh() {
+            if (typeof adjustMathFieldHeight !== 'function') return;
+            const safeAdjust = () => {
+                try {
+                    adjustMathFieldHeight();
+                } catch (err) {
+                    console.warn('Mathfield height adjust failed:', err);
+                }
+            };
+            const runner = () => {
+                safeAdjust();
+                setTimeout(safeAdjust, 120);
+                setTimeout(safeAdjust, 320);
+            };
+            if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(runner);
+            } else {
+                runner();
+            }
+        }
+
         function adjustMathFieldHeight() {
             if (!mf2) return;
 
@@ -4598,12 +4741,12 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         }
         
         if (mf2) {
-            mf2.addEventListener('input', adjustMathFieldHeight);
+            mf2.addEventListener('input', scheduleMathFieldHeightRefresh);
             
-            adjustMathFieldHeight();
+            scheduleMathFieldHeightRefresh();
             
-            setTimeout(adjustMathFieldHeight, 200);
-            setTimeout(adjustMathFieldHeight, 500);
+            setTimeout(scheduleMathFieldHeightRefresh, 200);
+            setTimeout(scheduleMathFieldHeightRefresh, 500);
         }
         
     </script>
