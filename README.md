@@ -59,6 +59,10 @@ A specialized web app designed for **E2 students** to type LaTeX equations and c
 
 **Recommendation:** Use Word's **native equation editor** (Insert → Equation) for complex math in Word documents.
 
+**If you must paste into Word:**
+• Word ingests **MathML** more reliably than raw LaTeX, so copy MathML (or click the new `Unicode` button which copies MathML automatically) before switching apps.
+• On the PluriMath page that opens, choose the **MathML → UnicodeMath** conversion—the MathML is already on your clipboard as soon as you press the button, so you can paste it straight in and grab the Unicode output for Word if needed.
+
 ---
 
 ## 🙏 Credits & Acknowledgments

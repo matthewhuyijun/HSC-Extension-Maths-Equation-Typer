@@ -3068,6 +3068,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;">Rendered Input (Editable)</label>
             <div class="io-label-actions" role="group" aria-label="Rendered input copy actions">
               <button class="env-button" id="renderedCopyMathMLBtn" type="button" aria-label="Copy MathML">MathML</button>
+              <button class="env-button" id="renderedUnicodeBtn" type="button" aria-label="Open Unicode converter">Unicode</button>
             </div>
           </div>
           <math-field id="mf2"></math-field>
@@ -4629,6 +4630,19 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         if (renderedCopyMathMLButton) {
           renderedCopyMathMLButton.addEventListener('click', () => {
             copyMathMLFromEditor();
+          });
+        }
+
+        const renderedUnicodeButton = document.getElementById('renderedUnicodeBtn');
+        if (renderedUnicodeButton) {
+          renderedUnicodeButton.addEventListener('click', async () => {
+            const latex = getLatex();
+            if (!latex) {
+              showToast('No LaTeX to copy');
+              return;
+            }
+            await copyMathMLFromEditor();
+            window.open('https://www.plurimath.org/demo/', '_blank', 'noopener');
           });
         }
         // Functions Help Modal
