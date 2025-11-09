@@ -3182,8 +3182,33 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const latexLiveIframe = document.getElementById('latexLiveIframe');
         const ta = { value: '' };
         let syncInProgress = false; // Prevent circular updates
+        let lastRenderedReloadTs = 0;
         function getLatex(){ 
             return mf2 ? mf2.getValue('latex') : '';
+        }
+
+        function reloadRenderedInputField() {
+            if (!mf2) return;
+            const now = Date.now();
+            if (now - lastRenderedReloadTs < 75) {
+                return;
+            }
+            lastRenderedReloadTs = now;
+
+            try {
+                mf2.setValue('');
+                if (typeof mf2.executeCommand === 'function') {
+                    try { mf2.executeCommand('clearSelection'); } catch (_) {}
+                }
+                if (typeof scheduleMathFieldHeightRefresh === 'function') {
+                    scheduleMathFieldHeightRefresh();
+                }
+                requestAnimationFrame(() => {
+                    try { mf2.focus({ preventScroll: true }); } catch (_) {}
+                });
+            } catch (err) {
+                console.warn('Failed to reload rendered input field:', err);
+            }
         }
 
         /* ---------- LaTeX -> MathML conversion (using MathJax) ---------- */
@@ -3219,6 +3244,9 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (mf2 && typeof latex === 'string') {
                 try {
                     mf2.setValue(latex);
+                    if (!latex.trim()) {
+                        reloadRenderedInputField();
+                    }
                     scheduleMathFieldHeightRefresh();
                 } catch (e) {
                     console.warn('Failed to update math-field:', e);
