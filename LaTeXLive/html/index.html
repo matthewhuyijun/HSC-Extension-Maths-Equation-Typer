@@ -717,6 +717,11 @@
           return;
         }
         
+        if (data.type === 'clearLatex') {
+          updateTextarea('');
+          return;
+        }
+        
         if (data.type === 'updateLatex') {
           updateTextarea(data.latex || '');
         }

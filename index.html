@@ -3183,8 +3183,29 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         const ta = { value: '' };
         let syncInProgress = false; // Prevent circular updates
         let lastRenderedReloadTs = 0;
+        let lastRawClearTs = 0;
+        let rawInputPreferred = false;
+        let lastRawSelection = { start: 0, end: 0 };
+        let rawTextareaListenersAttached = false;
         function getLatex(){ 
             return mf2 ? mf2.getValue('latex') : '';
+        }
+
+        function isEffectivelyEmptyLatex(latex) {
+            if (!latex || (typeof latex === 'string' && latex.trim() === '')) {
+                return true;
+            }
+            let normalized = latex;
+            if (typeof normalizeLatexStr === 'function') {
+                try {
+                    normalized = normalizeLatexStr(latex);
+                } catch (_) {}
+            }
+            if (typeof normalized !== 'string') return false;
+            const stripped = normalized
+                .replace(/\\placeholder\{\}/g, '')
+                .replace(/\s+/g, '');
+            return stripped.length === 0;
         }
 
         function reloadRenderedInputField() {
@@ -3211,6 +3232,41 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
         }
 
+        function clearRawLatexInput() {
+            const now = Date.now();
+            if (now - lastRawClearTs < 75) {
+                return;
+            }
+            lastRawClearTs = now;
+
+            if (!latexLiveIframe) return;
+
+            const tryDomClear = () => {
+                try {
+                    const doc = latexLiveIframe.contentDocument || latexLiveIframe.contentWindow?.document;
+                    const textarea = doc?.getElementById('txta_input');
+                    if (textarea && textarea.value !== '') {
+                        textarea.value = '';
+                        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                } catch (err) {
+                    return false;
+                }
+                return true;
+            };
+
+            if (!tryDomClear()) {
+                try {
+                    latexLiveIframe.contentWindow?.postMessage({
+                        source: 'mathstyper-sync',
+                        type: 'clearLatex'
+                    }, '*');
+                } catch (err) {
+                    console.warn('Failed to request raw input clear:', err);
+                }
+            }
+        }
+
         /* ---------- LaTeX -> MathML conversion (using MathJax) ---------- */
         // MathML conversion uses MathJax's built-in tex2mml function
         // The convertLatexToMathML wrapper function is defined at the end of this file
@@ -3220,13 +3276,19 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (syncInProgress) return;
             syncInProgress = true;
             
-            const latex = getLatex();
+            const rawLatex = getLatex();
+            const isEmpty = isEffectivelyEmptyLatex(rawLatex);
+            const latexToSend = isEmpty ? '' : rawLatex;
+            
+            if (isEmpty) {
+                clearRawLatexInput();
+            }
             if (latexLiveIframe && latexLiveIframe.contentWindow) {
                 try {
                     latexLiveIframe.contentWindow.postMessage({
                         source: 'mathstyper-sync',
                         type: 'updateLatex',
-                        latex: latex
+                        latex: latexToSend
                     }, '*');
                 } catch (e) {
                     console.warn('Failed to sync to iframe:', e);
@@ -3244,7 +3306,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             if (mf2 && typeof latex === 'string') {
                 try {
                     mf2.setValue(latex);
-                    if (!latex.trim()) {
+                    if (isEffectivelyEmptyLatex(latex)) {
                         reloadRenderedInputField();
                     }
                     scheduleMathFieldHeightRefresh();
@@ -3259,6 +3321,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         // Listen for changes from math-field
         if (mf2) {
             mf2.addEventListener('input', syncFromMathLive);
+            mf2.addEventListener('focus', () => { rawInputPreferred = false; });
         }
 
         // Listen for messages from iframe
@@ -3286,7 +3349,97 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         
         function render(){ syncFromMathLive(); }
 
+        function getRawLatexTextarea() {
+            try {
+                const iframeDoc = latexLiveIframe?.contentDocument || latexLiveIframe?.contentWindow?.document;
+                return iframeDoc?.getElementById('txta_input') || null;
+            } catch (err) {
+                console.warn('Unable to access raw LaTeX textarea:', err);
+                return null;
+            }
+        }
+
+        function attachRawTextareaListeners() {
+            if (rawTextareaListenersAttached) return;
+            const textarea = getRawLatexTextarea();
+            if (!textarea) return;
+            const updateSelection = () => {
+                try {
+                    const start = textarea.selectionStart ?? textarea.value.length;
+                    const end = textarea.selectionEnd ?? start;
+                    lastRawSelection = { start, end };
+                } catch (_) {}
+            };
+            const markRawFocus = () => {
+                rawInputPreferred = true;
+                updateSelection();
+            };
+            const markRawBlur = () => {
+                updateSelection();
+            };
+            textarea.addEventListener('focus', markRawFocus);
+            textarea.addEventListener('blur', markRawBlur);
+            ['keyup','mouseup','input','select'].forEach(evt => {
+                textarea.addEventListener(evt, updateSelection);
+            });
+            updateSelection();
+            rawTextareaListenersAttached = true;
+        }
+
+        const scheduleRawTextareaListenerAttach = () => {
+            try {
+                attachRawTextareaListeners();
+            } catch (_) {}
+        };
+        setTimeout(scheduleRawTextareaListenerAttach, 300);
+        if (latexLiveIframe) {
+            latexLiveIframe.addEventListener('load', () => {
+                rawTextareaListenersAttached = false;
+                setTimeout(scheduleRawTextareaListenerAttach, 100);
+            });
+        }
+
+        function insertIntoRawLatexTextarea(snippet) {
+            attachRawTextareaListeners();
+            const textarea = getRawLatexTextarea();
+            if (!textarea) return false;
+            
+            let start = textarea.selectionStart;
+            let end = textarea.selectionEnd;
+            if (typeof start !== 'number' || typeof end !== 'number') {
+                start = lastRawSelection.start ?? textarea.value.length;
+                end = lastRawSelection.end ?? start;
+            }
+            if (document.activeElement !== textarea && lastRawSelection) {
+                start = lastRawSelection.start ?? start;
+                end = lastRawSelection.end ?? end;
+                textarea.setSelectionRange(start, end);
+            }
+            const value = textarea.value || '';
+            const before = value.slice(0, start);
+            const after = value.slice(end);
+            const nextValue = before + snippet + after;
+            textarea.value = nextValue;
+            
+            const cursor = start + snippet.length;
+            textarea.setSelectionRange(cursor, cursor);
+            textarea.focus();
+            
+            try {
+                const win = textarea.ownerDocument?.defaultView || window;
+                const evt = new win.Event('input', { bubbles: true });
+                textarea.dispatchEvent(evt);
+            } catch (err) {
+                console.warn('Failed to dispatch raw input event:', err);
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            return true;
+        }
+
         function insertLatex(x){
+            if (rawInputPreferred && insertIntoRawLatexTextarea(x)) {
+                return;
+            }
             try{
                 if(mf2.executeCommand){ mf2.executeCommand('insert', x); }
                 else if(mf2.insert){ mf2.insert(x); }
@@ -3373,6 +3526,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
+                L = L.replace(new RegExp(String.raw`\\begin\{align\*?\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{align\*?\}`, "g"), '');
+                L = L.replace(new RegExp(String.raw`\\begin\{array\}(?:\{[^}]*\})?(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{array\}`, "g"), '');
+                L = L.replace(/\\begin\{align\*?\}([\s\S]*?)\\end\{align\*?\}/g, (match, body) => {
+                    const stripped = body
+                        .replace(/\\:|\\,|\\;|\\!|\\quad|\\qquad/g, '')
+                        .replace(/&|\\\\/g, '')
+                        .replace(/\s+/g, '');
+                    return stripped.length === 0 ? '' : match;
+                });
             } catch (e) {
                 console.warn('normalizeLatexStr normalization failed', e);
             }
