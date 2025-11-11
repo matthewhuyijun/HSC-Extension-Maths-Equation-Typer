@@ -933,6 +933,19 @@
     (function() {
       const SOURCE = 'mathstyper-sync';
       
+      const notifyParentEnvButton = () => {
+        try {
+          if (window.parent && window.parent !== window) {
+            window.parent.postMessage({
+              source: SOURCE,
+              type: 'envButtonUsed'
+            }, '*');
+          }
+        } catch (err) {
+          console.warn('Failed to notify parent about env button:', err);
+        }
+      };
+      
       function copyLatexToClipboard() {
         const textarea = document.getElementById('txta_input');
         const latex = textarea ? textarea.value : '';
@@ -1001,6 +1014,7 @@
             const cursorPos = start + '\\begin{array}{c}\n  '.length;
             textarea.setSelectionRange(cursorPos, cursorPos);
             textarea.focus();
+            notifyParentEnvButton();
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
           }
         });
@@ -1022,6 +1036,7 @@
             const cursorPos = start + '\\begin{align*}\n  '.length;
             textarea.setSelectionRange(cursorPos, cursorPos);
             textarea.focus();
+            notifyParentEnvButton();
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
           }
         });
@@ -1043,6 +1058,7 @@
             const cursorPos = start + text.length;
             textarea.setSelectionRange(cursorPos, cursorPos);
             textarea.focus();
+            notifyParentEnvButton();
             textarea.dispatchEvent(new Event('input', { bubbles: true }));
           }
         });

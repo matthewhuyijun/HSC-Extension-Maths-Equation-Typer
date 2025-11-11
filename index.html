@@ -3202,9 +3202,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 } catch (_) {}
             }
             if (typeof normalized !== 'string') return false;
-            const stripped = normalized
-                .replace(/\\placeholder\{\}/g, '')
-                .replace(/\s+/g, '');
+            const stripped = normalized.replace(/\s+/g, '');
             return stripped.length === 0;
         }
 
@@ -3224,9 +3222,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 if (typeof scheduleMathFieldHeightRefresh === 'function') {
                     scheduleMathFieldHeightRefresh();
                 }
-                requestAnimationFrame(() => {
-                    try { mf2.focus({ preventScroll: true }); } catch (_) {}
-                });
+                requestAnimationFrame(focusMathFieldIfAllowed);
             } catch (err) {
                 console.warn('Failed to reload rendered input field:', err);
             }
@@ -3343,6 +3339,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     } else {
                         showToast('No LaTeX to copy');
                     }
+                } else if (data.type === 'envButtonUsed') {
+                    focusRawLatexInput();
                 }
             }
         });
@@ -3446,6 +3444,25 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             });
         }
 
+        function focusRawLatexInput() {
+            attachRawTextareaListeners();
+            const textarea = getRawLatexTextarea();
+            if (!textarea) return;
+            try {
+                textarea.focus();
+                rawInputPreferred = true;
+            } catch (err) {
+                console.warn('Failed to focus raw textarea:', err);
+            }
+        }
+
+        function focusMathFieldIfAllowed() {
+            if (!mf2 || rawInputPreferred) return;
+            try {
+                mf2.focus({ preventScroll: true });
+            } catch (_) {}
+        }
+
         function insertLatex(x){
             if (rawInputPreferred && insertIntoRawLatexTextarea(x)) {
                 return;
@@ -3456,7 +3473,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 else { mf2.value = (mf2.value||'') + x; }
             }catch(e){}
             syncFromMathLive();
-            try{ mf2.focus(); }catch(e){}
+            focusMathFieldIfAllowed();
         }
         
         /* ========== Event Listener Setup ========== */
@@ -3520,7 +3537,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         /* ---------- Cleanup: delete object when all boxes emptied ---------- */
         function normalizeLatexStr(L) {
             try {
-                const EMPTY_SLOT = String.raw`\s*(?:\\placeholder\{\})?\s*`;
+                const EMPTY_SLOT = String.raw`\s*`;
                 const EMPTY_BRACE = String.raw`\{${EMPTY_SLOT}\}`;
                 const SPACING_CMDS = String.raw`(?:\\:|\\,|\\;|\\!|\\quad|\\qquad)`;
                 const EMPTY_CONTENT = String.raw`(?:${EMPTY_SLOT}|${SPACING_CMDS})*`;
@@ -3547,8 +3564,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                         .replace(/d[a-zA-Z]+/g, '')
                         .replace(/\\:|\\,|\\;|\\!|\\quad|\\qquad/g, '')
                         .replace(/&|\\\\/g, '')
-                        .replace(/\s+/g, '')
-                        .replace(/\\placeholder\{\}/g, '');
+                        .replace(/\s+/g, '');
                     return stripped.length === 0 ? '' : match;
                 });
             } catch (e) {
@@ -3807,6 +3823,26 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 ':.': '\\therefore'
             };
 
+
+            // Spacebar inserts \: to standardize math spacing
+            mf2.addEventListener('keydown', (ev) => {
+                if (ev.key === ' ' && !ev.altKey && !ev.ctrlKey && !ev.metaKey && !ev.shiftKey) {
+                    ev.preventDefault();
+                    try {
+                        if (mf2.executeCommand) {
+                            mf2.executeCommand('insert', '\\:');
+                        } else if (mf2.insert) {
+                            mf2.insert('\\:');
+                        } else {
+                            const current = mf2.value || '';
+                            mf2.value = current + '\\:';
+                        }
+                    } catch (err) {
+                        console.warn('Space insert failed:', err);
+                    }
+                    syncFromMathLive();
+                }
+            });
 
             // Typing behavior: allow free typing like Desmos (no auto-termination interception)
 
@@ -4487,7 +4523,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     }
                     
                 renderMathInPlace(mathContent);
-                try { mf2 && mf2.focus({ preventScroll: true }); setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0); } catch(_) {}
+                focusMathFieldIfAllowed();
+                setTimeout(focusMathFieldIfAllowed, 0);
                 });
 
                 mathContent.textContent=d.display;
@@ -4590,8 +4627,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }, 500);
 
             // Ensure math field remains active after interacting with tabs
-            try { mf2 && mf2.focus({ preventScroll: true }); } catch(_) {}
-            setTimeout(()=>{ try{ mf2 && mf2.focus({ preventScroll: true }); }catch(_){} }, 0);
+            focusMathFieldIfAllowed();
+            setTimeout(focusMathFieldIfAllowed, 0);
         }
         
         buildTabs(); // Build tabs early
@@ -4720,10 +4757,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                     }
                 }
                 
-                // Set initial focus to mathfield
-                try{ 
-                    mf2 && mf2.focus({ preventScroll: true }); 
-                }catch(_){}
+                // Set initial focus to mathfield (if user not in raw input)
+                focusMathFieldIfAllowed();
                 
                 // Note: Input event listener is already attached at line ~2820
             }
