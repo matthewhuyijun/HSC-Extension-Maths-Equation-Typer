@@ -643,6 +643,13 @@
         return textareaElement;
       };
 
+      const sanitizeTextareaValue = () => {
+        const textarea = getTextarea();
+        if (!textarea) return '';
+        const current = textarea.value || '';
+        return current;
+      };
+
       // Send latex changes to parent
       const notifyParent = (latex) => {
         if (syncInProgress) return;
@@ -698,14 +705,16 @@
         // Listen for input events
         textarea.addEventListener('input', function() {
           if (!syncInProgress) {
-            notifyParent(textarea.value);
+            const sanitized = sanitizeTextareaValue();
+            notifyParent(sanitized);
           }
         });
 
         // Also listen for change events as a fallback
         textarea.addEventListener('change', function() {
           if (!syncInProgress) {
-            notifyParent(textarea.value);
+            const sanitized = sanitizeTextareaValue();
+            notifyParent(sanitized);
           }
         });
       };
