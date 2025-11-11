@@ -3424,6 +3424,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             const cursor = start + snippet.length;
             textarea.setSelectionRange(cursor, cursor);
             textarea.focus();
+            rawInputPreferred = true;
             
             try {
                 const win = textarea.ownerDocument?.defaultView || window;
@@ -3434,6 +3435,15 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 textarea.dispatchEvent(new Event('input', { bubbles: true }));
             }
             return true;
+        }
+
+        function guardToolbarFocus(element) {
+            if (!element) return;
+            element.addEventListener('mousedown', (event) => {
+                if (rawInputPreferred) {
+                    event.preventDefault();
+                }
+            });
         }
 
         function insertLatex(x){
@@ -3512,6 +3522,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             try {
                 const EMPTY_SLOT = String.raw`\s*(?:\\placeholder\{\})?\s*`;
                 const EMPTY_BRACE = String.raw`\{${EMPTY_SLOT}\}`;
+                const SPACING_CMDS = String.raw`(?:\\:|\\,|\\;|\\!|\\quad|\\qquad)`;
+                const EMPTY_CONTENT = String.raw`(?:${EMPTY_SLOT}|${SPACING_CMDS})*`;
                 L = L.replace(new RegExp(String.raw`\\frac${EMPTY_BRACE}${EMPTY_BRACE}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\sqrt${EMPTY_BRACE}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\sqrt\[${EMPTY_SLOT}\]${EMPTY_BRACE}`, "g"), "");
@@ -3521,8 +3533,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 L = L.replace(rm('\\[', '\\]'), "");
                 L = L.replace(rm('\\{', '\\\\}'), "");
                 L = L.replace(rm('\\|', '\\|'), "");
-                L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_SLOT}(?:d[a-zA-Z]+)?`, "g"), "");
-                L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}${EMPTY_CONTENT}(?:d[a-zA-Z]+)?`, "g"), "");
+                L = L.replace(new RegExp(String.raw`\\int\s*${EMPTY_CONTENT}(?:d[a-zA-Z]+)?(?![_^])`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\lim_\{x\\to\s*${EMPTY_SLOT}\}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\lim_${EMPTY_BRACE}${EMPTY_SLOT}`, "g"), "");
                 L = L.replace(new RegExp(String.raw`\\begin\{pmatrix\}(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{pmatrix\}`, "g"), '');
@@ -3530,9 +3542,13 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 L = L.replace(new RegExp(String.raw`\\begin\{array\}(?:\{[^}]*\})?(?:${EMPTY_SLOT}|&|\\\\|\s)*\\end\{array\}`, "g"), '');
                 L = L.replace(/\\begin\{align\*?\}([\s\S]*?)\\end\{align\*?\}/g, (match, body) => {
                     const stripped = body
+                        .replace(new RegExp(String.raw`\\int_${EMPTY_BRACE}\^${EMPTY_BRACE}`, "g"), '')
+                        .replace(new RegExp(String.raw`\\int\s*${EMPTY_SLOT}?`, "g"), '')
+                        .replace(/d[a-zA-Z]+/g, '')
                         .replace(/\\:|\\,|\\;|\\!|\\quad|\\qquad/g, '')
                         .replace(/&|\\\\/g, '')
-                        .replace(/\s+/g, '');
+                        .replace(/\s+/g, '')
+                        .replace(/\\placeholder\{\}/g, '');
                     return stripped.length === 0 ? '' : match;
                 });
             } catch (e) {
@@ -4475,6 +4491,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
                 });
 
                 mathContent.textContent=d.display;
+                guardToolbarFocus(key);
                 key.addEventListener('click', event=>{ if(event.target!==selector) insertLatex(d.insert); });
 
                 // Add hover expansion functionality
@@ -4511,6 +4528,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             }
             mathSpan.textContent=d.display;
             key.appendChild(mathSpan);
+            guardToolbarFocus(key);
             key.addEventListener('click',()=>insertLatex(d.insert));
             
             // Add hover expansion functionality
