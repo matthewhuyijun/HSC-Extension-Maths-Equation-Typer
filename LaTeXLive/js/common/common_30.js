@@ -1,2 +1,1 @@
-
-document.body.removeChild(document.getElementById("common_30"));
+// Empty file, removal of self-deletion code.
