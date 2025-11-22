@@ -5,110 +5,120 @@ var headCommon = {
       headCommon.preLoadMathJax();
     }
     headCommon.googleads();
-    document.body.removeChild(document.getElementById("common_10"));
   },
   loadingAnimate: function () {
-    document.writeln("<style>");
-    document.writeln("    /* #region加载动画 */");
-    document.writeln("    #loading {");
-    document.writeln("      background-color: #337ab7;");
-    document.writeln("      height: 100%;");
-    document.writeln("      width: 100%;");
-    document.writeln("      position: fixed;");
-    document.writeln("      z-index: 1070;");
-    document.writeln("      margin-top: 0;");
-    document.writeln("      top: 0;");
-    document.writeln("      opacity: 1;");
-    document.writeln("    }");
-    document.writeln("");
-    document.writeln("    #loading-center {");
-    document.writeln("      width: 100%;");
-    document.writeln("      height: 100%;");
-    document.writeln("      position: relative;");
-    document.writeln("    }");
-    document.writeln("");
-    document.writeln("    #loading-center-absolute {");
-    document.writeln("      position: absolute;");
-    document.writeln("      left: 50%;");
-    document.writeln("      top: 50%;");
-    document.writeln("      height: 200px;");
-    document.writeln("      width: 200px;");
-    document.writeln("      margin-top: -100px;");
-    document.writeln("      margin-left: -100px;");
-    document.writeln("    }");
-    document.writeln("");
-    document.writeln("    #loading-object {");
-    document.writeln("      width: 80px;");
-    document.writeln("      height: 80px;");
-    document.writeln("      background-color: #fff;");
-    document.writeln("      -webkit-animation: animate 1s infinite ease-in-out;");
-    document.writeln("      animation: animate 1s infinite ease-in-out;");
-    document.writeln("      margin-right: auto;");
-    document.writeln("      margin-left: auto;");
-    document.writeln("      margin-top: 60px;");
-    document.writeln("    }");
-    document.writeln("");
-    document.writeln("    @-webkit-keyframes animate {");
-    document.writeln("      0% {");
-    document.writeln("        -webkit-transform: perspective(160px);");
-    document.writeln("      }");
-    document.writeln("");
-    document.writeln("      50% {");
-    document.writeln("        -webkit-transform: perspective(160px) rotateY(-180deg);");
-    document.writeln("      }");
-    document.writeln("");
-    document.writeln("      100% {");
-    document.writeln("        -webkit-transform: perspective(160px) rotateY(-180deg) rotateX(-180deg);");
-    document.writeln("      }");
-    document.writeln("    }");
-    document.writeln("");
-    document.writeln("    @keyframes animate {");
-    document.writeln("      0% {");
-    document.writeln("        transform: perspective(160px) rotateX(0deg) rotateY(0deg);");
-    document.writeln("        -webkit-transform: perspective(160px) rotateX(0deg) rotateY(0deg);");
-    document.writeln("      }");
-    document.writeln("");
-    document.writeln("      50% {");
-    document.writeln("        transform: perspective(160px) rotateX(-180deg) rotateY(0deg);");
-    document.writeln("        -webkit-transform: perspective(160px) rotateX(-180deg) rotateY(0deg);");
-    document.writeln("      }");
-    document.writeln("");
-    document.writeln("      100% {");
-    document.writeln("        transform: perspective(160px) rotateX(-180deg) rotateY(-180deg);");
-    document.writeln("        -webkit-transform: perspective(160px) rotateX(-180deg) rotateY(-180deg);");
-    document.writeln("      }");
-    document.writeln("    }");
-    document.writeln("");
-    document.writeln("    /* #endregion */");
-    document.writeln("  </style>");
+    var style = document.createElement('style');
+    style.innerHTML = `
+    /* #region加载动画 */
+    #loading {
+      background-color: #337ab7;
+      height: 100%;
+      width: 100%;
+      position: fixed;
+      z-index: 1070;
+      margin-top: 0;
+      top: 0;
+      opacity: 1;
+    }
+
+    #loading-center {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+
+    #loading-center-absolute {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      height: 200px;
+      width: 200px;
+      margin-top: -100px;
+      margin-left: -100px;
+    }
+
+    #loading-object {
+      width: 80px;
+      height: 80px;
+      background-color: #fff;
+      -webkit-animation: animate 1s infinite ease-in-out;
+      animation: animate 1s infinite ease-in-out;
+      margin-right: auto;
+      margin-left: auto;
+      margin-top: 60px;
+    }
+
+    @-webkit-keyframes animate {
+      0% {
+        -webkit-transform: perspective(160px);
+      }
+
+      50% {
+        -webkit-transform: perspective(160px) rotateY(-180deg);
+      }
+
+      100% {
+        -webkit-transform: perspective(160px) rotateY(-180deg) rotateX(-180deg);
+      }
+    }
+
+    @keyframes animate {
+      0% {
+        transform: perspective(160px) rotateX(0deg) rotateY(0deg);
+        -webkit-transform: perspective(160px) rotateX(0deg) rotateY(0deg);
+      }
+
+      50% {
+        transform: perspective(160px) rotateX(-180deg) rotateY(0deg);
+        -webkit-transform: perspective(160px) rotateX(-180deg) rotateY(0deg);
+      }
+
+      100% {
+        transform: perspective(160px) rotateX(-180deg) rotateY(-180deg);
+        -webkit-transform: perspective(160px) rotateX(-180deg) rotateY(-180deg);
+      }
+    }
+
+    /* #endregion */
+    `;
+    document.head.appendChild(style);
   },
   preLoadMathJax: function () {
-    document.writeln("<script>");
-    document.writeln("    window.MathJax = {");
-    document.writeln("      options: {");
-    document.writeln("        ignoreHtmlClass: 'ig',");
-    document.writeln("        renderActions: {");
-    document.writeln("          addMenu: [0, '', ''],");
-    document.writeln("        },");
-    document.writeln("      },");
-    document.writeln("      tex: {");
-    document.writeln("        packages: {");
-    document.writeln("          '[+]': ['physics'],");
-    document.writeln("        },");
-    document.writeln("        inlineMath: [");
-    document.writeln("          ['$', '$'],");
-    document.writeln("          ['////(', '////)'],");
-    document.writeln("        ],");
-    document.writeln("      },");
-    document.writeln("    };");
-    document.writeln("  </script>");
-    // document.writeln("  <script src='https://polyfill.io/v3/polyfill.min.js?features=es6'></script>");
-    document.writeln("  <script id='MathJax-script' async src='https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js'></script>");
+    var script = document.createElement('script');
+    script.innerHTML = `
+    window.MathJax = {
+      options: {
+        ignoreHtmlClass: 'ig',
+        renderActions: {
+          addMenu: [0, '', ''],
+        },
+      },
+      tex: {
+        packages: {
+          '[+]': ['physics'],
+        },
+        inlineMath: [
+          ['$', '$'],
+          ['////(', '////)'],
+        ],
+      },
+    };
+    `;
+    document.head.appendChild(script);
+
+    var mjScript = document.createElement('script');
+    mjScript.id = 'MathJax-script';
+    mjScript.async = true;
+    mjScript.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js';
+    document.head.appendChild(mjScript);
   },
   googleads: function () {
     if (Environment != "development") {
-      document.writeln("  <script data-ad-client='ca-pub-4786420636728190' async");
-      document.writeln("    src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'></script>");
+        var script = document.createElement('script');
+        script.dataset.adClient = 'ca-pub-4786420636728190';
+        script.async = true;
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+        document.head.appendChild(script);
     }
   },
 };

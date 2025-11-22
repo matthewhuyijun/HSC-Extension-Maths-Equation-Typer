@@ -1,26 +1,92 @@
 
+function loadScript(src, type, async) {
+    return new Promise(function (resolve, reject) {
+        var s = document.createElement('script');
+        s.src = src;
+        if (type) s.type = type;
+        if (async !== undefined) s.async = async;
+        s.onload = resolve;
+        s.onerror = reject;
+        document.body.appendChild(s);
+    });
+}
 
-document.writeln("<script src='" + boot_body + "/lib/JQuery-3.4.1/jquery-3.4.1.min.js'></script>");
-document.writeln("<script src='" + boot_body + "/lib/bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js'></script>");
+function loadScriptHtml(html) {
+    // Parse HTML string like "<script src='...'></script>"
+    var div = document.createElement('div');
+    div.innerHTML = html;
+    var script = div.querySelector('script');
+    if (script) {
+        return loadScript(script.src, script.type || undefined, false); // Default to sync-like loading for safety in this legacy context
+    }
+    return Promise.resolve();
+}
+
+// Ensure boot_body is available (from global window object set in common_05.js)
+var boot_body = window.boot_body || Config[Environment].Boot_OSS;
+var ver_body = window.ver_body || Config[Environment].Version;
+var js_body = window.js_body || Config[Environment].MainJS[window.page_type];
+var page_type = window.page_type || document.getElementById("common_config").dataset.pagetype;
+
+// Load JQuery and Bootstrap first
+loadScript(boot_body + "/lib/JQuery-3.4.1/jquery-3.4.1.min.js")
+    .then(function () {
+        return loadScript(boot_body + "/lib/bootstrap-4.3.1-dist/js/bootstrap.bundle.min.js");
+    })
+    .then(function () {
+        // Initialize scriptLoader
+        scriptLoader.init();
+    })
+    .catch(function (err) {
+        console.error("Failed to load base scripts", err);
+    });
 
 var scriptLoader = {
+  // Use structured objects instead of strings for better control
   script_list: {
-    latex: ["<script src='" + boot_body + "/lib/tippy/popper.min.js'></script>", "<script src='" + boot_body + "/lib/tippy/tippy-bundle.umd.min.js'></script>", "<script src='" + boot_body + "/lib/caret/caret.js'></script>", "<script src='" + boot_body + js_body + "?ver=" + ver_body + "' type='module'></script>"],
-    readme: ["<script src='" + boot_body + js_body + "?ver=" + ver_body + "' type='module'></script>"],
-    update: ["<script src='" + boot_body + js_body + "?ver=" + ver_body + "' type='module'></script>"],
-    messageboard: ["<script src='" + boot_body + "/lib/wangEditor/wangEditor.min.js'></script>", "<script src='" + boot_body + js_body + "?ver=" + ver_body + "' type='module'></script>"],
-    login: ["<script src='" + boot_body + "/lib/MD5/md5.js'></script>", "<script src='" + boot_body + "/lib/gVerify/gVerify.js'></script>", "<script src='" + boot_body + js_body + "?ver=" + ver_body + "' type='module'></script>"],
-    personal: ["<script src='" + boot_body + "/lib/MD5/md5.js'></script>", "<script src='" + boot_body + js_body + "?ver=" + ver_body + "' type='module'></script>"],
+    latex: [
+        { src: boot_body + "/lib/tippy/popper.min.js" },
+        { src: boot_body + "/lib/tippy/tippy-bundle.umd.min.js" },
+        { src: boot_body + "/lib/caret/caret.js" },
+        { src: boot_body + js_body + "?ver=" + ver_body, type: 'module' }
+    ],
+    readme: [
+        { src: boot_body + js_body + "?ver=" + ver_body, type: 'module' }
+    ],
+    update: [
+        { src: boot_body + js_body + "?ver=" + ver_body, type: 'module' }
+    ],
+    messageboard: [
+        { src: boot_body + "/lib/wangEditor/wangEditor.min.js" },
+        { src: boot_body + js_body + "?ver=" + ver_body, type: 'module' }
+    ],
+    login: [
+        { src: boot_body + "/lib/MD5/md5.js" },
+        { src: boot_body + "/lib/gVerify/gVerify.js" },
+        { src: boot_body + js_body + "?ver=" + ver_body, type: 'module' }
+    ],
+    personal: [
+        { src: boot_body + "/lib/MD5/md5.js" },
+        { src: boot_body + js_body + "?ver=" + ver_body, type: 'module' }
+    ],
   },
   init: function () {
     if (scriptLoader.isIE()) {
-      document.getElementById("isJavaScript").style.display = "none";
-      document.getElementById("ifIE-show").style.display = "block";
+      var jsDiv = document.getElementById("isJavaScript");
+      if(jsDiv) jsDiv.style.display = "none";
+
+      var ieDiv = document.getElementById("ifIE-show");
+      if(ieDiv) ieDiv.style.display = "block";
+
       document.body.style.overflowY = "hidden";
       return false;
     } else {
-      document.getElementById("isJavaScript").remove();
-      document.getElementById("ifIE-show").remove();
+      var jsDiv = document.getElementById("isJavaScript");
+      if(jsDiv) jsDiv.remove();
+
+      var ieDiv = document.getElementById("ifIE-show");
+      if(ieDiv) ieDiv.remove();
+
       //更新标题中的版本号
       var verElement = document.getElementById("ver_h1");
       if (verElement) {
@@ -29,7 +95,6 @@ var scriptLoader = {
       //加载body资源
       scriptLoader.loadOuterScript();
       scriptLoader.googleads();
-      document.body.removeChild(document.getElementById("common_50"));
     }
   },
   isIE: function () {
@@ -62,24 +127,27 @@ var scriptLoader = {
   },
   loadOuterScript: function () {
     let array = scriptLoader.script_list[page_type];
-    array.forEach((script) => {
-      document.writeln(script);
+    if (!array) return;
+
+    // Load scripts sequentially
+    var promise = Promise.resolve();
+    array.forEach(function (scriptObj) {
+        promise = promise.then(function () {
+            return loadScript(scriptObj.src, scriptObj.type, false);
+        });
     });
   },
   googleads: function () {
     if (Environment != "development") {
-      document.writeln("<script async src='https://www.googletagmanager.com/gtag/js?id=UA-164353536-1'></script>");
-      document.writeln("  <script>");
-      document.writeln("    window.dataLayer = window.dataLayer || [];");
-      document.writeln("    function gtag() {");
-      document.writeln("      dataLayer.push(arguments);");
-      document.writeln("    }");
-      document.writeln("    gtag('js', new Date());");
-      document.writeln("");
-      document.writeln("    gtag('config', 'UA-164353536-1');");
-      document.writeln("  </script>");
+        loadScript("https://www.googletagmanager.com/gtag/js?id=UA-164353536-1", undefined, true)
+            .then(function() {
+                window.dataLayer = window.dataLayer || [];
+                function gtag() {
+                  dataLayer.push(arguments);
+                }
+                gtag('js', new Date());
+                gtag('config', 'UA-164353536-1');
+            });
     }
   },
 };
-
-scriptLoader.init();
