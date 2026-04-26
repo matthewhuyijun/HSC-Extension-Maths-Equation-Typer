@@ -3042,7 +3042,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         html.setAttribute('data-theme', resolved);
         html.style.colorScheme = resolved;
         localStorage.setItem(THEME_STORAGE_KEY, mode);
-        broadcastIframeTheme(mode);
+        window.__broadcastLatexIframeTheme(mode);
       };
       
       const saved = localStorage.getItem(THEME_STORAGE_KEY) || 'system';
@@ -3366,8 +3366,8 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             };
 
             const fallbackRender = () => {
-                previewBox.innerHTML = '<div style="color: #888; font-size: 14px; display: block; text-align: center;">' +
-                    .replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</div>';
+                const safe = latexForRender.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                previewBox.innerHTML = `<div style="color: #888; font-size: 14px; text-align: center;">\\[${safe}\\]</div>`;
             };
 
             const renderer = renderWithMathJax();
