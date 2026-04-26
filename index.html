@@ -2904,15 +2904,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
             </div>
           </div>
           <div class="function-item">
-            <div class="function-icon">
-              <i data-lucide="code-xml"></i>
-            </div>
-            <div class="function-info">
-              <h3>Copy MathML</h3>
-              <p>Runs the MathJax/Plurimath-style converter and copies Word-friendly MathML for pasting into apps that prefer semantic math markup.</p>
-            </div>
-          </div>
-          <div class="function-item">
             <a href="https://github.com/matthewhuyijun/HSC-Extension-Maths-Equation-Typer" target="_blank" rel="noopener noreferrer" class="function-icon function-link" aria-label="Open GitHub repository">
               <i data-lucide="github"></i>
             </a>
@@ -3111,10 +3102,6 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
         <div class="io-section io-rendered">
           <div class="io-label-row">
             <label class="io-label" for="mf2" id="rendered-label" style="cursor: pointer;">Rendered Input (Editable)</label>
-            <div class="io-label-actions" role="group" aria-label="Rendered input copy actions">
-              <button class="env-button" id="renderedCopyMathMLBtn" type="button" aria-label="Copy MathML">MathML</button>
-              <button class="env-button" id="renderedUnicodeBtn" type="button" aria-label="Open Unicode converter">Unicode</button>
-            </div>
           </div>
           <math-field id="mf2"></math-field>
       </div>
@@ -4929,25 +4916,7 @@ html[data-theme="dark"] .theme-toggle button[aria-pressed="true"] {
           });
         }
 
-        const renderedCopyMathMLButton = document.getElementById('renderedCopyMathMLBtn');
-        if (renderedCopyMathMLButton) {
-          renderedCopyMathMLButton.addEventListener('click', () => {
-            copyMathMLFromEditor();
-          });
-        }
 
-        const renderedUnicodeButton = document.getElementById('renderedUnicodeBtn');
-        if (renderedUnicodeButton) {
-          renderedUnicodeButton.addEventListener('click', async () => {
-            const latex = getLatex();
-            if (!latex) {
-              showToast('No LaTeX to copy');
-              return;
-            }
-            await copyMathMLFromEditor();
-            window.open('https://www.plurimath.org/demo/', '_blank', 'noopener');
-          });
-        }
         // Functions Help Modal
         const functionsBtn = document.getElementById('functionsBtn');
         const functionsModal = document.getElementById('functionsModal');
