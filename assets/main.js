@@ -309,6 +309,7 @@
                 useSoftTabs: true,
                 enableBasicAutocompletion: true,
                 enableLiveAutocompletion: true,
+                disablePopupAutocomplete: true,
                 minLines: 5,
                 maxLines: 25,
             });
